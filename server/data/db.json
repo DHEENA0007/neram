@@ -1,0 +1,133 @@
+{
+  "users": [
+    {
+      "id": "eb39354b-51de-4a24-9a42-48d561e9b694",
+      "username": "admin",
+      "name": "System Admin",
+      "role": "admin",
+      "active": true,
+      "defaultPlace": null,
+      "passwordHash": "$2a$10$dQv5eIaEW3JPAZz.33g4Hu3hJvgDK5dHBPYgYtVhbWfwEpDQ09qC.",
+      "createdAt": "2026-04-08T10:06:33.222Z",
+      "updatedAt": "2026-04-08T10:06:33.222Z"
+    },
+    {
+      "id": "892ee2ee-9ef1-4e8f-92cb-530c3f2c2b6f",
+      "username": "dheena",
+      "name": "dheena",
+      "role": "user",
+      "active": true,
+      "defaultPlace": null,
+      "passwordHash": "$2a$10$54YHG63pNMdDdDInOBhJZeDuJeTNHZ7bvPl0STEkLQy5HatvsaunO",
+      "createdAt": "2026-04-08T16:08:47.178Z",
+      "updatedAt": "2026-04-08T16:08:47.178Z"
+    }
+  ],
+  "palangal": [
+    {
+      "id": "4a942042-85d5-4cc9-9297-58ab71881015",
+      "activityKey": "ruling",
+      "relationKey": "friend",
+      "text": "அனைத்து காரியங்களிலும் முழு வெற்றி கிடைக்கும். சுப காரியங்களுக்கு மிகவும் உகந்த நேரம். தைரியமாக முன்னேறலாம்.",
+      "updatedAt": "2026-04-08T17:23:09.109Z"
+    },
+    {
+      "id": "b050d2c9-d87b-4680-9adf-b190ce96f35b",
+      "activityKey": "ruling",
+      "relationKey": "same",
+      "text": "சாதாரண பலன் கிடைக்கும். வழக்கமான காரியங்கள் செய்யலாம். முக்கிய முடிவுகள் சற்று தள்ளி வைக்கவும்.",
+      "updatedAt": "2026-04-08T17:23:09.109Z"
+    },
+    {
+      "id": "bb17ac06-e61e-4607-a1c7-fd7aae78b8c2",
+      "activityKey": "ruling",
+      "relationKey": "enemy",
+      "text": "தடைகளும் எதிர்ப்புகளும் உண்டாகும். காரியங்கள் தாமதமாகும். பொறுமையுடன் காத்திருக்கவும்.",
+      "updatedAt": "2026-04-08T17:23:09.109Z"
+    },
+    {
+      "id": "d2c093a3-673f-427c-afcc-af5af5146a8f",
+      "activityKey": "eating",
+      "relationKey": "friend",
+      "text": "நல்ல பலன் கிடைக்கும். உணவு, வியாபாரம் சம்பந்தமான காரியங்களுக்கு ஏற்ற நேரம். ஆதாயம் உண்டாகும்.",
+      "updatedAt": "2026-04-08T17:23:09.109Z"
+    },
+    {
+      "id": "7e9c47ae-a0d6-40f2-800a-e77804c4983b",
+      "activityKey": "eating",
+      "relationKey": "same",
+      "text": "சாதாரண பலன். அன்றாட தேவையான காரியங்கள் மட்டும் செய்யவும். புதிய முயற்சிகள் பின்னர் தொடங்கலாம்.",
+      "updatedAt": "2026-04-08T17:23:09.109Z"
+    },
+    {
+      "id": "716359e4-8f2d-4ac7-bc76-4bf526ac63e8",
+      "activityKey": "eating",
+      "relationKey": "enemy",
+      "text": "இழப்புகள் உண்டாகலாம். பணம் சம்பந்தமான காரியங்கள் தவிர்க்கவும். கவனமாக இருக்கவும்.",
+      "updatedAt": "2026-04-08T17:23:09.110Z"
+    },
+    {
+      "id": "e0ec68aa-302c-41fd-be69-1887edfe56bb",
+      "activityKey": "walking",
+      "relationKey": "friend",
+      "text": "பயணம், தொழில் காரியங்களுக்கு நல்ல நேரம். நடைப்பயிற்சி, சந்திப்புகள் சாதகமாக அமையும். வெற்றி நிச்சயம்.",
+      "updatedAt": "2026-04-08T17:23:09.110Z"
+    },
+    {
+      "id": "b72ce721-218a-44d8-8308-a4770c9843e5",
+      "activityKey": "walking",
+      "relationKey": "same",
+      "text": "சாதாரண பலன். நடை மற்றும் வழக்கமான காரியங்கள் செய்யலாம். பெரிய முயற்சிகள் தேவையில்லை.",
+      "updatedAt": "2026-04-08T17:23:09.110Z"
+    },
+    {
+      "id": "89113c35-bb20-444f-9c42-845a05d2d075",
+      "activityKey": "walking",
+      "relationKey": "enemy",
+      "text": "பயணம் தவிர்க்கவும். எதிர்ப்புகளும் தடைகளும் வரலாம். முக்கிய காரியங்கள் மற்றொரு நேரத்தில் செய்யவும்.",
+      "updatedAt": "2026-04-08T17:23:09.111Z"
+    },
+    {
+      "id": "862cf1b7-6dca-4297-8bfb-ee5637698f09",
+      "activityKey": "sleeping",
+      "relationKey": "friend",
+      "text": "ஓய்வு எடுக்க உகந்த நேரம். தியானம், ஆன்மீக சாதனைகளுக்கு ஏற்றது. அவசர காரியங்கள் தவிர்க்கவும்.",
+      "updatedAt": "2026-04-08T17:23:09.111Z"
+    },
+    {
+      "id": "f06e6b42-9136-4549-89c7-c490c8dddc22",
+      "activityKey": "sleeping",
+      "relationKey": "same",
+      "text": "சாதாரண நேரம். ஓய்வு மற்றும் வழக்கமான காரியங்கள் செய்யலாம். முக்கிய செயல்கள் இப்போது வேண்டாம்.",
+      "updatedAt": "2026-04-08T17:23:09.111Z"
+    },
+    {
+      "id": "f4452924-7c59-4492-ad98-e35aaf17927c",
+      "activityKey": "sleeping",
+      "relationKey": "enemy",
+      "text": "முக்கிய காரியங்கள் தொடங்க வேண்டாம். உடல் நலத்தில் கவனம் தேவை. ஓய்வெடுத்து அடுத்த நேரம் காக்கவும்.",
+      "updatedAt": "2026-04-08T17:23:09.111Z"
+    },
+    {
+      "id": "04668ab7-3fcf-41f7-b5ef-1030c97898bf",
+      "activityKey": "dying",
+      "relationKey": "friend",
+      "text": "கவனமாக இருக்கவும். புதிய காரியங்கள் தொடங்க வேண்டாம். ஆன்மீக பிரார்த்தனை செய்வது நலம்.",
+      "updatedAt": "2026-04-08T17:23:09.111Z"
+    },
+    {
+      "id": "fc176d6d-5014-4d82-9873-6da85c55e5d8",
+      "activityKey": "dying",
+      "relationKey": "same",
+      "text": "மிகவும் கவனம் தேவை. முக்கிய காரியங்கள் கண்டிப்பாக தவிர்க்கவும். இந்த நேரம் கடந்து செல்லட்டும்.",
+      "updatedAt": "2026-04-08T17:23:09.111Z"
+    },
+    {
+      "id": "7c498db9-ca14-438b-835d-c2cc8fd59d5e",
+      "activityKey": "dying",
+      "relationKey": "enemy",
+      "text": "மிகவும் அசுபமான நேரம். எந்த புதிய செயலும் தொடங்காதீர்கள். இறைவனை வேண்டிக்கொண்டு ஓய்வெடுக்கவும்.",
+      "updatedAt": "2026-04-08T17:23:09.111Z"
+    }
+  ]
+}
