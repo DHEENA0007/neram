@@ -25,7 +25,10 @@ export function DashboardPage() {
           <p className="admin-eyebrow">நிர்வாக முகப்பு · Admin Overview</p>
           <h1 className="admin-page-title">Dashboard</h1>
         </div>
-        <p className="admin-page-sub">Welcome back, {user?.name || user?.username}</p>
+        <div className="text-right">
+            <p className="admin-page-sub">Welcome back, <strong>{user?.name || user?.username}</strong></p>
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">System Health: Optimal</p>
+        </div>
       </div>
 
       <div className="dash-stats">
@@ -54,22 +57,22 @@ export function DashboardPage() {
       <div className="dash-quick">
         <h2 className="dash-section-title">Navigation Shortcuts · விரைவு செயல்கள்</h2>
         <div className="dash-quick-grid">
-          <Link to="/admin/users" className="dash-quick-card">
+          <Link to="/admin/users" className="dash-quick-card group">
             <span className="dash-quick-icon"><IconUserPlus size={22} /></span>
             <strong>Manage Users</strong>
             <span>Create & edit app users</span>
           </Link>
-          <Link to="/admin/palangal" className="dash-quick-card">
+          <Link to="/admin/palangal" className="dash-quick-card group">
             <span className="dash-quick-icon"><IconList size={22} /></span>
             <strong>Configure Palangal</strong>
             <span>Setup prediction texts</span>
           </Link>
-          <Link to="/admin/settings" className="dash-quick-card">
+          <Link to="/admin/settings" className="dash-quick-card group">
             <span className="dash-quick-icon"><IconSettings size={22} /></span>
             <strong>Profile Settings</strong>
             <span>Update your credentials</span>
           </Link>
-          <Link to="/user" className="dash-quick-card">
+          <Link to="/user" className="dash-quick-card group">
             <span className="dash-quick-icon"><IconSun size={22} /></span>
             <strong>User Portal</strong>
             <span>View public schedule</span>
@@ -79,22 +82,26 @@ export function DashboardPage() {
 
       <div className="dash-info">
         <h2 className="dash-section-title">System Status · கணினித் தகவல்</h2>
-        <div className="dash-info-card" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', gap: '2rem', alignItems: 'center' }}>
+        <div className="ap-card" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', gap: '2rem', alignItems: 'center' }}>
           <div>
-            <p>
-              The Neram workstation is currently managing <strong>{total} users</strong> across the Panchapakshi platform. 
-              The prediction engine is utilizing <strong>{palangalCount} active rules</strong> to generate sunrise-linked tables.
+            <p className="text-lg font-medium text-slate-700 leading-relaxed">
+              The Neram workstation is currently managing <strong className="text-slate-900">{total} users</strong> across the Panchapakshi platform. 
+              The prediction engine is utilizing <strong className="text-slate-900">{palangalCount} active rules</strong> to generate sunrise-linked tables.
             </p>
-            <p style={{ marginTop: '.75rem', fontSize: '.85rem' }} className="muted">
-              Last system health check: Just now. All services operational.
-            </p>
+            <div style={{ marginTop: '1.5rem', display: 'flex', alignItems: 'center', gap: '.5rem' }}>
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-tighter">
+                   Last system health check: Just now. All services operational.
+                </span>
+            </div>
           </div>
-          <div style={{ padding: '1rem', background: 'rgba(15,118,110,.08)', borderRadius: '14px', textAlign: 'center' }}>
-            <IconInfo size={32} style={{ color: 'var(--accent)', marginBottom: '.5rem' }} />
-            <div style={{ fontSize: '.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--accent)' }}>v1.2.0 Stable</div>
+          <div style={{ padding: '2rem', background: 'rgba(245,158,11,.05)', borderRadius: '2rem', textAlign: 'center', border: '1px solid rgba(245,158,11,.1)' }}>
+            <IconInfo size={32} className="text-amber-500 mb-2 mx-auto" />
+            <div className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-600">v1.2.0 Stable</div>
           </div>
         </div>
       </div>
     </div>
   );
 }
+

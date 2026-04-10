@@ -129,8 +129,8 @@ export function UserPortal() {
         onUpdateBird={(id) => setBirdId(String(id))} 
       />
 
-      <section className="glass-card p-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <section className="glass-card p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="flex flex-col gap-2">
             <label className="text-sm font-bold text-slate-500 uppercase tracking-wider">{t.date}</label>
             <div className="flex gap-2">
@@ -205,9 +205,9 @@ export function UserPortal() {
             </div>
           </div>
 
-          <div className="flex items-end justify-end md:pt-4">
+          <div className="flex items-end justify-end md:pt-2">
             <button 
-              className="btn-primary w-full py-4 text-lg shadow-xl shadow-yellow-500/30" 
+              className="btn-primary w-full py-3 text-sm shadow-xl shadow-yellow-500/20" 
               onClick={handleSubmit} 
               disabled={loading}
             >
@@ -261,10 +261,10 @@ export function UserPortal() {
         </div>
       ) : (
         !loading && (
-          <section className="py-24 text-center glass-card bg-transparent border-dashed border-2 border-yellow-200">
-            <div className="text-4xl mb-4">✨</div>
-            <h2 className="text-2xl font-black text-slate-800 mb-2">{t.readyTitle}</h2>
-            <p className="text-slate-500 max-w-xs mx-auto leading-relaxed">{t.readyBody}</p>
+          <section className="py-12 text-center glass-card bg-transparent border-dashed border-2 border-amber-200">
+            <div className="text-3xl mb-3">✨</div>
+            <h2 className="text-xl font-black text-slate-800 mb-1">{t.readyTitle}</h2>
+            <p className="text-sm text-slate-500 max-w-xs mx-auto leading-relaxed">{t.readyBody}</p>
           </section>
         )
       )}

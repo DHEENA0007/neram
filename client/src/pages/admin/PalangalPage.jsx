@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { loadPalangal, savePalangal, createPalangal, deletePalangal } from '../../api.js';
 import { birdOptions, activityOptions, relationOptions, effectOptions } from '../../shared/constants.js';
-import { IconCheck, IconInfo, IconBan } from '../../components/Icons.jsx';
+import { IconCheck, IconInfo, IconBan, IconList } from '../../components/Icons.jsx';
 
 export function PalangalPage() {
   const [palangal, setPalangal] = useState([]);
@@ -91,17 +91,21 @@ export function PalangalPage() {
           <p className="admin-eyebrow">பலன் மேலாண்மை · Engine Config</p>
           <h1 className="admin-page-title">Palangal · பலன்கள்</h1>
         </div>
-        <p className="admin-page-sub">
-          {palangal.length} dynamic prediction rules
-        </p>
+        <div className="text-right">
+            <p className="admin-page-sub">
+            {palangal.length} dynamic prediction rules
+            </p>
+        </div>
       </div>
 
-      <div className="ap-card" style={{ marginBottom: '1.5rem', borderLeft: '4px solid var(--accent)', background: 'rgba(15,118,110,.04)' }}>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-          <IconInfo size={20} style={{ color: 'var(--accent)', marginTop: '2px' }} />
+      <div className="ap-card" style={{ marginBottom: '2rem', borderLeft: '4px solid var(--color-amber-500)', background: 'rgba(245,158,11,.03)' }}>
+        <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>
+          <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
+            <IconInfo size={20} className="text-amber-600" />
+          </div>
           <div>
-            <p style={{ fontWeight: 600, fontSize: '.9rem' }}>Advanced Rule Priority</p>
-            <p className="muted" style={{ fontSize: '.82rem', marginTop: '.2rem' }}>
+            <p className="text-sm font-black text-slate-800 uppercase tracking-widest">Advanced Rule Priority</p>
+            <p className="text-xs text-slate-500 font-medium mt-1 leading-relaxed">
               The engine prioritizes rules based on specificity. <strong>Bird</strong> rules have highest priority, 
               followed by <strong>Effect</strong>, then <strong>Time (Yama/Sub-period)</strong>. General rules are used as fallbacks.
             </p>
@@ -109,67 +113,76 @@ export function PalangalPage() {
         </div>
       </div>
 
-      <div className="palangal-layout" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 340px', gap: '1.5rem', alignItems: 'start' }}>
+      <div className="palangal-layout" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 360px', gap: '2rem', alignItems: 'start' }}>
         
         {/* Rules List */}
-        <div className="rules-list-container">
+        <div className="rules-list-container space-y-4">
           {loading ? (
-             <div className="ap-card" style={{ padding: '4rem', textAlign: 'center', color: 'var(--muted)' }}>Loading rules...</div>
+             <div className="ap-card text-center py-20 text-slate-400 font-medium">Loading rules...</div>
           ) : palangal.length === 0 ? (
-             <div className="ap-card" style={{ padding: '4rem', textAlign: 'center', color: 'var(--muted)' }}>No rules defined yet.</div>
+             <div className="ap-card text-center py-20 text-slate-400 font-medium">No rules defined yet.</div>
           ) : (
-            <div style={{ display: 'grid', gap: '1rem' }}>
+            <div style={{ display: 'grid', gap: '1.5rem' }}>
               {palangal.map((p) => {
                 const isDirty = drafts[p.id] !== p.text;
                 const isSaving = saving[p.id];
                 const isSaved = saved[p.id];
                 
                 return (
-                  <div key={p.id} className="ap-card palangal-item-dynamic" style={{ padding: '1.25rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-                      <div style={{ display: 'flex', gap: '.5rem', flexWrap: 'wrap' }}>
-                        <span className="relation-badge" style={{ background: 'rgba(15,118,110,.1)', color: 'var(--accent)' }}>
+                  <div key={p.id} className="ap-card">
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="flex gap-2 flex-wrap">
+                        <span className="relation-badge bg-amber-100 text-amber-700">
                           {activityOptions.find(a => a.key === p.activityKey)?.label}
                         </span>
-                        <span className="relation-badge" style={{ background: 'rgba(180,83,9,.1)', color: 'var(--accent2)' }}>
+                        <span className="relation-badge bg-orange-100 text-orange-700">
                           {relationOptions.find(r => r.key === p.relationKey)?.label}
                         </span>
                         {p.effectKey && (
-                          <span className="relation-badge rb-green">
+                          <span className="relation-badge bg-emerald-100 text-emerald-700">
                             {effectOptions.find(e => e.key === p.effectKey)?.label}
                           </span>
                         )}
                         {p.birdId && (
-                            <span className="relation-badge" style={{ background: 'var(--ink)', color: '#fff' }}>
+                            <span className="relation-badge bg-slate-800 text-white">
                                 Bird: {birdOptions.find(b => b.id === Number(p.birdId))?.label}
                             </span>
                         )}
                         {p.yamaIndex && (
-                            <span className="relation-badge" style={{ background: '#4f46e5', color: '#fff' }}>
+                            <span className="relation-badge bg-indigo-500 text-white">
                                 Yama {p.yamaIndex}
                             </span>
                         )}
                         {p.subIndex && (
-                            <span className="relation-badge" style={{ background: '#7c3aed', color: '#fff' }}>
+                            <span className="relation-badge bg-violet-500 text-white">
                                 Sub {p.subIndex}
                             </span>
                         )}
                       </div>
-                      <button className="ap-toggle-btn" onClick={() => handleDelete(p.id)} style={{ color: '#b91c1c', border: '1px solid rgba(185,28,28,.2)', padding: '.2rem .5rem', fontSize: '.75rem' }}>
+                      <button 
+                        className="text-[10px] font-black uppercase tracking-widest text-rose-600 hover:bg-rose-50 px-3 py-1.5 rounded-lg border border-rose-100 transition-all duration-200" 
+                        onClick={() => handleDelete(p.id)}
+                      >
                         Remove
                       </button>
                     </div>
 
                     <textarea
                       className="palangal-textarea"
-                      rows={2}
+                      rows={3}
                       value={drafts[p.id] ?? p.text}
                       onChange={(e) => setDrafts(d => ({ ...d, [p.id]: e.target.value }))}
                       placeholder="Prediction text details..."
                     />
 
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '.75rem', alignItems: 'center', gap: '1rem' }}>
-                      {isSaved && <span className="save-tick" style={{ fontSize: '.8rem' }}><IconCheck size={12} /> Synced</span>}
+                    <div className="flex justify-between items-center mt-4">
+                      <div className="flex items-center gap-2">
+                        {isSaved && (
+                            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 flex items-center gap-1.5 animate-in fade-in zoom-in duration-300">
+                                <IconCheck size={12} /> Synced to Vault
+                            </span>
+                        )}
+                      </div>
                       <button
                         className={`palangal-save-btn${isDirty ? ' dirty' : ''}`}
                         onClick={() => handleUpdate(p.id)}
@@ -186,10 +199,13 @@ export function PalangalPage() {
         </div>
 
         {/* Create Form */}
-        <div className="ap-card" style={{ position: 'sticky', top: '1.5rem' }}>
+        <div className="ap-card" style={{ position: 'sticky', top: '2rem' }}>
           <div className="ap-card-head">
             <span className="ap-eyebrow">புதிய பலன்</span>
-            <h2>Create Smart Rule</h2>
+            <h2 className="flex items-center gap-3">
+              <IconList size={22} className="text-amber-500" />
+              Smart Rule
+            </h2>
           </div>
           
           <form onSubmit={handleCreate} className="ap-form">
@@ -223,7 +239,7 @@ export function PalangalPage() {
               </select>
             </div>
 
-            <div className="ap-field-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '.75rem' }}>
+            <div className="grid grid-cols-2 gap-4">
                 <div className="ap-field">
                     <label>Yama (Opt)</label>
                     <select className="text-input" value={newRule.yamaIndex} onChange={e => setNewRule({...newRule, yamaIndex: e.target.value})}>
@@ -247,18 +263,18 @@ export function PalangalPage() {
                 rows={4} 
                 value={newRule.text} 
                 onChange={e => setNewRule({...newRule, text: e.target.value})}
-                placeholder="Compose the prediction here..."
+                placeholder="Compose the prediction narrative here..."
                 required
               />
             </div>
 
-            <button className="primary-button" type="submit" disabled={adding} style={{ width: '100%', marginTop: '.5rem' }}>
-              {adding ? 'Adding Smart Rule...' : 'Register Rule'}
+            <button className="primary-button" type="submit" disabled={adding} style={{ marginTop: '0.5rem' }}>
+              {adding ? 'Adding...' : 'Register Rule'}
             </button>
           </form>
 
-          <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'var(--bg)', borderRadius: '12px', fontSize: '.78rem', color: 'var(--muted)', lineHeight: 1.6 }}>
-              <strong>Tip:</strong> Rules with more parameters selected (like specific Bird or Yama) will take precedence over general ones.
+          <div className="mt-8 p-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] text-slate-500 leading-relaxed font-medium">
+              <strong className="text-slate-700 block mb-1">PRO TIP:</strong> Rules with more parameters selected (like specific Bird or Yama) will take precedence over general ones in the prediction engine.
           </div>
         </div>
 
@@ -266,3 +282,4 @@ export function PalangalPage() {
     </div>
   );
 }
+

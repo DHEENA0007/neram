@@ -55,16 +55,16 @@ export function UsersPage() {
           <p className="admin-eyebrow">பயனர் மேலாண்மை · Access Control</p>
           <h1 className="admin-page-title">Users</h1>
         </div>
-        <div className="admin-page-actions">
+        <div className="admin-page-actions text-right">
            <p className="admin-page-sub">{users.length} total accounts · {users.filter(u=>u.active).length} active</p>
         </div>
       </div>
 
-      <div className="users-layout" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.2fr) minmax(320px, .8fr)', gap: '1.5rem', alignItems: 'start' }}>
+      <div className="users-layout" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.2fr) minmax(320px, .8fr)', gap: '2rem', alignItems: 'start' }}>
         
         {/* Table list */}
-        <div className="ap-card" style={{ padding: 0, overflow: 'hidden' }}>
-          <div className="ap-card-head" style={{ padding: '1.25rem' }}>
+        <div className="ap-card" style={{ padding: 0 }}>
+          <div className="ap-card-head" style={{ padding: '2rem 2rem 1rem' }}>
             <p className="ap-eyebrow">அணுகல் பட்டியல்</p>
             <h2>Portal Access List</h2>
           </div>
@@ -73,61 +73,62 @@ export function UsersPage() {
             <table className="pp-table">
               <thead>
                 <tr>
-                  <th style={{ paddingLeft: '1.25rem' }}>User / Profile</th>
+                  <th style={{ paddingLeft: '2rem' }}>User / Profile</th>
                   <th>Role</th>
                   <th>Status</th>
-                  <th style={{ textAlign: 'right', paddingRight: '1.25rem' }}>Actions</th>
+                  <th style={{ textAlign: 'right', paddingRight: '2rem' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan="4" style={{ padding: '3rem', textAlign: 'center', color: 'var(--muted)' }}>Loading system users...</td>
+                    <td colSpan="4" className="py-20 text-center text-slate-400 font-medium">Loading system users...</td>
                   </tr>
                 ) : users.length === 0 ? (
                   <tr>
-                    <td colSpan="4" style={{ padding: '3rem', textAlign: 'center', color: 'var(--muted)' }}>No users found in database.</td>
+                    <td colSpan="4" className="py-20 text-center text-slate-400 font-medium">No users found in database.</td>
                   </tr>
                 ) : (
                   users.map((u) => (
                     <tr key={u.id} className="pp-yama-row">
-                      <td style={{ paddingLeft: '1.25rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
-                          <div className="sidebar-avatar" style={{ width: '2rem', height: '2rem', fontSize: '.85rem' }}>
+                      <td style={{ paddingLeft: '2rem' }}>
+                        <div className="flex items-center gap-3">
+                          <div className="sidebar-avatar" style={{ width: '2.5rem', height: '2.5rem', fontSize: '1rem', borderRadius: '12px' }}>
                             {(u.name || u.username)[0].toUpperCase()}
                           </div>
-                          <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <strong style={{ fontSize: '.9rem' }}>{u.name}</strong>
-                            <span className="muted" style={{ fontSize: '.78rem' }}>@{u.username}</span>
+                          <div className="flex flex-col">
+                            <strong className="text-sm text-slate-900">{u.name}</strong>
+                            <span className="text-xs text-slate-400 font-medium">@{u.username}</span>
                           </div>
                         </div>
                         {u.defaultPlace && (
-                          <div style={{ marginTop: '.4rem', fontSize: '.75rem', display: 'flex', alignItems: 'center', gap: '.3rem', color: 'var(--muted)' }}>
-                            <IconLocation size={12} />
+                          <div className="mt-2 text-[10px] font-bold text-slate-400 flex items-center gap-1 uppercase tracking-wider">
+                            <IconLocation size={10} className="text-amber-500" />
                             <span>{u.defaultPlace.label || u.defaultPlace.name}</span>
                           </div>
                         )}
                       </td>
                       <td>
-                        <span className={`role-chip ${u.role === 'admin' ? 'role-admin' : 'role-user'}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '.3rem' }}>
-                          {u.role === 'admin' && <IconShield size={12} />}
+                        <span className={`role-chip ${u.role === 'admin' ? 'role-admin' : 'role-user'} flex items-center gap-1 w-fit`}>
+                          {u.role === 'admin' && <IconShield size={10} />}
                           {u.role}
                         </span>
                       </td>
                       <td>
-                        <span className={u.active ? 'status-on' : 'status-off'} style={{ display: 'inline-flex', alignItems: 'center', gap: '.3rem', fontSize: '.85rem' }}>
+                        <span className={`${u.active ? 'status-on' : 'status-off'} flex items-center gap-1.5 text-xs`}>
                           {u.active ? <IconCheckCircle size={14} /> : <IconBan size={14} />}
                           {u.active ? 'Active' : 'Disabled'}
                         </span>
                       </td>
-                      <td style={{ textAlign: 'right', paddingRight: '1.25rem' }}>
+                      <td style={{ textAlign: 'right', paddingRight: '2rem' }}>
                         <button
-                          className="ap-toggle-btn"
+                          className={`text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg border transition-all duration-200 ${u.active ? 'text-rose-600 border-rose-100 hover:bg-rose-50' : 'text-emerald-600 border-emerald-100 hover:bg-emerald-50'}`}
                           type="button"
                           onClick={() => toggleActive(u)}
                           disabled={u.role === 'admin'}
+                          style={{ opacity: u.role === 'admin' ? 0.3 : 1 }}
                         >
-                          {u.active ? 'Disable Access' : 'Restore Access'}
+                          {u.active ? 'Disable' : 'Restore'}
                         </button>
                       </td>
                     </tr>
@@ -139,12 +140,12 @@ export function UsersPage() {
         </div>
 
         {/* Create Form */}
-        <div className="ap-card" style={{ position: 'sticky', top: '1.5rem' }}>
+        <div className="ap-card" style={{ position: 'sticky', top: '2rem' }}>
           <div className="ap-card-head">
             <span className="ap-eyebrow">புதிய பயனர்</span>
-            <h2 style={{ display: 'flex', alignItems: 'center', gap: '.5rem' }}>
-              <IconUserPlus size={18} style={{ color: 'var(--accent)' }} />
-              Invite New User
+            <h2 className="flex items-center gap-3">
+              <IconUserPlus size={22} className="text-amber-500" />
+              Invite User
             </h2>
           </div>
 
@@ -160,19 +161,19 @@ export function UsersPage() {
             <div className="ap-field">
               <label>Temporary Password · கடவுச்சொல்</label>
               <input className="text-input" type="password" value={form.password} onChange={field('password')} placeholder="••••••••" required />
-              <p style={{ fontSize: '.72rem', color: 'var(--muted)', marginTop: '.2rem' }}>User can change this later in their settings.</p>
+              <p className="text-[10px] text-slate-400 font-medium mt-1 ml-1">User can change this later in their settings.</p>
             </div>
             
             {error   && <div className="ap-error">{error}</div>}
             {success && <div className="ap-success">{success}</div>}
             
-            <button className="primary-button" type="submit" disabled={saving} style={{ marginTop: '.5rem' }}>
+            <button className="primary-button" type="submit" disabled={saving} style={{ marginTop: '1rem' }}>
               {saving ? 'Creating Account...' : 'Create App User'}
             </button>
           </form>
 
-          <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'rgba(244,239,230,.5)', borderRadius: '12px', fontSize: '.82rem', color: 'var(--muted)', border: '1px dashed var(--line)' }}>
-            <strong>Note:</strong> New users are created with "User" role by default. Admins cannot disable other admins for security.
+          <div className="mt-8 p-4 bg-slate-50 border border-slate-100 rounded-2xl text-[11px] text-slate-500 leading-relaxed">
+            <strong className="text-slate-700 block mb-1">Security Note:</strong> New users are created with "User" role by default. Admins cannot disable other admins for data integrity.
           </div>
         </div>
 
@@ -180,3 +181,4 @@ export function UsersPage() {
     </div>
   );
 }
+

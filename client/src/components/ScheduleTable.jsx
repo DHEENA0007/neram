@@ -75,8 +75,8 @@ export function ScheduleTable({ tone, yamas, lang = 'ta' }) {
 
   return (
     <section className={`glass-card overflow-hidden shadow-card border-none ${tone === 'day' ? 'bg-yellow-50/40' : 'bg-blue-50/40'}`}>
-      <div className={`px-8 py-5 flex flex-wrap items-baseline justify-between gap-4 border-b ${tone === 'day' ? 'bg-yellow-400/10 border-yellow-200' : 'bg-blue-400/10 border-blue-200'}`}>
-        <h2 className={`text-2xl font-black ${tone === 'day' ? 'text-yellow-700' : 'text-blue-700'}`}>{title}</h2>
+      <div className={`px-6 py-3 flex flex-wrap items-baseline justify-between gap-4 border-b ${tone === 'day' ? 'bg-yellow-400/10 border-yellow-200' : 'bg-blue-400/10 border-blue-200'}`}>
+        <h2 className={`text-xl font-black ${tone === 'day' ? 'text-yellow-700' : 'text-blue-700'}`}>{title}</h2>
         <div className="flex gap-4 text-xs font-bold uppercase tracking-wider opacity-60">
            <span>{c.paduBird}: <strong className="text-red-600">{n(first?.paduBird, lang)}</strong></span>
            <span>{c.rulingBird}: <strong className="text-green-700">{n(first?.bharanaBird, lang)}</strong></span>
@@ -98,7 +98,7 @@ export function ScheduleTable({ tone, yamas, lang = 'ta' }) {
           <tbody className="text-sm">
             {yamas.map((yama) => (
               <tr key={yama.index} className="group border-b border-white/30 last:border-none">
-                <td className="px-6 py-6 align-top">
+                <td className="px-6 py-4 align-top">
                   <div className="flex flex-col">
                     <span className="font-black text-slate-900">{lang === 'ta' ? 'ஜாமம்' : 'Yama'} {yama.index}</span>
                     <span className="text-xs font-bold text-slate-400 lowercase whitespace-nowrap">{yama.startLabel} – {yama.endLabel}</span>

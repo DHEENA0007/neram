@@ -43,34 +43,36 @@ export function SettingsPage() {
           <p className="admin-eyebrow">சுயவிவர அமைப்புகள் · Admin Profile</p>
           <h1 className="admin-page-title">Settings</h1>
         </div>
-        <p className="admin-page-sub">Security & Identity Management</p>
+        <div className="text-right">
+            <p className="admin-page-sub">Security & Identity Management</p>
+        </div>
       </div>
 
-      <div className="settings-grid">
+      <div className="settings-grid" style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '2rem' }}>
         {/* Profile info card */}
         <div className="ap-card settings-profile-card">
-          <div className="settings-avatar-big" style={{ borderRadius: '20px' }}>
+          <div className="w-24 h-24 bg-amber-500 rounded-[2rem] flex items-center justify-center text-4xl font-black text-amber-950 mx-auto mb-6 shadow-xl shadow-amber-500/20">
             {(user?.name || 'A')[0].toUpperCase()}
           </div>
-          <div className="settings-profile-info">
-            <strong>{user?.name || user?.username}</strong>
-            <span className="ap-muted">@{user?.username}</span>
-            <div style={{ marginTop: '.75rem' }}>
-              <span className="role-chip role-admin" style={{ display: 'inline-flex', alignItems: 'center', gap: '.4rem' }}>
+          <div className="text-center">
+            <strong className="text-xl text-slate-900 block">{user?.name || user?.username}</strong>
+            <span className="text-sm text-slate-400 font-medium">@{user?.username}</span>
+            <div className="mt-4 flex justify-center">
+              <span className="role-chip role-admin flex items-center gap-2">
                 <IconShield size={12} />
                 System Administrator
               </span>
             </div>
           </div>
           
-          <div className="settings-meta" style={{ marginTop: '1.5rem', background: 'rgba(0,0,0,.03)', padding: '1rem', borderRadius: '12px' }}>
-            <div className="settings-meta-row">
-              <span className="ap-muted">Access Level</span>
-              <span style={{ fontWeight: 700 }}>Full (Root)</span>
+          <div className="mt-10 space-y-4 pt-8 border-t border-slate-100">
+            <div className="flex justify-between items-center">
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Access Level</span>
+              <span className="text-xs font-black text-slate-900">ROOT</span>
             </div>
-            <div className="settings-meta-row" style={{ marginTop: '.5rem' }}>
-              <span className="ap-muted">Account Status</span>
-              <span className="status-on" style={{ display: 'flex', alignItems: 'center', gap: '.3rem' }}>
+            <div className="flex justify-between items-center">
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Status</span>
+              <span className="status-on flex items-center gap-1.5 text-xs">
                 <IconCheckCircle size={14} /> Active
               </span>
             </div>
@@ -95,44 +97,55 @@ export function SettingsPage() {
               />
             </div>
 
-            <div className="ap-section-divider" style={{ margin: '1rem 0' }}>
-              <span>Security Credentials</span>
+            <div className="py-4 flex items-center gap-4">
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 whitespace-nowrap">Security Credentials</span>
+                <div className="h-px w-full bg-slate-100" />
             </div>
 
-            <div className="ap-field">
-              <label>New Administrative Password</label>
-              <input
-                className="text-input"
-                type="password"
-                value={pwd}
-                onChange={(e) => setPwd(e.target.value)}
-                placeholder="Leave blank to maintain current"
-              />
-            </div>
-            <div className="ap-field">
-              <label>Confirm Administrative Password</label>
-              <input
-                className="text-input"
-                type="password"
-                value={pwd2}
-                onChange={(e) => setPwd2(e.target.value)}
-                placeholder="Repeat new password"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="ap-field">
+                    <label>New Administrative Password</label>
+                    <input
+                        className="text-input"
+                        type="password"
+                        value={pwd}
+                        onChange={(e) => setPwd(e.target.value)}
+                        placeholder="Leave blank to maintain"
+                    />
+                </div>
+                <div className="ap-field">
+                    <label>Confirm Administrative Password</label>
+                    <input
+                        className="text-input"
+                        type="password"
+                        value={pwd2}
+                        onChange={(e) => setPwd2(e.target.value)}
+                        placeholder="Repeat new password"
+                    />
+                </div>
             </div>
 
             {error   && <div className="ap-error">{error}</div>}
             {success && <div className="ap-success">{success}</div>}
 
-            <button className="primary-button" type="submit" disabled={saving} style={{ marginTop: '1rem' }}>
-              {saving ? 'Applying Updates...' : 'Synchronize Profile'}
-            </button>
+            <div className="flex justify-end mt-8">
+                <button className="primary-button" type="submit" disabled={saving} style={{ width: 'auto' }}>
+                    {saving ? 'Applying Updates...' : 'Synchronize Profile'}
+                </button>
+            </div>
           </form>
           
-          <div style={{ marginTop: '2rem', padding: '1rem', border: '1px solid rgba(180,83,9,.2)', background: 'rgba(180,83,9,.05)', borderRadius: '12px', fontSize: '.82rem', color: '#92400e' }}>
-            <strong>Security Alert:</strong> Changing your password will not end your current session, but will require re-authentication on other devices.
+          <div className="mt-10 p-4 bg-amber-50/50 border border-amber-100/50 rounded-2xl text-[11px] text-amber-900/60 leading-relaxed flex items-center gap-3">
+             <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
+                <IconShield size={18} className="text-amber-600" />
+             </div>
+             <p>
+                <strong>Security Alert:</strong> Changing your password will not end your current session, but will require re-authentication on other devices to ensure system integrity.
+             </p>
           </div>
         </div>
       </div>
     </div>
   );
 }
+

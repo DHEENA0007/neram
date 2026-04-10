@@ -6,9 +6,9 @@ export function PortalShell({ title, children, lang, onToggleLang }) {
 
   return (
     <div className="min-h-screen bg-bg-soft">
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-6 py-3">
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-6 py-2">
         <div className="flex items-center gap-2">
-          <div className="text-xl font-black font-serif text-yellow-600">Neram</div>
+          <div className="text-lg font-black text-amber-600">Neram</div>
         </div>
         <nav className="flex items-center gap-2">
           {onToggleLang && (
@@ -46,7 +46,7 @@ export function PortalShell({ title, children, lang, onToggleLang }) {
             <span className="text-xs font-black text-yellow-600 uppercase tracking-widest mb-1 block opacity-70">
               பஞ்சபட்சி சாஸ்திரம்
             </span>
-            <h1 className="text-4xl font-black text-slate-900 leading-tight">{title}</h1>
+            <h1 className="text-2xl font-black text-slate-900 leading-tight">{title}</h1>
           </div>
           <div className="flex items-center gap-4 bg-white/50 p-2 pr-4 rounded-2xl border border-white/50">
              <div className="w-10 h-10 bg-yellow-100 rounded-xl flex items-center justify-center text-lg font-bold text-yellow-700 uppercase">

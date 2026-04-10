@@ -88,18 +88,18 @@ export function NameBirdSection({ onUpdateBird, lang }) {
 
   return (
     <div className="glass-card overflow-hidden">
-      <div className="bg-yellow-400 px-8 py-4 flex items-center justify-between">
-        <h3 className="text-xl font-black text-yellow-950 tracking-tight">{text.title}</h3>
-        <span className="text-2xl animate-bounce-slow">🐦</span>
+      <div className="bg-amber-400 px-6 py-3 flex items-center justify-between">
+        <h3 className="text-lg font-black text-amber-950 tracking-tight">{text.title}</h3>
+        <span className="text-xl animate-bounce-slow">🐦</span>
       </div>
       
-      <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-10">
+      <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-4">
           <label className="text-xs font-black text-slate-400 uppercase tracking-widest">{text.label1}</label>
           <div className="space-y-6">
             <div className="relative">
               <input
-                className="input-field text-lg font-bold pr-14"
+                className="input-field text-base font-bold pr-12"
                 value={name1}
                 onChange={(e) => setName1(e.target.value)}
                 placeholder="..."
@@ -134,7 +134,7 @@ export function NameBirdSection({ onUpdateBird, lang }) {
           <label className="text-xs font-black text-slate-400 uppercase tracking-widest">{text.label2}</label>
           <div className="space-y-6">
             <input
-              className="input-field text-lg font-bold"
+              className="input-field text-base font-bold"
               value={name2}
               onChange={(e) => setName2(e.target.value)}
               placeholder="..."

@@ -41,14 +41,14 @@ export function AdminShell() {
         </div>
 
         <nav className="sidebar-nav">
-          <p className="sidebar-section-label">General</p>
+          <p className="sidebar-section-label">General Control</p>
           {NAV.map(({ to, label, tamil, Icon }) => (
             <NavLink
               key={to}
               to={to}
-              className={({ isActive }) => `sidebar-link${isActive ? ' active' : ''}`}
+              className={({ isActive }) => `sidebar-link group${isActive ? ' active' : ''}`}
             >
-              <span className="sidebar-link-icon"><Icon size={18} /></span>
+              <span className="sidebar-link-icon"><Icon size={20} /></span>
               <span className="sidebar-link-labels">
                 <span className="sidebar-link-en">{label}</span>
                 <span className="sidebar-link-ta">{tamil}</span>
@@ -58,14 +58,14 @@ export function AdminShell() {
         </nav>
 
         <div className="sidebar-footer">
-          <NavLink to="/user" className="sidebar-link sidebar-link-secondary">
+          <NavLink to="/user" className="sidebar-link sidebar-link-secondary group">
             <span className="sidebar-link-icon"><IconArrowRight size={18} /></span>
             <span className="sidebar-link-labels">
               <span className="sidebar-link-en">Switch to User Portal</span>
               <span className="sidebar-link-ta">பயனர் பக்கம் செல்க</span>
             </span>
           </NavLink>
-          <button className="sidebar-link sidebar-link-danger" onClick={handleLogout}>
+          <button className="sidebar-link sidebar-link-danger group" onClick={handleLogout} style={{ width: '100%', textAlign: 'left' }}>
             <span className="sidebar-link-icon"><IconLogout size={18} /></span>
             <span className="sidebar-link-labels">
               <span className="sidebar-link-en">Logout Session</span>
@@ -83,3 +83,4 @@ export function AdminShell() {
     </div>
   );
 }
+
