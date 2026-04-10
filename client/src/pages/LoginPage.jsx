@@ -26,66 +26,56 @@ export function LoginPage() {
   }
 
   return (
-    <div className="login-screen">
-      <section className="login-hero">
-        <p className="eyebrow">Neram workstation</p>
-        <h1>Admin and user portals for Panchapakshi scheduling.</h1>
-        <p>
-          Add users from the admin portal, let them sign in securely, then generate sunrise-based
-          day and night tables for any place in the world.
-        </p>
-
-        <div className="login-points">
-          <div>
-            <strong>No axios</strong>
-            <span>All network calls use `fetch`.</span>
-          </div>
-          <div>
-            <strong>Live location search</strong>
-            <span>Places come from Open-Meteo geocoding.</span>
-          </div>
-          <div>
-            <strong>Sun + moon aware</strong>
-            <span>Sunrise/sunset and paksha are computed per day.</span>
-          </div>
-        </div>
-      </section>
-
-      <section className="login-card">
-        <div className="login-card-top">
-          <p className="eyebrow">Sign in</p>
-          <h2>Access your portal</h2>
-          <p>Default admin credentials are `admin` / `admin123` until you create your own users.</p>
+    <div className="min-h-screen flex items-center justify-center p-6 bg-yellow-50/20">
+      <section className="glass-card w-full max-w-md p-10">
+        <div className="text-center mb-10">
+          <div className="text-4xl font-black font-serif text-yellow-600 mb-6 tracking-tight">Neram</div>
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">Welcome back</h2>
+          <p className="text-slate-500">Sign in to your account to manage your Pancha Pakshi schedules.</p>
         </div>
 
-        <form className="login-form" onSubmit={handleSubmit}>
-          <label className="field">
-            <span>Username</span>
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          <div className="space-y-2">
+            <span className="text-sm font-bold text-slate-500 uppercase tracking-wider">Username</span>
             <input
-              className="text-input"
+              className="input-field"
               value={username}
               onChange={(event) => setUsername(event.target.value)}
               autoComplete="username"
+              placeholder="Enter your username"
             />
-          </label>
+          </div>
 
-          <label className="field">
-            <span>Password</span>
+          <div className="space-y-2">
+            <span className="text-sm font-bold text-slate-500 uppercase tracking-wider">Password</span>
             <input
-              className="text-input"
+              className="input-field"
               type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               autoComplete="current-password"
+              placeholder="••••••••"
             />
-          </label>
+          </div>
 
-          {error ? <div className="error-banner">{error}</div> : null}
+          {error ? (
+            <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl text-sm font-medium animate-shake">
+              {error}
+            </div>
+          ) : null}
 
-          <button className="primary-button" type="submit" disabled={loading}>
-            {loading ? 'Signing in...' : 'Enter portal'}
+          <button 
+            className="btn-primary w-full py-4 text-lg" 
+            type="submit" 
+            disabled={loading}
+          >
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
+
+        <p className="text-center text-sm text-slate-400 mt-8">
+          Don't have an account? <span className="text-yellow-600 font-bold cursor-not-allowed">Contact Admin</span>
+        </p>
       </section>
     </div>
   );

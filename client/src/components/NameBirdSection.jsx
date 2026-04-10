@@ -1,16 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { birdOptions } from '../shared/constants.js';
 
-const BIRD_MAP = {
-  1: 1, // Vature (அ, ஆ, ஐ, ஔ)
-  2: 2, // Owl (இ, ஈ)
-  3: 3, // Crow (உ, ஊ)
-  4: 4, // Cock (எ, ஏ)
-  5: 5, // Peacock (ஒ, ஓ)
-};
-
 const VOWEL_TO_BIRD = {
-  // Independent Vowels
   '\u0B85': 1, '\u0B86': 1, '\u0B90': 1, '\u0B94': 1, // அ, ஆ, ஐ, ஔ
   '\u0B87': 2, '\u0B88': 2,                          // இ, ஈ
   '\u0B89': 3, '\u0B8A': 3,                          // உ, ஊ
@@ -30,7 +21,6 @@ function getBirdFromName(name) {
   if (!name) return null;
   const normalized = name.toLowerCase();
   
-  // 1. Double/Multi-vowel clusters (High Priority)
   const doubleVowels = [
     { seq: 'ai', bird: 1 }, { seq: 'au', bird: 1 },
     { seq: 'ee', bird: 2 }, { seq: 'oo', bird: 3 }, { seq: 'ae', bird: 4 }
@@ -42,29 +32,22 @@ function getBirdFromName(name) {
     if (p !== -1 && p < firstCluster.pos) firstCluster = { pos: p, bird: dv.bird };
   }
 
-  // 2. Scan character by character
   const chars = [...normalized];
   for (let i = 0; i < chars.length; i++) {
     const char = chars[i];
-    
-    // Check if we hit a cluster
-    if (i === firstCluster.pos) return firstCluster.bird;
-    if (i > firstCluster.pos) return firstCluster.bird; // Safety
+    if (i === firstCluster.pos || i > firstCluster.pos) return firstCluster.bird;
 
-    // Tamil Independent Vowels
     if (VOWEL_TO_BIRD[char]) return VOWEL_TO_BIRD[char];
     
-    // Tamil Consonants (plus check for vowel signs)
     const code = char.charCodeAt(0);
     const isTamilConsonant = (code >= 0x0B95 && code <= 0x0BB9) || (code >= 0x0BD0 && code <= 0x0BD7);
     if (isTamilConsonant) {
       const nextChar = chars[i + 1];
-      if (nextChar === '\u0BCD') continue; // Skip dot (pulli)
+      if (nextChar === '\u0BCD') continue; 
       if (SIGN_TO_BIRD[nextChar]) return SIGN_TO_BIRD[nextChar];
-      return 1; // Implied 'அ'
+      return 1; 
     }
 
-    // English Single Vowels
     if (char === 'a') return 1;
     if (char === 'i') return 2;
     if (char === 'u') return 3;
@@ -89,70 +72,87 @@ export function NameBirdSection({ onUpdateBird, lang }) {
       title: 'Name Bird Calculator',
       label1: "Native's Name / Your Name",
       label2: "Person / Object / Place Name",
-      result1: "Your Bird:",
-      result2: "Opponent / Target Bird:",
-      apply: "Use this bird"
+      result: "Resulting Bird:",
+      sync: "Sync to form"
     },
     ta: {
       title: 'பெயர் பட்சி',
       label1: 'ஜாதகரின் பெயர் / உங்கள் பெயர்',
-      label2: 'பட்சி பார்க்க விரும்பும் நபர் / பொருள் / இடம் /etc பெயர்',
-      result1: 'உங்கள் பட்சி',
-      result2: 'எதிராளிor etc பட்சி',
-      apply: 'பயன்படுத்தவும்'
+      label2: 'எதிராளி / பொருள் / இடம் பெயர்',
+      result: 'கண்டறியப்பட்ட பட்சி:',
+      sync: 'படிவத்திற்கு மாற்று'
     }
   };
   
   const text = L[lang] || L.ta;
 
   return (
-    <div className="pp-name-section">
-      <h3 className="pp-name-title">{text.title}</h3>
-      <div className="pp-name-grid">
-        {/* Row 1 */}
-        <div className="pp-name-field-wrap">
-          <label className="pp-name-label">{text.label1}</label>
-            <div className="pp-name-input-group">
-              <input 
-                type="text" 
-                className="text-input pp-name-input" 
-                value={name1} 
+    <div className="glass-card overflow-hidden">
+      <div className="bg-yellow-400 px-8 py-4 flex items-center justify-between">
+        <h3 className="text-xl font-black text-yellow-950 tracking-tight">{text.title}</h3>
+        <span className="text-2xl animate-bounce-slow">🐦</span>
+      </div>
+      
+      <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-10">
+        <div className="space-y-4">
+          <label className="text-xs font-black text-slate-400 uppercase tracking-widest">{text.label1}</label>
+          <div className="space-y-6">
+            <div className="relative">
+              <input
+                className="input-field text-lg font-bold pr-14"
+                value={name1}
                 onChange={(e) => setName1(e.target.value)}
                 placeholder="..."
               />
               <button 
-                type="button" 
-                className={`pp-name-action-btn ${bird1 ? 'active' : ''}`}
+                className={`absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg flex items-center justify-center transition-all ${bird1 ? 'bg-yellow-100 text-yellow-600 hover:scale-110' : 'opacity-20 cursor-not-allowed'}`}
                 onClick={() => bird1 && onUpdateBird(bird1.id)}
                 disabled={!bird1}
+                title={text.sync}
               >
-                ▼
+                ▲
               </button>
             </div>
-            <div className="pp-name-result">
-              <span className="pp-name-res-label">{text.result1}</span>
-              <strong className="pp-name-res-value">{bird1 ? (lang === 'ta' ? bird1.tamil : bird1.label) : '—'}</strong>
-            </div>
+            
+            {bird1 && (
+              <div className="flex items-center gap-4 p-4 bg-yellow-50 rounded-2xl border border-yellow-100 animate-in zoom-in duration-300">
+                <div className="text-3xl bg-white w-12 h-12 flex items-center justify-center rounded-xl shadow-sm">
+                  {bird1.emoji}
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-black text-yellow-500 uppercase tracking-tighter">{text.result}</span>
+                  <strong className="text-xl font-black text-slate-900 leading-none">
+                    {lang === 'ta' ? bird1.tamil : bird1.label}
+                  </strong>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-        
-        {/* Row 2 */}
-        <div className="pp-name-field-wrap">
-          <label className="pp-name-label">{text.label2}</label>
-          <div className="pp-name-input-row">
-            <div className="pp-name-input-group">
-              <input 
-                type="text" 
-                className="text-input pp-name-input" 
-                value={name2} 
-                onChange={(e) => setName2(e.target.value)}
-                placeholder="..."
-              />
-              <div className="pp-name-action-btn disabled">▼</div>
-            </div>
-            <div className="pp-name-result secondary">
-              <span className="pp-name-res-label">{text.result2}</span>
-              <strong className="pp-name-res-value">{bird2 ? (lang === 'ta' ? bird2.tamil : bird2.label) : '—'}</strong>
-            </div>
+
+        <div className="space-y-4 pt-8 md:pt-0 border-t md:border-t-0 md:border-l border-slate-100 md:pl-10">
+          <label className="text-xs font-black text-slate-400 uppercase tracking-widest">{text.label2}</label>
+          <div className="space-y-6">
+            <input
+              className="input-field text-lg font-bold"
+              value={name2}
+              onChange={(e) => setName2(e.target.value)}
+              placeholder="..."
+            />
+            
+            {bird2 && (
+              <div className="flex items-center gap-4 p-4 bg-orange-50 rounded-2xl border border-orange-100 animate-in zoom-in duration-300">
+                <div className="text-3xl bg-white w-12 h-12 flex items-center justify-center rounded-xl shadow-sm">
+                  {bird2.emoji}
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-black text-orange-500 uppercase tracking-tighter">{text.result}</span>
+                  <strong className="text-xl font-black text-slate-900 leading-none">
+                    {lang === 'ta' ? bird2.tamil : bird2.label}
+                  </strong>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

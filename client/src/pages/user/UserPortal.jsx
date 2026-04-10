@@ -129,142 +129,142 @@ export function UserPortal() {
         onUpdateBird={(id) => setBirdId(String(id))} 
       />
 
-      <form className="pp-form" onSubmit={handleSubmit}>
-        {/* Date */}
-        <div className="pp-field">
-          <div className="pp-field-head">
-            <label>{t.date}</label>
-            <button type="button" className="pp-today-btn" onClick={() => setDate(todayISO())}>
-              {t.today}
-            </button>
-          </div>
-          <input
-            className="text-input"
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-          />
-        </div>
-
-        {/* Place */}
-        <div className="pp-field">
-          <div className="pp-field-head">
-            <label>{t.place}</label>
-            <label className="pp-default-check">
+      <section className="glass-card p-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-bold text-slate-500 uppercase tracking-wider">{t.date}</label>
+            <div className="flex gap-2">
               <input
-                type="checkbox"
-                checked={saveDefaultPlace}
-                onChange={(e) => setSaveDefaultPlace(e.target.checked)}
+                className="input-field"
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
               />
-              <span>{t.markDefault}</span>
-            </label>
+              <button className="btn-ghost" type="button" onClick={() => setDate(todayISO())}>{t.today}</button>
+            </div>
           </div>
-          <PlaceAutocomplete
-            value={placeQuery}
-            onChange={setPlaceQuery}
-            selectedPlace={selectedPlace}
-            onSelectPlace={setSelectedPlace}
-            label=""
-          />
-        </div>
 
-        {/* Bird */}
-        <div className="pp-field">
-          <label>{t.bird}</label>
-          <select className="text-input" value={birdId} onChange={(e) => setBirdId(e.target.value)}>
-            {birdOptions.map((bird) => (
-              <option key={bird.id} value={bird.id}>
-                {lang === 'ta' ? bird.tamil : bird.label}
-              </option>
-            ))}
-          </select>
-        </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-bold text-slate-500 uppercase tracking-wider">{t.place}</label>
+            <div className="relative">
+               <PlaceAutocomplete
+                value={placeQuery}
+                onChange={setPlaceQuery}
+                selectedPlace={selectedPlace}
+                onSelectPlace={setSelectedPlace}
+                label=""
+                className="input-field"
+              />
+              <label className="flex items-center gap-2 mt-2 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 accent-yellow-500 border-slate-200 rounded"
+                  checked={saveDefaultPlace}
+                  onChange={(e) => setSaveDefaultPlace(e.target.checked)}
+                />
+                <span className="text-xs font-bold text-slate-400 group-hover:text-yellow-600 transition-colors">{t.markDefault}</span>
+              </label>
+            </div>
+          </div>
 
-        {/* Paksha + Actions row */}
-        <div className="pp-field pp-span2">
-          <label>{t.pakshaMode}</label>
-          <div className="segmented-control">
-            {pakshaOptions.map((opt) => (
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-bold text-slate-500 uppercase tracking-wider">{t.bird}</label>
+            <select 
+              className="input-field cursor-pointer appearance-none" 
+              value={birdId} 
+              onChange={(e) => setBirdId(e.target.value)}
+            >
+              {birdOptions.map((bird) => (
+                <option key={bird.id} value={bird.id}>
+                  {lang === 'ta' ? bird.tamil : bird.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="lg:col-span-2 flex flex-col gap-2">
+            <label className="text-sm font-bold text-slate-500 uppercase tracking-wider">{t.pakshaMode}</label>
+            <div className="flex flex-wrap gap-2">
+              {pakshaOptions.map((opt) => (
+                <button
+                  key={opt.key}
+                  type="button"
+                  className={`flex-1 py-3 px-4 rounded-xl font-bold transition-all border-2 text-sm ${pakshaMode === opt.key ? 'bg-yellow-100 border-yellow-500 text-yellow-900 shadow-sm' : 'bg-white border-slate-100 text-slate-400 hover:border-yellow-200'}`}
+                  onClick={() => setPakshaMode(opt.key)}
+                >
+                  {lang === 'ta' ? opt.tamil : opt.label}
+                </button>
+              ))}
               <button
-                key={opt.key}
                 type="button"
-                className={pakshaMode === opt.key ? 'segment active' : 'segment'}
-                onClick={() => setPakshaMode(opt.key)}
+                className={`flex-1 py-3 px-4 rounded-xl font-bold transition-all border-2 text-sm ${pakshaMode === 'auto' ? 'bg-yellow-100 border-yellow-500 text-yellow-900 shadow-sm' : 'bg-white border-slate-100 text-slate-400 hover:border-yellow-200'}`}
+                onClick={() => setPakshaMode('auto')}
               >
-                {lang === 'ta' ? opt.tamil : opt.label}
+                {t.auto}
               </button>
-            ))}
-            <button
-              type="button"
-              className={pakshaMode === 'auto' ? 'segment active' : 'segment'}
-              onClick={() => setPakshaMode('auto')}
+            </div>
+          </div>
+
+          <div className="flex items-end justify-end md:pt-4">
+            <button 
+              className="btn-primary w-full py-4 text-lg shadow-xl shadow-yellow-500/30" 
+              onClick={handleSubmit} 
+              disabled={loading}
             >
-              {t.auto}
+              {loading ? t.generating : t.generate}
             </button>
           </div>
         </div>
+        
+        {error && (
+          <div className="mt-6 bg-red-50 border border-red-100 text-red-600 px-6 py-4 rounded-2xl text-sm font-bold">
+            {error}
+          </div>
+        )}
+      </section>
 
-        <div className="pp-actions">
-          <button className="primary-button" type="submit" disabled={loading} style={{ width: '100%' }}>
-            {loading ? t.generating : t.generate}
-          </button>
-          {prediction && (
-            <button
-              className="ghost-button"
-              type="button"
-              onClick={() => { setPrediction(null); setError(''); }}
-            >
-              {t.clear}
-            </button>
-          )}
-        </div>
-
-        {error && <div className="error-banner pp-full">{error}</div>}
-      </form>
-
-      {/* Summary row */}
       {summary && (
-        <div className="pp-summary-wrap">
-          <table className="pp-summary-table">
+        <div className="glass-card shadow-card-sm overflow-hidden p-0 animate-in fade-in duration-500">
+          <table className="w-full text-left">
             <thead>
-              <tr>
-                <th>{t.date_label}</th>
-                <th>{t.weekday}</th>
-                <th>{t.sunrise}</th>
-                <th>{t.paksha}</th>
+              <tr className="bg-yellow-400/10 text-[10px] font-black uppercase tracking-widest text-yellow-600/70 border-b border-yellow-100">
+                <th className="px-8 py-3">{t.date_label}</th>
+                <th className="px-8 py-3">{t.weekday}</th>
+                <th className="px-8 py-3">{t.sunrise}</th>
+                <th className="px-8 py-3">{t.paksha}</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>{formatDateDisplay(summary.date)}</td>
-                <td>{lang === 'ta' ? summary.weekday.tamil : summary.weekday.label}</td>
-                <td>{formatTimeFromISO(summary.sunrise)}</td>
-                <td>{lang === 'ta' ? summary.paksha.tamil : summary.paksha.label}</td>
+              <tr className="text-sm font-bold text-slate-800">
+                <td className="px-8 py-4">{formatDateDisplay(summary.date)}</td>
+                <td className="px-8 py-4">{lang === 'ta' ? summary.weekday.tamil : summary.weekday.label}</td>
+                <td className="px-8 py-4">{formatTimeFromISO(summary.sunrise)}</td>
+                <td className="px-8 py-4 text-emerald-600 uppercase tracking-tighter">
+                   {lang === 'ta' ? summary.paksha.tamil : summary.paksha.label}
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
       )}
 
-      {/* Tables */}
       {prediction ? (
-        <div className="schedule-stack">
-          <ScheduleTable
-            tone="day"
-            yamas={prediction.dayYamas}
-            lang={lang}
-          />
-          <ScheduleTable
-            tone="night"
-            yamas={prediction.nightYamas}
-            lang={lang}
-          />
+        <div className="space-y-12">
+          <ScheduleTable tone="day" yamas={prediction.dayYamas} lang={lang} />
+          <ScheduleTable tone="night" yamas={prediction.nightYamas} lang={lang} />
+          
+          <div className="text-center pb-20">
+             <button className="btn-ghost" onClick={() => { setPrediction(null); setError(''); }}>
+               {t.clear}
+             </button>
+          </div>
         </div>
       ) : (
         !loading && (
-          <section className="empty-state">
-            <h2>{t.readyTitle}</h2>
-            <p>{t.readyBody}</p>
+          <section className="py-24 text-center glass-card bg-transparent border-dashed border-2 border-yellow-200">
+            <div className="text-4xl mb-4">✨</div>
+            <h2 className="text-2xl font-black text-slate-800 mb-2">{t.readyTitle}</h2>
+            <p className="text-slate-500 max-w-xs mx-auto leading-relaxed">{t.readyBody}</p>
           </section>
         )
       )}

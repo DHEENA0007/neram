@@ -7,6 +7,7 @@ import { UsersPage } from './pages/admin/UsersPage.jsx';
 import { PalangalPage } from './pages/admin/PalangalPage.jsx';
 import { SettingsPage } from './pages/admin/SettingsPage.jsx';
 import { UserPortal } from './pages/user/UserPortal.jsx';
+import { LandingPage } from './pages/LandingPage.jsx';
 
 function LoadingScreen() {
   return (
@@ -22,7 +23,7 @@ function LoadingScreen() {
 function RootRoute() {
   const { user, loading } = useAuth();
   if (loading) return <LoadingScreen />;
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) return <LandingPage />;
   return <Navigate to={user.role === 'admin' ? '/admin' : '/user'} replace />;
 }
 
