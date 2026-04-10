@@ -988,99 +988,113 @@ a { color: inherit; text-decoration: none; }
    NAME BIRD SECTION
    ════════════════════════════════ */
 .pp-name-section {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 1.2rem 1.3rem;
-  box-shadow: var(--shadow-sm);
-  margin-bottom: 1rem;
+  background: #fffd3c; /* Yellow background like the screenshot */
+  border: 4px solid #000;
+  border-radius: 24px;
+  padding: 1.5rem 2rem;
+  margin-bottom: 2rem;
 }
 
 .pp-name-title {
   font-family: 'Noto Sans Tamil', system-ui, sans-serif;
-  font-size: 1.1rem;
+  font-size: 1.4rem;
   font-weight: 800;
-  margin-bottom: 1rem;
-  color: var(--accent);
+  margin-bottom: 1.2rem;
+  color: #c026d3; /* Pinkish color like screenshot */
+  text-align: center;
 }
 
 .pp-name-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .pp-name-field-wrap {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  align-items: flex-start;
+  gap: 0.6rem;
 }
 
 .pp-name-label {
-  font-size: 0.82rem;
+  font-size: 1rem;
   font-weight: 700;
-  color: var(--muted);
+  color: #c026d3;
   font-family: 'Noto Sans Tamil', system-ui, sans-serif;
 }
 
 .pp-name-input-row {
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.pp-name-input-group {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 3px solid #000;
+  border-radius: 12px;
+  overflow: hidden;
+  min-width: 280px;
 }
 
 .pp-name-input {
-  max-width: 100%;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  font-size: 1.2rem !important;
+  font-weight: 600 !important;
+  padding: 0.5rem 1rem !important;
+  color: #c026d3 !important;
+  flex: 1;
 }
+
+.pp-name-action-btn {
+  background: #fff;
+  border-left: 3px solid #000;
+  border-top: none;
+  border-right: none;
+  border-bottom: none;
+  padding: 0.5rem 0.75rem;
+  font-size: 1.4rem;
+  font-weight: 900;
+  cursor: pointer;
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.pp-name-action-btn:hover:not(.disabled) { background: #f0f0f0; }
+.pp-name-action-btn.active { color: #c026d3; }
+.pp-name-action-btn.disabled { cursor: default; opacity: 0.5; }
 
 .pp-name-result {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.6rem 0.9rem;
-  background: rgba(15, 118, 110, 0.06);
-  border-radius: var(--radius-sm);
-  border: 1px solid rgba(15, 118, 110, 0.1);
-}
-
-.pp-name-result.secondary {
-  background: rgba(180, 83, 9, 0.06);
-  border-color: rgba(180, 83, 9, 0.1);
+  gap: 0.8rem;
 }
 
 .pp-name-res-label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--muted);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #ef4444; /* Red color like screenshot */
 }
 
 .pp-name-res-value {
-  font-size: 1.05rem;
+  font-size: 1.3rem;
   font-weight: 800;
-  color: var(--ink);
+  color: #000;
   font-family: 'Noto Sans Tamil', system-ui, sans-serif;
 }
 
-.pp-apply-btn {
-  margin-left: auto;
-  background: var(--accent);
-  color: #fff;
-  border: none;
-  padding: 0.25rem 0.75rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
-
-.pp-apply-btn:hover {
-  opacity: 0.9;
-}
-
-@media (max-width: 820px) {
-  .pp-name-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
+@media (max-width: 600px) {
+  .pp-name-input-group { min-width: 100%; }
 }

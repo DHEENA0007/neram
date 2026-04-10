@@ -28,30 +28,48 @@ const SIGN_TO_BIRD = {
 
 function getBirdFromName(name) {
   if (!name) return null;
-  const chars = [...name]; // Iterate correctly over Unicode
+  const normalized = name.toLowerCase();
   
+  // 1. Double/Multi-vowel clusters (High Priority)
+  const doubleVowels = [
+    { seq: 'ai', bird: 1 }, { seq: 'au', bird: 1 },
+    { seq: 'ee', bird: 2 }, { seq: 'oo', bird: 3 }, { seq: 'ae', bird: 4 }
+  ];
+  
+  let firstCluster = { pos: Infinity, bird: null };
+  for (const dv of doubleVowels) {
+    const p = normalized.indexOf(dv.seq);
+    if (p !== -1 && p < firstCluster.pos) firstCluster = { pos: p, bird: dv.bird };
+  }
+
+  // 2. Scan character by character
+  const chars = [...normalized];
   for (let i = 0; i < chars.length; i++) {
     const char = chars[i];
     
-    // 1. Is it an independent vowel?
+    // Check if we hit a cluster
+    if (i === firstCluster.pos) return firstCluster.bird;
+    if (i > firstCluster.pos) return firstCluster.bird; // Safety
+
+    // Tamil Independent Vowels
     if (VOWEL_TO_BIRD[char]) return VOWEL_TO_BIRD[char];
     
-    // 2. Is it a consonant? (Tamil consonants: 0B95 - 0BB9, Grantha: 0BD0 etc)
+    // Tamil Consonants (plus check for vowel signs)
     const code = char.charCodeAt(0);
-    const isConsonant = (code >= 0x0B95 && code <= 0x0BB9) || (code >= 0x0BD0 && code <= 0x0BD7);
-    
-    if (isConsonant) {
-      // Check next char for vowel sign
+    const isTamilConsonant = (code >= 0x0B95 && code <= 0x0BB9) || (code >= 0x0BD0 && code <= 0x0BD7);
+    if (isTamilConsonant) {
       const nextChar = chars[i + 1];
-      if (nextChar === '\u0BCD') { // Pulli (virama) - skip to next consonant
-        continue;
-      }
-      if (SIGN_TO_BIRD[nextChar]) {
-        return SIGN_TO_BIRD[nextChar];
-      }
-      // No vowel sign? Implied 'அ'
-      return 1;
+      if (nextChar === '\u0BCD') continue; // Skip dot (pulli)
+      if (SIGN_TO_BIRD[nextChar]) return SIGN_TO_BIRD[nextChar];
+      return 1; // Implied 'அ'
     }
+
+    // English Single Vowels
+    if (char === 'a') return 1;
+    if (char === 'i') return 2;
+    if (char === 'u') return 3;
+    if (char === 'e') return 4;
+    if (char === 'o') return 5;
   }
   return null;
 }
@@ -81,7 +99,7 @@ export function NameBirdSection({ onUpdateBird, lang }) {
       label2: 'பட்சி பார்க்க விரும்பும் நபர் / பொருள் / இடம் /etc பெயர்',
       result1: 'உங்கள் பட்சி',
       result2: 'எதிராளிor etc பட்சி',
-      apply: 'இதைப் பயன்படுத்தவும்'
+      apply: 'பயன்படுத்தவும்'
     }
   };
   
@@ -94,41 +112,43 @@ export function NameBirdSection({ onUpdateBird, lang }) {
         {/* Row 1 */}
         <div className="pp-name-field-wrap">
           <label className="pp-name-label">{text.label1}</label>
-          <div className="pp-name-input-row">
-            <input 
-              type="text" 
-              className="text-input pp-name-input" 
-              value={name1} 
-              onChange={(e) => setName1(e.target.value)}
-              placeholder="..."
-            />
+            <div className="pp-name-input-group">
+              <input 
+                type="text" 
+                className="text-input pp-name-input" 
+                value={name1} 
+                onChange={(e) => setName1(e.target.value)}
+                placeholder="..."
+              />
+              <button 
+                type="button" 
+                className={`pp-name-action-btn ${bird1 ? 'active' : ''}`}
+                onClick={() => bird1 && onUpdateBird(bird1.id)}
+                disabled={!bird1}
+              >
+                ▼
+              </button>
+            </div>
             <div className="pp-name-result">
               <span className="pp-name-res-label">{text.result1}</span>
               <strong className="pp-name-res-value">{bird1 ? (lang === 'ta' ? bird1.tamil : bird1.label) : '—'}</strong>
-              {bird1 && (
-                <button 
-                  type="button" 
-                  className="pp-apply-btn"
-                  onClick={() => onUpdateBird(bird1.id)}
-                >
-                  {text.apply}
-                </button>
-              )}
             </div>
-          </div>
         </div>
         
         {/* Row 2 */}
         <div className="pp-name-field-wrap">
           <label className="pp-name-label">{text.label2}</label>
           <div className="pp-name-input-row">
-            <input 
-              type="text" 
-              className="text-input pp-name-input" 
-              value={name2} 
-              onChange={(e) => setName2(e.target.value)}
-              placeholder="..."
-            />
+            <div className="pp-name-input-group">
+              <input 
+                type="text" 
+                className="text-input pp-name-input" 
+                value={name2} 
+                onChange={(e) => setName2(e.target.value)}
+                placeholder="..."
+              />
+              <div className="pp-name-action-btn disabled">▼</div>
+            </div>
             <div className="pp-name-result secondary">
               <span className="pp-name-res-label">{text.result2}</span>
               <strong className="pp-name-res-value">{bird2 ? (lang === 'ta' ? bird2.tamil : bird2.label) : '—'}</strong>
