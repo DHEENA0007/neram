@@ -5,6 +5,7 @@ import { useAuth } from '../../auth.jsx';
 import { PlaceAutocomplete } from '../../components/PlaceAutocomplete.jsx';
 import { PortalShell } from '../../components/PortalShell.jsx';
 import { ScheduleTable } from '../../components/ScheduleTable.jsx';
+import { NameBirdSection } from '../../components/NameBirdSection.jsx';
 
 const L = {
   en: {
@@ -123,6 +124,11 @@ export function UserPortal() {
       lang={lang}
       onToggleLang={() => setLang((l) => (l === 'ta' ? 'en' : 'ta'))}
     >
+      <NameBirdSection 
+        lang={lang} 
+        onUpdateBird={(id) => setBirdId(String(id))} 
+      />
+
       <form className="pp-form" onSubmit={handleSubmit}>
         {/* Date */}
         <div className="pp-field">
