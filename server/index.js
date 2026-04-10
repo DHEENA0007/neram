@@ -298,6 +298,78 @@ app.delete(
   }),
 );
 
+// ── Ollama AI Models ──────────────────────────────
+const OLLAMA_BASE = process.env.OLLAMA_URL || 'http://localhost:11434';
+
+app.get(
+  '/api/admin/ollama/models',
+  requireUser,
+  requireRole('admin'),
+  asyncRoute(async (_req, res) => {
+    try {
+      const r = await fetch(`${OLLAMA_BASE}/api/tags`);
+      if (!r.ok) return res.json({ models: [] });
+      const data = await r.json();
+      return res.json({ models: data.models || [] });
+    } catch {
+      return res.json({ models: [] });
+    }
+  }),
+);
+
+app.post(
+  '/api/admin/ollama/pull',
+  requireUser,
+  requireRole('admin'),
+  asyncRoute(async (req, res) => {
+    const { name } = req.body || {};
+    if (!name) return res.status(400).json({ error: 'Model name required' });
+
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    try {
+      const r = await fetch(`${OLLAMA_BASE}/api/pull`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, stream: true }),
+      });
+
+      const reader = r.body.getReader();
+      const decoder = new TextDecoder();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        res.write(decoder.decode(value));
+      }
+    } catch (err) {
+      res.write(JSON.stringify({ error: err.message }));
+    }
+    res.end();
+  }),
+);
+
+app.delete(
+  '/api/admin/ollama/models/:name',
+  requireUser,
+  requireRole('admin'),
+  asyncRoute(async (req, res) => {
+    const name = decodeURIComponent(req.params.name);
+    try {
+      const r = await fetch(`${OLLAMA_BASE}/api/delete`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      });
+      if (!r.ok) return res.status(r.status).json({ error: 'Failed to delete model' });
+      return res.json({ ok: true });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  }),
+);
+
 // ── Admin profile ─────────────────────────────────
 app.put(
   '/api/admin/profile',

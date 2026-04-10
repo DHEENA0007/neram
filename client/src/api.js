@@ -85,3 +85,31 @@ export async function deletePalangal(id) {
 export function updateAdminProfile(payload) {
   return apiFetch('/api/admin/profile', { method: 'PUT', body: JSON.stringify(payload) });
 }
+
+// ── Admin: Ollama Models ───────────────────────────
+export function loadOllamaModels() {
+  return apiFetch('/api/admin/ollama/models');
+}
+
+export function deleteOllamaModel(name) {
+  return apiFetch(`/api/admin/ollama/models/${encodeURIComponent(name)}`, { method: 'DELETE' });
+}
+
+export async function pullOllamaModel(name, onProgress) {
+  const response = await fetch('/api/admin/ollama/pull', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name }),
+  });
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    const lines = decoder.decode(value).split('\n').filter(Boolean);
+    for (const line of lines) {
+      try { onProgress(JSON.parse(line)); } catch { /* ignore */ }
+    }
+  }
+}
