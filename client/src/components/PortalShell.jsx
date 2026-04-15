@@ -40,7 +40,7 @@ export function PortalShell({ title, children, lang, onToggleLang }) {
         </nav>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+      <main className="w-full max-w-screen-2xl mx-auto px-6 lg:px-10 py-8 space-y-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200 pb-8">
           <div>
             <span className="text-xs font-black text-yellow-600 uppercase tracking-widest mb-1 block opacity-70">

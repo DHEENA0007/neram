@@ -58,16 +58,15 @@ const WEEKDAY_HORAI_START_INDEX = {
 };
 
 function calculateHoraiSchedule({ sunrise, sunset, nextSunrise, weekdayIndex, timezone }) {
-  const daySlotDurationMs = (sunset.toMillis() - sunrise.toMillis()) / 12;
-  const nightSlotDurationMs = (nextSunrise.toMillis() - sunset.toMillis()) / 12;
+  const SIXTY_MIN_MS = 60 * 60 * 1000; // fixed 60-minute Horai slots
   const startIndex = WEEKDAY_HORAI_START_INDEX[weekdayIndex];
 
   const horai = [];
 
-  // Day Horas
+  // Day Horas: 12 fixed 60-minute slots starting from sunrise
   for (let i = 0; i < 12; i++) {
-    const start = DateTime.fromMillis(Math.round(sunrise.toMillis() + daySlotDurationMs * i), { zone: timezone });
-    const end = DateTime.fromMillis(Math.round(sunrise.toMillis() + daySlotDurationMs * (i + 1)), { zone: timezone });
+    const start = DateTime.fromMillis(sunrise.toMillis() + SIXTY_MIN_MS * i, { zone: timezone });
+    const end = DateTime.fromMillis(sunrise.toMillis() + SIXTY_MIN_MS * (i + 1), { zone: timezone });
     const planet = HORAI_SEQUENCE[(startIndex + i) % 7];
     horai.push({
       index: i + 1,
@@ -80,10 +79,10 @@ function calculateHoraiSchedule({ sunrise, sunset, nextSunrise, weekdayIndex, ti
     });
   }
 
-  // Night Horas
+  // Night Horas: 12 fixed 60-minute slots starting from sunset
   for (let i = 0; i < 12; i++) {
-    const start = DateTime.fromMillis(Math.round(sunset.toMillis() + nightSlotDurationMs * i), { zone: timezone });
-    const end = DateTime.fromMillis(Math.round(sunset.toMillis() + nightSlotDurationMs * (i + 1)), { zone: timezone });
+    const start = DateTime.fromMillis(sunset.toMillis() + SIXTY_MIN_MS * i, { zone: timezone });
+    const end = DateTime.fromMillis(sunset.toMillis() + SIXTY_MIN_MS * (i + 1), { zone: timezone });
     const planet = HORAI_SEQUENCE[(startIndex + 12 + i) % 7];
     horai.push({
       index: i + 13,
@@ -104,12 +103,11 @@ const YAMAGANDAM_PARTS = { 0: 5, 1: 4, 2: 3, 3: 2, 4: 1, 5: 7, 6: 6 };
 const KULIKAI_PARTS = { 0: 7, 1: 6, 2: 5, 3: 4, 4: 3, 5: 2, 6: 1 };
 
 function calculateSpecialPeriods({ sunrise, sunset, weekdayIndex, timezone }) {
-  const dayDurationMs = sunset.toMillis() - sunrise.toMillis();
-  const partDurationMs = dayDurationMs / 8;
+  const NINETY_MIN_MS = 90 * 60 * 1000; // fixed 90-minute parts (8 parts × 90 min = 12-hour day)
 
   const getPeriod = (partNumber) => {
-    const start = DateTime.fromMillis(Math.round(sunrise.toMillis() + partDurationMs * (partNumber - 1)), { zone: timezone });
-    const end = DateTime.fromMillis(Math.round(sunrise.toMillis() + partDurationMs * partNumber), { zone: timezone });
+    const start = DateTime.fromMillis(sunrise.toMillis() + NINETY_MIN_MS * (partNumber - 1), { zone: timezone });
+    const end = DateTime.fromMillis(sunrise.toMillis() + NINETY_MIN_MS * partNumber, { zone: timezone });
     return {
       start: start.toISO({ suppressMilliseconds: true }),
       end: end.toISO({ suppressMilliseconds: true }),
@@ -147,16 +145,15 @@ const WEEKDAY_GOWRI_START_INDEX = {
 };
 
 function calculateGowriSchedule({ sunrise, sunset, nextSunrise, weekdayIndex, timezone }) {
-  const daySlotDurationMs = (sunset.toMillis() - sunrise.toMillis()) / 12;
-  const nightSlotDurationMs = (nextSunrise.toMillis() - sunset.toMillis()) / 12;
+  const SIXTY_MIN_MS = 60 * 60 * 1000; // fixed 60-minute Gowri slots
   const startIndex = WEEKDAY_GOWRI_START_INDEX[weekdayIndex];
 
   const gowri = [];
 
-  // Day Gowri
+  // Day Gowri: 12 fixed 60-minute slots starting from sunrise
   for (let i = 0; i < 12; i++) {
-    const start = DateTime.fromMillis(Math.round(sunrise.toMillis() + daySlotDurationMs * i), { zone: timezone });
-    const end = DateTime.fromMillis(Math.round(sunrise.toMillis() + daySlotDurationMs * (i + 1)), { zone: timezone });
+    const start = DateTime.fromMillis(sunrise.toMillis() + SIXTY_MIN_MS * i, { zone: timezone });
+    const end = DateTime.fromMillis(sunrise.toMillis() + SIXTY_MIN_MS * (i + 1), { zone: timezone });
     const type = GOWRI_TYPES[(startIndex + i) % 8];
     gowri.push({
       index: i + 1,
@@ -169,10 +166,10 @@ function calculateGowriSchedule({ sunrise, sunset, nextSunrise, weekdayIndex, ti
     });
   }
 
-  // Night Gowri
+  // Night Gowri: 12 fixed 60-minute slots starting from sunset
   for (let i = 0; i < 12; i++) {
-    const start = DateTime.fromMillis(Math.round(sunset.toMillis() + nightSlotDurationMs * i), { zone: timezone });
-    const end = DateTime.fromMillis(Math.round(sunset.toMillis() + nightSlotDurationMs * (i + 1)), { zone: timezone });
+    const start = DateTime.fromMillis(sunset.toMillis() + SIXTY_MIN_MS * i, { zone: timezone });
+    const end = DateTime.fromMillis(sunset.toMillis() + SIXTY_MIN_MS * (i + 1), { zone: timezone });
     const type = GOWRI_TYPES[(startIndex + 12 + i) % 8];
     gowri.push({
       index: i + 13,

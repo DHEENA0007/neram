@@ -1,18 +1,14 @@
-import { useEffect, useMemo, useState } from 'react';
-import { birdOptions, pakshaOptions } from '../../shared/constants.js';
+import React, { useState, useMemo, useEffect } from 'react';
+import { birdOptions, getBirdById, pakshaOptions } from '../../shared/constants.js';
 import { requestPrediction } from '../../api.js';
-import { useAuth } from '../../auth.jsx';
-import { PlaceAutocomplete } from '../../components/PlaceAutocomplete.jsx';
 import { PortalShell } from '../../components/PortalShell.jsx';
 import { ScheduleTable } from '../../components/ScheduleTable.jsx';
 import { NameBirdSection } from '../../components/NameBirdSection.jsx';
+import { HoraiTable } from '../../components/HoraiTable.jsx';
+import { SpecialPeriods } from '../../components/SpecialPeriods.jsx';
 import { GowriTable } from '../../components/GowriTable.jsx';
 import { BirdHelper } from '../../components/BirdHelper.jsx';
 import { IconArrowRight, IconVulture, IconOwl, IconCrow, IconHen, IconPeacock, IconCheck, IconCalendar, IconLocation, IconSun, IconSearch } from '../../components/Icons.jsx';
-
-
-
-
 
 const BIRD_ICONS = {
   vulture: IconVulture,
@@ -24,87 +20,90 @@ const BIRD_ICONS = {
 
 const L = {
   en: {
-    date: 'Date',
-    place: 'Place',
-    bird: 'Bird',
-    pakshaMode: 'Paksha Mode',
-    markDefault: 'Mark this as default location',
-    generate: 'Generate',
-    generating: 'Generating...',
-    clear: 'Clear results',
-    today: 'Today',
-    auto: 'Auto',
-    readyTitle: 'Ready when you are',
-    readyBody: 'Enter a date, choose a place and pick one of the five birds to generate the full table.',
-    date_label: 'Date',
-    weekday: 'Day',
+    title: 'Pancha Pakshi Schedule',
+    date_label: 'Select Date',
+    location_label: 'Your Location',
+    bird_label: 'Your Bird',
+    paksha_type: 'Paksha Type',
+    generate: 'Generate Schedule',
+    generating: 'Calculating...',
+    auto: 'Automatic',
+    use_current: 'Use my current location',
+    selected: 'Selected Location:',
+    weekday: 'Weekday',
     sunrise: 'Sunrise',
     paksha: 'Paksha',
   },
   ta: {
-    date: 'தேதி',
-    place: 'இடம்',
-    bird: 'பட்சி',
-    pakshaMode: 'பிறை வகை',
-    markDefault: 'இதை இயல்புநிலை இடமாக குறி',
-    generate: 'காண்பி',
-    generating: 'கணக்கிடுகிறது...',
-    clear: 'அழி',
-    today: 'Today',
+    title: 'பஞ்சபட்சி அட்டவணை',
+    date_label: 'தேதியைத் தேர்ந்தெடுக்கவும்',
+    location_label: 'உங்கள் இடம்',
+    bird_label: 'உங்கள் பட்சி',
+    paksha_type: 'பிறை வகை',
+    generate: 'அட்டவணை காண்க',
+    generating: 'கணக்கிடப்படுகிறது...',
     auto: 'தானியங்கி',
-    readyTitle: 'தயார்',
-    readyBody: 'தேதி, இடம் மற்றும் பட்சி தேர்வு செய்து அட்டவணையை காண்க.',
-    date_label: 'தேதி',
-    weekday: 'நாள்',
+    use_current: 'எனது இருப்பிடத்தைப் பயன்படுத்து',
+    selected: 'தேர்ந்தெடுக்கப்பட்ட இடம்:',
+    weekday: 'கிழமை',
     sunrise: 'சூரிய உதயம்',
     paksha: 'பிறை',
-  },
+  }
 };
 
-function todayISO() {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function formatDateDisplay(iso) {
-  const [year, month, day] = iso.split('-');
-  return `${day}-${month}-${year}`;
-}
-
-function formatTimeFromISO(iso) {
-  const d = new Date(iso);
-  return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-}
-
 export function UserPortal() {
-  const { user, refresh } = useAuth();
   const [lang, setLang] = useState('ta');
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [birdId, setBirdId] = useState('1');
+  const [paksha, setPaksha] = useState('bright');
+  const [autoPaksha, setAutoPaksha] = useState(true);
+  const [locationName, setLocationName] = useState('Karur, Tamil Nadu, India');
+  const [lat, setLat] = useState(10.9577);
+  const [lng, setLng] = useState(78.0810);
+  const [useGeo, setUseGeo] = useState(false);
+  
+  const [prediction, setPrediction] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
   const t = L[lang];
 
-  const [date, setDate] = useState(todayISO());
-  const [birdId, setBirdId] = useState(() => localStorage.getItem('neram-bird-id') || '1');
-  const [pakshaMode, setPakshaMode] = useState(() => localStorage.getItem('neram-paksha-mode') || 'auto');
-  const [placeQuery, setPlaceQuery] = useState('');
-  const [selectedPlace, setSelectedPlace] = useState(null);
-  const [saveDefaultPlace, setSaveDefaultPlace] = useState(false);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [prediction, setPrediction] = useState(null);
-
-  useEffect(() => { localStorage.setItem('neram-bird-id', birdId); }, [birdId]);
-  useEffect(() => { localStorage.setItem('neram-paksha-mode', pakshaMode); }, [pakshaMode]);
+  const [results, setResults] = useState([]);
+  const [showResults, setShowResults] = useState(false);
 
   useEffect(() => {
-    if (user?.defaultPlace) {
-      setSelectedPlace(user.defaultPlace);
-      setPlaceQuery(user.defaultPlace.label || user.defaultPlace.name || '');
+    if (useGeo && 'geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        setLat(pos.coords.latitude);
+        setLng(pos.coords.longitude);
+        setLocationName(`Current Location (${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)})`);
+      });
     }
-  }, [user?.defaultPlace]);
+  }, [useGeo]);
+
+  useEffect(() => {
+     if (locationName.length < 3) {
+        setResults([]);
+        return;
+     }
+     const timer = setTimeout(async () => {
+        try {
+           const { searchPlaces } = await import('../../api.js');
+           const data = await searchPlaces(locationName);
+           setResults(data.results || []);
+           setShowResults(true);
+        } catch (e) {
+           console.error('Place search failed', e);
+        }
+     }, 200);
+     return () => clearTimeout(timer);
+  }, [locationName]);
 
   const summary = useMemo(() => {
-    if (!prediction) return null;
+    if (!prediction || !prediction.astronomy) return null;
     const now = new Date().toISOString();
     const isNight = now >= prediction.astronomy.sunset && now < prediction.astronomy.nextSunrise;
-    const currentPaksha = isNight ? prediction.paksha.night : prediction.paksha.day;
+    const currentPaksha = isNight ? prediction.paksha?.night : prediction.paksha?.day;
 
     return {
       date: prediction.date,
@@ -116,267 +115,325 @@ export function UserPortal() {
     };
   }, [prediction]);
 
-
-
-
   async function handleSubmit(event) {
-    event.preventDefault();
+    if (event) event.preventDefault();
     setError('');
     setLoading(true);
-    const placeToUse = selectedPlace || user?.defaultPlace;
     try {
+      const { requestPrediction } = await import('../../api.js');
       const data = await requestPrediction({
         date,
         birdId: Number(birdId),
-        place: placeToUse,
-        pakshaMode,
-        saveDefaultPlace,
+        place: { 
+          latitude: lat, 
+          longitude: lng, 
+          name: locationName,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+        },
+        pakshaMode: autoPaksha ? 'auto' : paksha,
       });
-      setPrediction(data.schedule);
-      if (saveDefaultPlace) await refresh();
+      setPrediction(data.schedule ?? data);
     } catch (err) {
-      setError(err.message || 'Failed to generate schedule');
+      setError(err.message || 'Failed to fetch prediction');
     } finally {
       setLoading(false);
     }
   }
 
+  function formatTimeFromISO(iso) {
+    return new Date(iso).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+  }
+
+  function formatDateDisplay(d) {
+    return new Date(d).toLocaleDateString(lang === 'ta' ? 'ta-IN' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
   return (
-    <PortalShell
-      title="பஞ்சபட்சி"
-      subtitle="Pancha Pakshi Schedule"
-      lang={lang}
-      onToggleLang={() => setLang((l) => (l === 'ta' ? 'en' : 'ta'))}
-    >
-      <NameBirdSection 
-        lang={lang} 
-        onUpdateBird={(id) => setBirdId(String(id))} 
-      />
+    <PortalShell title={t.title} lang={lang} onToggleLang={() => setLang(lang === 'ta' ? 'en' : 'ta')}>
+      <div className="flex flex-col xl:flex-row gap-8 items-start">
 
-      <BirdHelper 
-        lang={lang} 
-        onSelectBird={(id) => {
-          setBirdId(String(id));
-          document.documentElement.scrollTo({ top: 0, behavior: 'smooth' });
-        }} 
-      />
+        {/* CONFIG SIDEBAR */}
+        <aside className="w-full xl:w-[420px] shrink-0 space-y-6 xl:sticky xl:top-[88px] max-h-[calc(100vh-120px)] overflow-y-auto pr-2 pb-20 scrollbar-hide">
+          <NameBirdSection 
+            lang={lang} 
+            onUpdateBird={(id) => setBirdId(String(id))} 
+          />
 
+          <BirdHelper 
+            lang={lang} 
+            onSelectBird={(id) => {
+              setBirdId(String(id));
+              document.documentElement.scrollTo({ top: 0, behavior: 'smooth' });
+            }} 
+          />
 
-      <section className="glass-card p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-bold text-slate-500 uppercase tracking-wider">{t.date}</label>
-            <div className="flex gap-2">
-              <input
-                className="input-field"
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-              />
-              <button className="btn-ghost" type="button" onClick={() => setDate(todayISO())}>{t.today}</button>
+          <section className="glass-card shadow-card-sm p-8 border-none ring-1 ring-slate-100/80 bg-white/80">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+              <h3 className="text-[11px] font-black uppercase tracking-[0.25em] text-slate-400">
+                {lang === 'ta' ? 'அமைப்பு' : 'Configuration'}
+              </h3>
             </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-bold text-slate-500 uppercase tracking-wider">{t.place}</label>
-            <div className="relative">
-               <PlaceAutocomplete
-                value={placeQuery}
-                onChange={setPlaceQuery}
-                selectedPlace={selectedPlace}
-                onSelectPlace={setSelectedPlace}
-                label=""
-                className="input-field"
-              />
-              <label className="flex items-center gap-2 mt-2 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 accent-yellow-500 border-slate-200 rounded"
-                  checked={saveDefaultPlace}
-                  onChange={(e) => setSaveDefaultPlace(e.target.checked)}
-                />
-                <span className="text-xs font-bold text-slate-400 group-hover:text-yellow-600 transition-colors">{t.markDefault}</span>
-              </label>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-bold text-slate-500 uppercase tracking-wider">{t.bird}</label>
-            <div className="relative group/bird">
-              <button 
-                type="button" 
-                className="input-field flex items-center justify-between gap-3 text-left w-full h-10 px-4"
-                onClick={() => document.getElementById('bird-dropdown').classList.toggle('hidden')}
-              >
-                <div className="flex items-center gap-2">
-                    {(() => {
-                        const bird = birdOptions.find(b => b.id === Number(birdId));
-                        const Icon = BIRD_ICONS[bird?.key || 'vulture'];
-                        return <Icon size={18} className="text-amber-500" />;
-                    })()}
-                    <span className="text-sm font-medium">
-                        {lang === 'ta' ? birdOptions.find(b => b.id === Number(birdId))?.tamil : birdOptions.find(b => b.id === Number(birdId))?.label}
-                    </span>
+            
+            <form onSubmit={handleSubmit} className="space-y-8">
+              <div className="space-y-6">
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{t.date_label}</label>
+                  <div className="relative group">
+                    <input
+                      type="date"
+                      className="input-field bg-slate-50/50 border-slate-200 group-hover:bg-white group-hover:border-amber-400 group-hover:ring-8 group-hover:ring-amber-500/5 transition-all text-sm font-bold pl-4 pr-16"
+                      value={date}
+                      onChange={(e) => setDate(e.target.value)}
+                    />
+                    <button 
+                      type="button" 
+                      onClick={() => setDate(new Date().toISOString().split('T')[0])}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-1 bg-amber-100/50 hover:bg-amber-400 hover:text-white rounded-md text-[9px] font-black uppercase tracking-tighter text-amber-700 active:scale-95 transition-all"
+                    >
+                      Today
+                    </button>
+                  </div>
                 </div>
-                <IconArrowRight size={14} className="rotate-90 opacity-40" />
-              </button>
-              
-              <div id="bird-dropdown" className="hidden absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-xl border border-slate-200 shadow-2xl rounded-3xl overflow-hidden z-[60] animate-in fade-in slide-in-from-top-3 duration-300">
-                <div className="p-2 flex flex-col gap-1">
-                  {birdOptions.map((bird) => {
-                    const Icon = BIRD_ICONS[bird.key];
-                    const isActive = Number(birdId) === bird.id;
-                    return (
+
+                <div className="flex flex-col gap-2 relative">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{t.location_label}</label>
+                  <div className="relative group">
+                    <input
+                      type="text"
+                      className="input-field bg-slate-50/50 border-slate-200 group-hover:bg-white group-hover:border-amber-400 group-hover:ring-8 group-hover:ring-amber-500/5 transition-all text-xs font-bold"
+                      value={locationName}
+                      onChange={(e) => {
+                        setLocationName(e.target.value);
+                        setUseGeo(false);
+                      }}
+                      onFocus={() => results.length > 0 && setShowResults(true)}
+                      placeholder="City name..."
+                    />
+                    
+                    {showResults && results.length > 0 && (
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl ring-1 ring-slate-200 border-none z-[100] overflow-hidden max-h-[240px] overflow-y-auto animate-in slide-in-from-top-2 duration-200">
+                        {results.map((r, idx) => (
+                          <div 
+                            key={idx}
+                            onClick={() => {
+                              setLocationName(r.label);
+                              setLat(r.latitude);
+                              setLng(r.longitude);
+                              setResults([]);
+                              setShowResults(false);
+                            }}
+                            className="px-5 py-3.5 hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-none group/item"
+                          >
+                             <div className="text-[10px] font-black text-slate-800 line-clamp-2 group-hover/item:text-amber-600 transition-colors uppercase tracking-tight">
+                               {r.label}
+                             </div>
+                             <div className="text-[8px] font-bold text-slate-400 mt-1 tabular-nums">
+                               {Number(r.latitude).toFixed(4)}, {Number(r.longitude).toFixed(4)}
+                             </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="mt-3 p-4 bg-slate-50/50 rounded-2xl border border-slate-100 space-y-2">
+                      <div className="flex justify-between items-start capitalize">
+                        <div className="flex flex-col">
+                           <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter mb-1">{t.selected}</span>
+                           <span className="text-[11px] font-black text-slate-700 line-clamp-1">{locationName}</span>
+                        </div>
+                        <span className="text-[9px] font-bold text-indigo-400 tabular-nums bg-indigo-50 px-2 py-0.5 rounded-md">
+                          {lat.toFixed(3)}, {lng.toFixed(3)}
+                        </span>
+                      </div>
+                      <label className="flex items-center gap-2 pt-1 cursor-pointer select-none group/geo">
+                        <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all ${useGeo ? 'bg-amber-500 border-amber-500' : 'bg-white border-slate-200 group-hover/geo:border-amber-400'}`}>
+                           {useGeo && <IconCheck size={10} className="text-white" />}
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={useGeo}
+                          onChange={(e) => setUseGeo(e.target.checked)}
+                          className="hidden"
+                        />
+                        <span className="text-[10px] font-bold text-slate-500 group-hover/geo:text-slate-900 transition-colors">{t.use_current}</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{t.bird_label}</label>
+                  <div className="grid grid-cols-5 gap-3">
+                    {birdOptions.map((bird) => (
                       <button
                         key={bird.id}
                         type="button"
-                        className={`w-full flex items-center justify-between px-4 py-3.5 rounded-2xl transition-all duration-200 ${isActive ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'hover:bg-slate-50 text-slate-700'}`}
-                        onClick={() => {
-                          setBirdId(String(bird.id));
-                          document.getElementById('bird-dropdown').classList.add('hidden');
-                        }}
+                        onClick={() => setBirdId(String(bird.id))}
+                        className={`aspect-square rounded-2xl flex flex-col items-center justify-center gap-2 transition-all border-2 ${
+                          String(birdId) === String(bird.id)
+                            ? 'bg-amber-500 border-amber-500 text-white shadow-xl shadow-amber-500/30 scale-105 z-10'
+                            : 'bg-white border-slate-50 text-slate-300 hover:border-amber-200 hover:bg-amber-50/30'
+                        }`}
+                        title={lang === 'ta' ? bird.tamil : bird.label}
                       >
-                        <div className="flex items-center gap-4">
-                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isActive ? 'bg-white/20' : 'bg-slate-100'}`}>
-                            <Icon size={22} className={isActive ? 'text-white' : 'text-slate-500'} />
-                          </div>
-                          <div className="flex flex-col text-left">
-                            <span className={`text-sm font-black leading-tight ${isActive ? 'text-white' : 'text-slate-900'}`}>{lang === 'ta' ? bird.tamil : bird.label}</span>
-                            <span className={`text-[10px] font-bold uppercase tracking-[0.2em] mt-0.5 ${isActive ? 'text-white/60' : 'text-slate-400'}`}>{bird.key}</span>
-                          </div>
-                        </div>
-                        {isActive && (
-                          <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
-                            <IconCheck size={12} className="text-white" />
-                          </div>
-                        )}
+                        {(() => {
+                           const Icon = BIRD_ICONS[bird.key];
+                           return <Icon size={24} className={String(birdId) === String(bird.id) ? 'scale-110' : ''} />;
+                        })()}
+                        <span className="text-[8px] font-black uppercase tracking-tighter opacity-80">
+                          {lang === 'ta' ? bird.tamil : bird.key}
+                        </span>
                       </button>
-                    );
-                  })}
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-2 pt-2">
+                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{t.paksha_type}</label>
+                   <div className="flex gap-1 p-1.5 bg-slate-100/50 rounded-2xl border border-slate-100">
+                      <button 
+                        type="button"
+                        onClick={() => { setPaksha('bright'); setAutoPaksha(false); }}
+                        className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${paksha === 'bright' && !autoPaksha ? 'bg-white text-emerald-600 shadow-md ring-1 ring-emerald-500/10' : 'text-slate-400 hover:text-slate-600'}`}
+                      >
+                        {lang === 'ta' ? 'வளர்பிறை' : 'Bright'}
+                      </button>
+                      <button 
+                        type="button"
+                        onClick={() => { setPaksha('dark'); setAutoPaksha(false); }}
+                        className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${paksha === 'dark' && !autoPaksha ? 'bg-white text-indigo-600 shadow-md ring-1 ring-indigo-500/10' : 'text-slate-400 hover:text-slate-600'}`}
+                      >
+                        {lang === 'ta' ? 'தேயிறை' : 'Dark'}
+                      </button>
+                      <button 
+                        type="button"
+                        onClick={() => setAutoPaksha(true)}
+                        className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${autoPaksha ? 'bg-amber-400 text-amber-950 shadow-md ring-1 ring-amber-500/10' : 'text-slate-400 hover:text-slate-600'}`}
+                      >
+                        {t.auto}
+                      </button>
+                   </div>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn-primary py-4 group flex items-center justify-center gap-3 active:scale-95 shadow-xl shadow-amber-500/30"
+              >
+                {loading ? (
+                   <>
+                     <div className="w-4 h-4 border-2 border-amber-950/20 border-t-amber-950 rounded-full animate-spin" />
+                     {t.generating}
+                   </>
+                ) : (
+                  <>
+                    <span className="text-[11px] uppercase tracking-[0.2em]">{t.generate}</span>
+                    <IconArrowRight size={16} className="group-hover:translate-x-2 transition-transform" />
+                  </>
+                )}
+              </button>
+            </form>
+
+            {error && (
+              <div className="mt-8 bg-rose-50 border border-rose-100 text-rose-600 px-5 py-4 rounded-2xl text-[10px] font-black uppercase tracking-wide flex items-start gap-3 animate-in shake duration-500">
+                <div className="w-6 h-6 rounded-xl bg-white flex items-center justify-center shadow-sm shrink-0 font-black">!</div>
+                <div className="flex-1 leading-normal">{error}</div>
+              </div>
+            )}
+          </section>
+
+        </aside>
+
+        {/* MAIN RESULTS AREA */}
+        <div className="flex-1 min-w-0 w-full space-y-10 min-h-[800px]">
+          {prediction && summary ? (
+            <div className="space-y-12 animate-in fade-in slide-in-from-right-8 duration-1000">
+              
+              {/* SUMMARY DASHBOARD */}
+              <div className="space-y-8">
+                <SpecialPeriods periods={prediction.specialPeriods} lang={lang} />
+                
+                <div className="glass-card shadow-card-sm overflow-hidden p-0 border-none ring-1 ring-slate-100/50">
+                  <div className="table-wrap">
+                    <table className="w-full text-left min-w-[700px]">
+                      <thead>
+                        <tr className="bg-slate-50/80 text-[10px] font-black uppercase tracking-[0.25em] text-slate-400 border-b border-slate-100">
+                          <th className="px-10 py-5">{t.date_label}</th>
+                          <th className="px-10 py-5">{t.weekday}</th>
+                          <th className="px-10 py-5">{t.sunrise}</th>
+                          <th className="px-10 py-5">{t.paksha}</th>
+                          <th className="px-10 py-5">{lang === 'ta' ? 'திசை' : 'Direction'}</th>
+                          <th className="px-10 py-5">{lang === 'ta' ? 'ஹோரை' : 'Horai'}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr className="text-sm font-bold text-slate-900 group">
+                          <td className="px-10 py-8 group-hover:bg-slate-50/50 transition-colors">{formatDateDisplay(summary.date)}</td>
+                          <td className="px-10 py-8 group-hover:bg-slate-50/50 transition-colors uppercase tracking-tight text-amber-600">{lang === 'ta' ? summary.weekday.tamil : summary.weekday.label}</td>
+                          <td className="px-10 py-8 group-hover:bg-slate-50/50 transition-colors font-mono text-xs text-slate-500">{formatTimeFromISO(summary.sunrise)}</td>
+                          <td className="px-10 py-8 group-hover:bg-slate-50/50 transition-colors">
+                            <span className="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-600 text-[9px] font-black uppercase tracking-[0.15em] border border-emerald-100/50 shadow-sm shadow-emerald-500/5">
+                              {lang === 'ta' ? summary.paksha?.tamil : summary.paksha?.label}
+                            </span>
+                          </td>
+                          <td className="px-10 py-8 group-hover:bg-slate-50/50 transition-colors">
+                            <span className="text-indigo-600 font-black uppercase tracking-widest text-[11px] bg-indigo-50/50 px-3 py-1.5 rounded-xl border border-indigo-100/50 shadow-sm shadow-indigo-500/5">
+                              {lang === 'ta' ? summary.paksha?.direction?.tamil : summary.paksha?.direction?.label}
+                            </span>
+                          </td>
+                          <td className="px-10 py-8 group-hover:bg-slate-50/50 transition-colors">
+                            {summary.currentHorai ? (
+                              <div className="flex items-center gap-3 px-4 py-2 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100/50 text-amber-700 w-fit shadow-sm shadow-amber-500/5 ring-1 ring-white">
+                                <IconSun size={14} className="animate-spin-slow" />
+                                <span className="text-[10px] font-black uppercase tracking-[0.1em]">
+                                  {lang === 'ta' ? summary.currentHorai.planet.tamil : summary.currentHorai.planet.label}
+                                </span>
+                              </div>
+                            ) : '-'}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              {/* SCHEDULE TABLES */}
+              <div className="space-y-20">
+                <ScheduleTable tone="day" yamas={prediction.dayYamas} lang={lang} />
+                <ScheduleTable tone="night" yamas={prediction.nightYamas} lang={lang} />
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                   <HoraiTable horai={prediction.horai} lang={lang} />
+                   <GowriTable gowri={prediction.gowri} lang={lang} />
+                </div>
+              </div>
+
+            </div>
+          ) : (
+            <div className="flex-1 flex flex-col items-center justify-center bg-white/40 rounded-[3rem] border-2 border-dashed border-slate-200/60 m-4 relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-br from-amber-50/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+              <div className="relative flex flex-col items-center animate-in zoom-in slide-in-from-bottom-12 duration-1000">
+                <div className="w-24 h-24 rounded-[3rem] bg-amber-500/10 flex items-center justify-center text-amber-500 mb-8 shadow-sm ring-1 ring-amber-500/20 animate-slow-bounce">
+                  <IconCalendar size={48} />
+                </div>
+                <h3 className="text-3xl font-black text-slate-800 mb-3 tracking-tight">{lang === 'ta' ? 'தயார்' : 'Ready'}</h3>
+                <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] max-w-[320px] text-center leading-loose opacity-70">
+                  {lang === 'ta' ? 'தேதி, இடம் மற்றும் பட்சி தேர்வு செய்து அட்டவணையை காண்க.' : 'Select date, location and bird to view your astrological schedule.'}
+                </p>
+                
+                <div className="mt-12 flex gap-3">
+                  <div className="w-1.5 h-1.5 rounded-full bg-amber-500/20" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-amber-500/40" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-amber-500/20" />
                 </div>
               </div>
             </div>
-          </div>
-
-          <div className="lg:col-span-2 flex flex-col gap-2">
-            <label className="text-sm font-bold text-slate-500 uppercase tracking-wider">{t.pakshaMode}</label>
-            <div className="flex flex-wrap gap-2">
-              {pakshaOptions.map((opt) => (
-                <button
-                  key={opt.key}
-                  type="button"
-                  className={`flex-1 py-3 px-4 rounded-xl font-bold transition-all border-2 text-sm ${pakshaMode === opt.key ? 'bg-yellow-100 border-yellow-500 text-yellow-900 shadow-sm' : 'bg-white border-slate-100 text-slate-400 hover:border-yellow-200'}`}
-                  onClick={() => setPakshaMode(opt.key)}
-                >
-                  {lang === 'ta' ? opt.tamil : opt.label}
-                </button>
-              ))}
-              <button
-                type="button"
-                className={`flex-1 py-3 px-4 rounded-xl font-bold transition-all border-2 text-sm ${pakshaMode === 'auto' ? 'bg-yellow-100 border-yellow-500 text-yellow-900 shadow-sm' : 'bg-white border-slate-100 text-slate-400 hover:border-yellow-200'}`}
-                onClick={() => setPakshaMode('auto')}
-              >
-                {t.auto}
-              </button>
-            </div>
-          </div>
-
-          <div className="flex items-end justify-end md:pt-2">
-            <button 
-              className="btn-primary w-full py-3 text-sm shadow-xl shadow-yellow-500/20" 
-              onClick={handleSubmit} 
-              disabled={loading}
-            >
-              {loading ? t.generating : t.generate}
-            </button>
-          </div>
+          )}
         </div>
-        
-        {error && (
-          <div className="mt-6 bg-red-50 border border-red-100 text-red-600 px-6 py-4 rounded-2xl text-sm font-bold">
-            {error}
-          </div>
-        )}
-      </section>
-
-      {prediction && summary && (
-        <div className="space-y-6 animate-in fade-in duration-500">
-          <SpecialPeriods periods={prediction.specialPeriods} lang={lang} />
-          
-          <div className="glass-card shadow-card-sm overflow-hidden p-0">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="bg-yellow-400/10 text-[10px] font-black uppercase tracking-widest text-yellow-600/70 border-b border-yellow-100">
-                  <th className="px-8 py-3">{t.date_label}</th>
-                  <th className="px-8 py-3">{t.weekday}</th>
-                  <th className="px-8 py-3">{t.sunrise}</th>
-                  <th className="px-8 py-3">{t.paksha}</th>
-                  <th className="px-8 py-3">{lang === 'ta' ? 'திசை' : 'Direction'}</th>
-                  <th className="px-8 py-3">{lang === 'ta' ? 'தற்போதைய ஹோரை' : 'Current Horai'}</th>
-                  <th className="px-8 py-3">{lang === 'ta' ? 'கௌரி' : 'Gowri'}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="text-sm font-bold text-slate-800">
-                  <td className="px-8 py-4">{formatDateDisplay(summary.date)}</td>
-                  <td className="px-8 py-4">{lang === 'ta' ? summary.weekday.tamil : summary.weekday.label}</td>
-                  <td className="px-8 py-4">{formatTimeFromISO(summary.sunrise)}</td>
-                  <td className="px-8 py-4 text-emerald-600 uppercase tracking-tighter">
-                    {lang === 'ta' ? summary.paksha?.tamil : summary.paksha?.label}
-                  </td>
-                  <td className="px-8 py-4 text-indigo-600 font-bold uppercase">
-                    {lang === 'ta' ? summary.paksha?.direction?.tamil : summary.paksha?.direction?.label}
-                  </td>
-                  <td className="px-8 py-4">
-                    {summary.currentHorai ? (
-                      <div className="flex items-center gap-2">
-                        <IconSun size={14} className="text-amber-500" />
-                        <span className="text-amber-600">
-                          {lang === 'ta' ? summary.currentHorai.planet.tamil : summary.currentHorai.planet.label}
-                        </span>
-                      </div>
-                    ) : '-'}
-                  </td>
-                  <td className="px-8 py-4">
-                    {summary.currentGowri ? (
-                       <span className={summary.currentGowri.type.nature === 'good' ? 'text-emerald-600' : 'text-rose-600'}>
-                          {lang === 'ta' ? summary.currentGowri.type.tamil : summary.currentGowri.type.label}
-                       </span>
-                    ) : '-'}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {prediction ? (
-        <div className="space-y-12">
-          <ScheduleTable tone="day" yamas={prediction.dayYamas} lang={lang} />
-          <ScheduleTable tone="night" yamas={prediction.nightYamas} lang={lang} />
-          
-          <HoraiTable horai={prediction.horai} lang={lang} />
-          
-          <GowriTable gowri={prediction.gowri} lang={lang} />
-
-          <div className="text-center pb-20">
-
-             <button className="btn-ghost" onClick={() => { setPrediction(null); setError(''); }}>
-               {t.clear}
-             </button>
-          </div>
-        </div>
-      ) : (
-        !loading && (
-          <section className="py-12 text-center glass-card bg-transparent border-dashed border-2 border-amber-200">
-            <div className="text-3xl mb-3 text-amber-500/40"><IconCalendar size={48} className="mx-auto" /></div>
-            <h2 className="text-xl font-black text-slate-800 mb-1">{t.readyTitle}</h2>
-            <p className="text-sm text-slate-500 max-w-xs mx-auto leading-relaxed">{t.readyBody}</p>
-          </section>
-        )
-      )}
+      </div>
     </PortalShell>
-
   );
 }
