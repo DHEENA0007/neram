@@ -312,26 +312,23 @@
     margin: 12mm 14mm;
   }
 
-  /* Hide every element except the print view */
-  * { visibility: hidden !important; }
-
-  /* Make the print view and all its children visible */
-  #print-view,
-  #print-view * {
-    visibility: visible !important;
+  /* Hide all non-essential elements from layout */
+  .no-print {
+    display: none !important;
   }
 
-  /* Position the print view to fill the page */
+  /* Make the print view visible and allow it to occupy the flow */
   #print-view {
     display: block !important;
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
+    position: relative !important;
+    visibility: visible !important;
     width: 100% !important;
-    font-family: Inter, "Noto Sans Tamil", sans-serif !important;
-    color: #0f172a !important;
-    background: #fff !important;
-    font-size: 9pt !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  #print-view * {
+    visibility: visible !important;
   }
 
   /* Prevent page breaks inside rows */

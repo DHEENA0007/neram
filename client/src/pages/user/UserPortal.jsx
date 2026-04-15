@@ -154,7 +154,7 @@ export function UserPortal() {
       <div className="flex flex-col xl:flex-row gap-8 items-start">
 
         {/* CONFIG SIDEBAR */}
-        <aside className="w-full xl:w-[420px] shrink-0 space-y-6 xl:sticky xl:top-[88px] max-h-[calc(100vh-120px)] overflow-y-auto pr-2 pb-20 scrollbar-hide">
+        <aside className="no-print w-full xl:w-[420px] shrink-0 space-y-6 xl:sticky xl:top-[88px] max-h-[calc(100vh-120px)] overflow-y-auto pr-2 pb-20 scrollbar-hide">
           <NameBirdSection 
             lang={lang} 
             onUpdateBird={(id) => setBirdId(String(id))} 
@@ -356,7 +356,7 @@ export function UserPortal() {
               <PrintView prediction={prediction} lang={lang} locationName={locationName} />
 
               {/* PRINT BUTTON */}
-              <div className="flex justify-end">
+              <div className="no-print flex justify-end">
                 <button
                   onClick={() => window.print()}
                   className="flex items-center gap-2 px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-slate-800/20 active:scale-95 transition-all"
@@ -367,7 +367,7 @@ export function UserPortal() {
               </div>
 
               {/* SUMMARY DASHBOARD */}
-              <div className="space-y-8">
+              <div className="no-print space-y-8">
                 <SpecialPeriods periods={prediction.specialPeriods} lang={lang} />
                 
                 <div className="glass-card shadow-card-sm overflow-hidden p-0 border-none ring-1 ring-slate-100/50">
@@ -416,7 +416,7 @@ export function UserPortal() {
               </div>
 
               {/* SCHEDULE TABLES */}
-              <div className="space-y-20">
+              <div className="no-print space-y-20">
                 <ScheduleTable tone="day" yamas={prediction.dayYamas} lang={lang} />
                 <ScheduleTable tone="night" yamas={prediction.nightYamas} lang={lang} />
                 

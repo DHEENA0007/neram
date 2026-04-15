@@ -26,10 +26,10 @@ const GOWRI_NATURE = {
 
 function SectionTitle({ children }) {
   return (
-    <div style={{ marginTop: 18, marginBottom: 6 }}>
+    <div style={{ marginTop: 12, marginBottom: 4 }}>
       <div style={{
-        background: '#1e293b', color: '#fff', padding: '4px 10px',
-        fontSize: 10, fontWeight: 900, letterSpacing: '0.15em',
+        background: '#1e293b', color: '#fff', padding: '3px 8px',
+        fontSize: 9, fontWeight: 900, letterSpacing: '0.1em',
         textTransform: 'uppercase', display: 'inline-block', borderRadius: 3
       }}>
         {children}
@@ -52,8 +52,8 @@ function Tbl({ children, style }) {
 function Th({ children, style, align = 'left' }) {
   return (
     <th style={{
-      background: '#f1f5f9', padding: '4px 7px', fontWeight: 800,
-      fontSize: 8, letterSpacing: '0.1em', textTransform: 'uppercase',
+      background: '#f1f5f9', padding: '3px 5px', fontWeight: 800,
+      fontSize: 7.5, letterSpacing: '0.05em', textTransform: 'uppercase',
       color: '#475569', border: '1px solid #e2e8f0', textAlign: align, ...style
     }}>
       {children}
@@ -64,7 +64,7 @@ function Th({ children, style, align = 'left' }) {
 function Td({ children, style, align = 'left' }) {
   return (
     <td style={{
-      padding: '4px 7px', border: '1px solid #e2e8f0',
+      padding: '3px 5px', border: '1px solid #e2e8f0',
       color: '#334155', verticalAlign: 'middle', textAlign: align, ...style
     }}>
       {children}
@@ -95,9 +95,9 @@ export function PrintView({ prediction, lang, locationName }) {
       fontFamily: 'Inter, "Noto Sans Tamil", sans-serif',
       color: '#0f172a',
       background: '#fff',
-      padding: '20px 28px',
-      fontSize: 9,
-      lineHeight: 1.4,
+      padding: '10px 24px',
+      fontSize: 8.5,
+      lineHeight: 1.3,
     }}>
 
       {/* ── HEADER ─────────────────────────────────────────── */}
@@ -176,21 +176,33 @@ export function PrintView({ prediction, lang, locationName }) {
       <YamaTable yamas={prediction.nightYamas} lang={lang} />
 
       {/* ── HORAI ────────────────────────────────────────────── */}
-      <SectionTitle>{t ? 'ஹோரை அட்டவணை' : 'Horai Schedule'}</SectionTitle>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-        <HoraiBlock title={t ? 'பகல் ஹோரை' : 'Day Horai'} items={dayHorai} lang={lang} />
-        <HoraiBlock title={t ? 'இரவு ஹோரை' : 'Night Horai'} items={nightHorai} lang={lang} />
+      <div style={{ marginTop: 10 }}>
+        <SectionTitle>{t ? 'ஹோரை அட்டவணை' : 'Horai Schedule'}</SectionTitle>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <div style={{ flex: 1 }}>
+            <HoraiBlock title={t ? 'பகல் ஹோரை' : 'Day Horai'} items={dayHorai} lang={lang} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <HoraiBlock title={t ? 'இரவு ஹோரை' : 'Night Horai'} items={nightHorai} lang={lang} />
+          </div>
+        </div>
       </div>
 
       {/* ── GOWRI ────────────────────────────────────────────── */}
-      <SectionTitle>{t ? 'கௌரி பஞ்சாங்கம்' : 'Gowri Panchangam'}</SectionTitle>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-        <GowriBlock title={t ? 'பகல் கௌரி' : 'Day Gowri'} items={dayGowri} lang={lang} />
-        <GowriBlock title={t ? 'இரவு கௌரி' : 'Night Gowri'} items={nightGowri} lang={lang} />
+      <div style={{ marginTop: 20 }}>
+        <SectionTitle>{t ? 'கௌரி பஞ்சாங்கம்' : 'Gowri Panchangam'}</SectionTitle>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <div style={{ flex: 1 }}>
+            <GowriBlock title={t ? 'பகல் கௌரி' : 'Day Gowri'} items={dayGowri} lang={lang} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <GowriBlock title={t ? 'இரவு கௌரி' : 'Night Gowri'} items={nightGowri} lang={lang} />
+          </div>
+        </div>
       </div>
 
       {/* ── FOOTER ───────────────────────────────────────────── */}
-      <div style={{ borderTop: '1px solid #e2e8f0', marginTop: 16, paddingTop: 6, display: 'flex', justifyContent: 'space-between', fontSize: 7, color: '#94a3b8' }}>
+      <div style={{ borderTop: '1px solid #e2e8f0', marginTop: 12, paddingTop: 4, display: 'flex', justifyContent: 'space-between', fontSize: 7, color: '#94a3b8' }}>
         <span>{t ? 'நேரம் — பஞ்சபட்சி கணினி' : 'Neram — Pancha Pakshi Calculator'}</span>
         <span>{new Date().toLocaleString()}</span>
       </div>
@@ -206,13 +218,13 @@ function YamaTable({ yamas, lang }) {
     <Tbl>
       <thead>
         <tr>
-          <Th style={{ width: 28 }}>#</Th>
-          <Th style={{ width: 70 }}>{t ? 'நேரம்' : 'Time'}</Th>
-          <Th style={{ width: 60 }}>{t ? 'பட்சி' : 'Bird'}</Th>
-          <Th style={{ width: 55 }}>{t ? 'தொழில்' : 'Activity'}</Th>
-          <Th style={{ width: 55 }}>{t ? 'திசை' : 'Direction'}</Th>
+          <Th style={{ width: 20 }}>#</Th>
+          <Th style={{ width: 65 }}>{t ? 'நேரம்' : 'Time'}</Th>
+          <Th style={{ width: 55 }}>{t ? 'பட்சி' : 'Bird'}</Th>
+          <Th style={{ width: 50 }}>{t ? 'தொழில்' : 'Activity'}</Th>
+          <Th style={{ width: 50 }}>{t ? 'திசை' : 'Direction'}</Th>
           <Th>{t ? 'சூட்சும விவரம்' : 'Sub-rows (Bird / Activity / Time)'}</Th>
-          <Th style={{ width: 38 }} align="right">{t ? 'பலம்' : 'Strength'}</Th>
+          <Th style={{ width: 35 }} align="right">{t ? 'பலம்' : 'Strength'}</Th>
         </tr>
       </thead>
       <tbody>
