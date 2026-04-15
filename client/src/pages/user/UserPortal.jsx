@@ -8,7 +8,8 @@ import { HoraiTable } from '../../components/HoraiTable.jsx';
 import { SpecialPeriods } from '../../components/SpecialPeriods.jsx';
 import { GowriTable } from '../../components/GowriTable.jsx';
 import { BirdHelper } from '../../components/BirdHelper.jsx';
-import { IconArrowRight, IconVulture, IconOwl, IconCrow, IconHen, IconPeacock, IconCheck, IconCalendar, IconLocation, IconSun, IconSearch } from '../../components/Icons.jsx';
+import { IconArrowRight, IconVulture, IconOwl, IconCrow, IconHen, IconPeacock, IconCheck, IconCalendar, IconLocation, IconSun, IconSearch, IconDownload } from '../../components/Icons.jsx';
+import { PrintView } from '../../components/PrintView.jsx';
 
 const BIRD_ICONS = {
   vulture: IconVulture,
@@ -350,7 +351,21 @@ export function UserPortal() {
         <div className="flex-1 min-w-0 w-full space-y-10 min-h-[800px]">
           {prediction && summary ? (
             <div className="space-y-12 animate-in fade-in slide-in-from-right-8 duration-1000">
-              
+
+              {/* PRINT VIEW (hidden on screen, visible only when printing) */}
+              <PrintView prediction={prediction} lang={lang} locationName={locationName} />
+
+              {/* PRINT BUTTON */}
+              <div className="flex justify-end">
+                <button
+                  onClick={() => window.print()}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-slate-800/20 active:scale-95 transition-all"
+                >
+                  <IconDownload size={14} />
+                  {lang === 'ta' ? 'PDF பதிவிறக்கம்' : 'Download PDF'}
+                </button>
+              </div>
+
               {/* SUMMARY DASHBOARD */}
               <div className="space-y-8">
                 <SpecialPeriods periods={prediction.specialPeriods} lang={lang} />
@@ -405,10 +420,8 @@ export function UserPortal() {
                 <ScheduleTable tone="day" yamas={prediction.dayYamas} lang={lang} />
                 <ScheduleTable tone="night" yamas={prediction.nightYamas} lang={lang} />
                 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                   <HoraiTable horai={prediction.horai} lang={lang} />
-                   <GowriTable gowri={prediction.gowri} lang={lang} />
-                </div>
+                <HoraiTable horai={prediction.horai} lang={lang} />
+                <GowriTable gowri={prediction.gowri} lang={lang} />
               </div>
 
             </div>

@@ -305,3 +305,37 @@
   animation: slow-zoom 20s infinite ease-in-out;
 }
 
+/* ── Print styles ───────────────────────────────────────────── */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm 14mm;
+  }
+
+  /* Hide every element except the print view */
+  * { visibility: hidden !important; }
+
+  /* Make the print view and all its children visible */
+  #print-view,
+  #print-view * {
+    visibility: visible !important;
+  }
+
+  /* Position the print view to fill the page */
+  #print-view {
+    display: block !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    font-family: Inter, "Noto Sans Tamil", sans-serif !important;
+    color: #0f172a !important;
+    background: #fff !important;
+    font-size: 9pt !important;
+  }
+
+  /* Prevent page breaks inside rows */
+  tr { page-break-inside: avoid; }
+  tbody { page-break-inside: auto; }
+}
+
