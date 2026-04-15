@@ -18,7 +18,8 @@ import {
   setUserDefaultPlace,
   updateUser,
 } from './lib/db.js';
-import { buildPanchaPakshiSchedule, ensurePanchaPakshiDataLoaded, searchPlaces } from './lib/panchaPakshi.js';
+import { buildPanchaPakshiSchedule, ensurePanchaPakshiDataLoaded, searchPlaces, getBirdIdFromName } from './lib/panchaPakshi.js';
+import { birdOptions } from '../shared/constants.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.join(__dirname, '..');
@@ -163,6 +164,17 @@ app.get(
   asyncRoute(async (req, res) => {
     const results = await searchPlaces(req.query.q);
     res.json({ results });
+  }),
+);
+
+app.get(
+  '/api/name-bird',
+  asyncRoute(async (req, res) => {
+    const name = String(req.query.name || '').trim();
+    if (!name) return res.json({ birdId: null, bird: null });
+    const birdId = getBirdIdFromName(name);
+    const bird = birdId ? birdOptions.find(b => b.id === birdId) ?? null : null;
+    res.json({ birdId, bird });
   }),
 );
 

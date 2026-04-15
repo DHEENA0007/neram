@@ -40,6 +40,98 @@ function getBirdByZeroBasedIndex(index) {
   return birdOptions[index] ?? birdOptions[0];
 }
 
+// ── Peyar Pakshi: Name → Bird detection ──────────────────────────────────────
+
+const TAMIL_VOWEL_TO_BIRD = {
+  0x0B85: 1, // அ  → வல்லூறு
+  0x0B86: 1, // ஆ  → வல்லூறு
+  0x0B90: 1, // ஐ  → வல்லூறு
+  0x0B94: 1, // ஔ  → வல்லூறு
+  0x0B87: 2, // இ  → ஆந்தை
+  0x0B88: 2, // ஈ  → ஆந்தை
+  0x0B89: 3, // உ  → காகம்
+  0x0B8A: 3, // ஊ  → காகம்
+  0x0B8E: 4, // எ  → கோழி
+  0x0B8F: 4, // ஏ  → கோழி
+  0x0B92: 5, // ஒ  → மயில்
+  0x0B93: 5, // ஓ  → மயில்
+};
+
+const TAMIL_SIGN_TO_BIRD = {
+  0x0BBE: 1, // ா  (ஆ)  → வல்லூறு
+  0x0BC8: 1, // ை  (ஐ)  → வல்லூறு
+  0x0BCC: 1, // ௌ  (ஔ)  → வல்லூறு
+  0x0BBF: 2, // ி  (இ)  → ஆந்தை
+  0x0BC0: 2, // ீ  (ஈ)  → ஆந்தை
+  0x0BC1: 3, // ு  (உ)  → காகம்
+  0x0BC2: 3, // ூ  (ஊ)  → காகம்
+  0x0BC6: 4, // ெ  (எ)  → கோழி
+  0x0BC7: 4, // ே  (ஏ)  → கோழி
+  0x0BCA: 5, // ொ  (ஒ)  → மயில்
+  0x0BCB: 5, // ோ  (ஓ)  → மயில்
+};
+
+function getBirdFromTamilName(name) {
+  const chars = [...name];
+  for (let i = 0; i < chars.length; i++) {
+    const code = chars[i].codePointAt(0);
+
+    // Standalone Tamil vowel
+    if (TAMIL_VOWEL_TO_BIRD[code]) return TAMIL_VOWEL_TO_BIRD[code];
+
+    // Tamil consonant (U+0B95–U+0BB9)
+    if (code >= 0x0B95 && code <= 0x0BB9) {
+      const nextCode = chars[i + 1]?.codePointAt(0);
+      if (nextCode === 0x0BCD) continue; // pulli (்) = pure consonant, skip
+      if (TAMIL_SIGN_TO_BIRD[nextCode]) return TAMIL_SIGN_TO_BIRD[nextCode];
+      return 1; // consonant with no vowel sign → inherent 'அ' → Bird 1
+    }
+  }
+  return null;
+}
+
+function getBirdFromEnglishName(name) {
+  const s = name.toLowerCase().replace(/[^a-z]/g, '');
+  if (!s) return null;
+
+  // Skip leading consonant cluster; handle Tamil-style digraphs
+  const digraphs = new Set(['th', 'dh', 'sh', 'zh', 'ch', 'ng', 'kh', 'gh', 'ph']);
+  let i = 0;
+  while (i < s.length && !'aeiou'.includes(s[i])) {
+    if (digraphs.has(s.slice(i, i + 2))) { i += 2; } else { i++; }
+  }
+  if (i >= s.length) return null;
+
+  const v = s.slice(i);
+
+  // Multi-char vowel patterns first (order matters)
+  if (v.startsWith('ai') || v.startsWith('ay')) return 1; // ஐ → வல்லூறு
+  if (v.startsWith('au') || v.startsWith('aw') || v.startsWith('ou')) return 1; // ஔ → வல்லூறு
+  if (v.startsWith('aa') || v.startsWith('ah')) return 1; // ஆ → வல்லூறு
+  if (v.startsWith('ee') || v.startsWith('ii') || v.startsWith('ea')) return 2; // ஈ → ஆந்தை
+  if (v.startsWith('oo') || v.startsWith('uu')) return 3; // ஊ → காகம்
+  if (v.startsWith('oa') || v.startsWith('oh') || v.startsWith('oe')) return 5; // ஓ → மயில்
+
+  // Single vowel
+  if (v.startsWith('a')) return 1; // அ → வல்லூறு
+  if (v.startsWith('i')) return 2; // இ → ஆந்தை
+  if (v.startsWith('u')) return 3; // உ → காகம்
+  if (v.startsWith('e')) return 4; // எ → கோழி
+  if (v.startsWith('o')) return 5; // ஒ → மயில்
+
+  return null;
+}
+
+export function getBirdIdFromName(name) {
+  if (!name || !name.trim()) return null;
+  const trimmed = name.trim();
+  // Detect script: if any Tamil Unicode character present, use Tamil parser
+  const isTamil = /[\u0B80-\u0BFF]/.test(trimmed);
+  return isTamil ? getBirdFromTamilName(trimmed) : getBirdFromEnglishName(trimmed);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 const HORAI_SEQUENCE = [
   { key: 'sun', label: 'Sun', tamil: 'சூரியன்' },
   { key: 'venus', label: 'Venus', tamil: 'சுக்கிரன்' },

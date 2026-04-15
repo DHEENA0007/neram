@@ -39,6 +39,13 @@ export function searchPlaces(query) {
   return apiFetch(url.pathname + url.search);
 }
 
+// ── Peyar Pakshi ──────────────────────────────────
+export function nameBird(name) {
+  const url = new URL('/api/name-bird', window.location.origin);
+  url.searchParams.set('name', name);
+  return apiFetch(url.pathname + url.search);
+}
+
 // ── Prediction ────────────────────────────────────
 export function requestPrediction(payload) {
   return apiFetch('/api/prediction', { method: 'POST', body: JSON.stringify(payload) });
