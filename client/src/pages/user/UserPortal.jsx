@@ -151,10 +151,10 @@ export function UserPortal() {
 
   return (
     <PortalShell title={t.title} lang={lang} onToggleLang={() => setLang(lang === 'ta' ? 'en' : 'ta')}>
-      <div className="flex flex-col xl:flex-row gap-8 items-start">
+      <div className="flex flex-col xl:flex-row gap-6 sm:gap-8 items-start">
 
         {/* CONFIG SIDEBAR */}
-        <aside className="no-print w-full xl:w-[420px] shrink-0 space-y-6 xl:sticky xl:top-[88px] max-h-[calc(100vh-120px)] overflow-y-auto pr-2 pb-20 scrollbar-hide">
+        <aside className="no-print w-full xl:w-[420px] shrink-0 space-y-4 sm:space-y-6 xl:sticky xl:top-[88px] max-h-none xl:max-h-[calc(100vh-120px)] overflow-y-auto pr-0 xl:pr-2 pb-10 sm:pb-20 scrollbar-hide">
           <NameBirdSection 
             lang={lang} 
             onUpdateBird={(id) => setBirdId(String(id))} 
@@ -370,48 +370,38 @@ export function UserPortal() {
               <div className="no-print space-y-8">
                 <SpecialPeriods periods={prediction.specialPeriods} lang={lang} />
                 
-                <div className="glass-card shadow-card-sm overflow-hidden p-0 border-none ring-1 ring-slate-100/50">
-                  <div className="table-wrap">
-                    <table className="w-full text-left min-w-[700px]">
-                      <thead>
-                        <tr className="bg-slate-50/80 text-[10px] font-black uppercase tracking-[0.25em] text-slate-400 border-b border-slate-100">
-                          <th className="px-10 py-5">{t.date_label}</th>
-                          <th className="px-10 py-5">{t.weekday}</th>
-                          <th className="px-10 py-5">{t.sunrise}</th>
-                          <th className="px-10 py-5">{t.paksha}</th>
-                          <th className="px-10 py-5">{lang === 'ta' ? 'திசை' : 'Direction'}</th>
-                          <th className="px-10 py-5">{lang === 'ta' ? 'ஹோரை' : 'Horai'}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr className="text-sm font-bold text-slate-900 group">
-                          <td className="px-10 py-8 group-hover:bg-slate-50/50 transition-colors">{formatDateDisplay(summary.date)}</td>
-                          <td className="px-10 py-8 group-hover:bg-slate-50/50 transition-colors uppercase tracking-tight text-amber-600">{lang === 'ta' ? summary.weekday.tamil : summary.weekday.label}</td>
-                          <td className="px-10 py-8 group-hover:bg-slate-50/50 transition-colors font-mono text-xs text-slate-500">{formatTimeFromISO(summary.sunrise)}</td>
-                          <td className="px-10 py-8 group-hover:bg-slate-50/50 transition-colors">
-                            <span className="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-600 text-[9px] font-black uppercase tracking-[0.15em] border border-emerald-100/50 shadow-sm shadow-emerald-500/5">
-                              {lang === 'ta' ? summary.paksha?.tamil : summary.paksha?.label}
-                            </span>
-                          </td>
-                          <td className="px-10 py-8 group-hover:bg-slate-50/50 transition-colors">
-                            <span className="text-indigo-600 font-black uppercase tracking-widest text-[11px] bg-indigo-50/50 px-3 py-1.5 rounded-xl border border-indigo-100/50 shadow-sm shadow-indigo-500/5">
-                              {lang === 'ta' ? summary.paksha?.direction?.tamil : summary.paksha?.direction?.label}
-                            </span>
-                          </td>
-                          <td className="px-10 py-8 group-hover:bg-slate-50/50 transition-colors">
-                            {summary.currentHorai ? (
-                              <div className="flex items-center gap-3 px-4 py-2 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100/50 text-amber-700 w-fit shadow-sm shadow-amber-500/5 ring-1 ring-white">
-                                <IconSun size={14} className="animate-spin-slow" />
-                                <span className="text-[10px] font-black uppercase tracking-[0.1em]">
-                                  {lang === 'ta' ? summary.currentHorai.planet.tamil : summary.currentHorai.planet.label}
-                                </span>
-                              </div>
-                            ) : '-'}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                  {[
+                    { label: t.date_label, value: formatDateDisplay(summary.date) },
+                    { label: t.weekday, value: lang === 'ta' ? summary.weekday.tamil : summary.weekday.label, highlight: 'text-amber-600' },
+                    { label: t.sunrise, value: formatTimeFromISO(summary.sunrise), mono: true },
+                    { label: t.paksha, value: lang === 'ta' ? summary.paksha?.tamil : summary.paksha?.label, badge: 'emerald' },
+                    { label: lang === 'ta' ? 'திசை' : 'Direction', value: lang === 'ta' ? summary.paksha?.direction?.tamil : summary.paksha?.direction?.label, badge: 'indigo' },
+                    { 
+                      label: lang === 'ta' ? 'இன்றைய ஹோரை' : 'Current Horai', 
+                      node: summary.currentHorai ? (
+                        <div className="flex items-center gap-2 px-3 py-1 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100/50 text-amber-700 shadow-sm ring-1 ring-white">
+                          <IconSun size={12} className="animate-spin-slow" />
+                          <span className="text-[10px] font-black uppercase">
+                            {lang === 'ta' ? summary.currentHorai.planet.tamil : summary.currentHorai.planet.label}
+                          </span>
+                        </div>
+                      ) : <span className="text-slate-300">—</span>
+                    }
+                  ].map((item, idx) => (
+                    <div key={idx} className="glass-card shadow-card-sm p-5 border-none ring-1 ring-slate-100/50 flex flex-col justify-center gap-2 hover:scale-[1.02] transition-all">
+                       <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">{item.label}</span>
+                       {item.node ? item.node : (
+                         <span className={`text-sm font-black ${item.highlight || 'text-slate-800'} ${item.mono ? 'font-mono text-xs' : ''}`}>
+                            {item.badge ? (
+                              <span className={`px-2 py-0.5 rounded-lg text-[10px] uppercase font-black tracking-wider ${item.badge === 'emerald' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100/50' : 'bg-indigo-50 text-indigo-600 border border-indigo-100/50'}`}>
+                                {item.value}
+                              </span>
+                            ) : item.value}
+                         </span>
+                       )}
+                    </div>
+                  ))}
                 </div>
               </div>
 

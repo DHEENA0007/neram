@@ -74,8 +74,8 @@ export function NameBirdSection({ onUpdateBird, lang }) {
         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 block">
           {t.label1}
         </label>
-        <div className="flex items-center gap-3">
-          <div className="relative flex-1">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <div className="relative flex-1 w-full">
             <input
               className="w-full px-4 py-2.5 pr-9 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-500/10 text-sm font-bold text-slate-800 placeholder:text-slate-300 transition-all"
               value={name1}
@@ -86,19 +86,19 @@ export function NameBirdSection({ onUpdateBird, lang }) {
           </div>
 
           {bird1 ? (
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-2 shrink-0 bg-amber-50/50 p-2 sm:p-0 rounded-xl sm:bg-transparent border border-amber-100/50 sm:border-none">
               <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider whitespace-nowrap">{t.yourBird}</span>
               <BirdChip bird={bird1} lang={lang} color="amber" />
               <button
                 onClick={() => onUpdateBird(bird1.id)}
                 title={t.sync}
-                className="w-7 h-7 bg-amber-400 hover:bg-amber-500 text-amber-950 rounded-lg flex items-center justify-center shrink-0 active:scale-90 transition-all"
+                className="w-8 h-8 sm:w-7 sm:h-7 bg-amber-400 hover:bg-amber-500 text-amber-950 rounded-lg flex items-center justify-center shrink-0 active:scale-90 transition-all shadow-md sm:shadow-none"
               >
                 <IconArrowRight size={13} className="-rotate-90" />
               </button>
             </div>
           ) : (
-            <span className="text-[9px] font-black text-slate-300 uppercase tracking-wider shrink-0 whitespace-nowrap">{t.yourBird} —</span>
+            <span className="hidden sm:block text-[9px] font-black text-slate-300 uppercase tracking-wider shrink-0 whitespace-nowrap">{t.yourBird} —</span>
           )}
         </div>
       </div>
@@ -111,8 +111,8 @@ export function NameBirdSection({ onUpdateBird, lang }) {
         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 block">
           {t.label2}
         </label>
-        <div className="flex items-center gap-3">
-          <div className="relative flex-1">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <div className="relative flex-1 w-full">
             <input
               className="w-full px-4 py-2.5 pr-9 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 text-sm font-bold text-slate-800 placeholder:text-slate-300 transition-all"
               value={name2}
@@ -123,12 +123,12 @@ export function NameBirdSection({ onUpdateBird, lang }) {
           </div>
 
           {bird2 ? (
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-2 shrink-0 bg-indigo-50/50 p-2 sm:p-0 rounded-xl sm:bg-transparent border border-indigo-100/50 sm:border-none">
               <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider whitespace-nowrap">{t.otherBird}</span>
               <BirdChip bird={bird2} lang={lang} color="indigo" />
             </div>
           ) : (
-            <span className="text-[9px] font-black text-slate-300 uppercase tracking-wider shrink-0 whitespace-nowrap">{t.otherBird} —</span>
+            <span className="hidden sm:block text-[9px] font-black text-slate-300 uppercase tracking-wider shrink-0 whitespace-nowrap">{t.otherBird} —</span>
           )}
         </div>
       </div>

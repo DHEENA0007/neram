@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Bird, Zap, Globe, ArrowRight, Shield, Clock, Users, Sparkles } from 'lucide-react';
 
 const L = {
   en: {
@@ -47,16 +48,16 @@ export function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Navigation */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white/40 backdrop-blur-xl border-b border-white/20 px-6 py-4 flex items-center justify-between">
-        <div className="text-2xl font-black font-serif text-yellow-600 tracking-tight">Neram</div>
+      <header className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 border-b border-white/5 px-6 py-3 flex items-center justify-between">
+        <div className="text-xl font-black font-serif text-yellow-500 tracking-tight">Neram</div>
         <div className="flex items-center gap-4">
           <button 
-            className="text-sm font-bold text-slate-600 hover:text-yellow-600 px-4 py-2 rounded-full hover:bg-white/50 transition-all"
+            className="text-xs font-bold text-white/60 hover:text-white px-3 py-1.5 rounded-full hover:bg-white/5 transition-all"
             onClick={() => setLang(l => l === 'ta' ? 'en' : 'ta')}
           >
             {t.langBtn}
           </button>
-          <Link to="/login" className="btn-primary py-2 px-6 shadow-none">
+          <Link to="/login" className="btn-primary py-1.5 px-5 shadow-none text-xs">
             {t.signin}
           </Link>
         </div>
@@ -64,31 +65,30 @@ export function LandingPage() {
 
       <main className="flex-grow">
         {/* Hero Section with Image Background */}
-        <section className="relative pt-48 pb-32 px-6 text-center overflow-hidden min-h-[85vh] flex flex-col justify-center">
+        <section className="relative pt-48 pb-20 px-6 text-center overflow-hidden min-h-[80vh] flex flex-col justify-center bg-slate-950">
           {/* Background Image with Overlay */}
           <div className="absolute inset-0 z-0">
             <img 
               src="/assets/hero-bg.png" 
               alt="Cosmic Background" 
-              className="w-full h-full object-cover scale-105 animate-slow-zoom"
+              className="w-full h-full object-cover scale-105 animate-slow-zoom brightness-50"
             />
-            <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px]"></div>
-            <div className="absolute inset-0 bg-gradient-to-b from-white/0 via-white/40 to-white"></div>
+            <div className="absolute inset-0 bg-gradient-to-b from-slate-950/20 via-transparent to-slate-950"></div>
           </div>
 
-          <div className="relative z-10 max-w-5xl mx-auto">
-            <h1 className="text-5xl md:text-8xl font-black text-slate-900 leading-[1] mb-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+          <div className="relative z-10 max-w-4xl mx-auto">
+            <h1 className="text-4xl md:text-6xl font-black text-white leading-tight mb-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
               {t.heroTitle} <br />
-              <span className="text-yellow-500">{t.heroAccent}</span>
+              <span className="text-yellow-400">{t.heroAccent}</span>
             </h1>
-            <p className="text-xl md:text-2xl text-slate-700 leading-relaxed mb-12 max-w-2xl mx-auto font-medium opacity-90 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+            <p className="text-lg md:text-xl text-slate-300 leading-relaxed mb-10 max-w-xl mx-auto font-medium animate-in fade-in slide-in-from-bottom-10 duration-1000">
               {t.heroSub}
             </p>
             <div className="flex flex-wrap gap-4 justify-center animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-300">
-              <Link to="/login" className="btn-primary text-xl px-12 py-5 shadow-2xl shadow-yellow-500/40">
+              <Link to="/login" className="btn-primary text-lg px-8 py-4 shadow-xl shadow-yellow-500/30">
                 {t.tryBtn}
               </Link>
-              <a href="#features" className="btn-ghost text-xl px-10 py-5 bg-white/80">
+              <a href="#features" className="btn-ghost text-lg px-8 py-4 bg-white/5 text-white border border-white/10 hover:bg-white/10 transition-all">
                 {t.howBtn}
               </a>
             </div>
@@ -96,52 +96,108 @@ export function LandingPage() {
         </section>
 
         {/* Features Content */}
-        <section id="features" className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto px-6 py-32">
-          <div className="glass-card p-12 flex flex-col items-center text-center group hover:-translate-y-2 transition-all duration-300 bg-white/30 border-white/50">
-            <div className="w-20 h-20 bg-yellow-100 rounded-3xl flex items-center justify-center text-4xl mb-8 group-hover:scale-110 transition-transform">🐦</div>
-            <h3 className="text-2xl font-bold mb-4">{t.feature1Title}</h3>
-            <p className="text-slate-500 leading-relaxed text-lg italic">
-              {t.feature1Sub}
+        <section id="features" className="max-w-7xl mx-auto px-6 py-24">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4">Built for Modern Precision</h2>
+            <p className="text-slate-500 max-w-xl mx-auto">
+              Combining ancient Vedic wisdom with high-performance algorithms for modern spiritual productivity.
             </p>
           </div>
 
-          <div className="glass-card p-12 flex flex-col items-center text-center group hover:-translate-y-2 transition-all duration-300 bg-white/30 border-white/50">
-            <div className="w-20 h-20 bg-orange-100 rounded-3xl flex items-center justify-center text-4xl mb-8 group-hover:scale-110 transition-transform">⚡</div>
-            <h3 className="text-2xl font-bold mb-4">{t.feature2Title}</h3>
-            <p className="text-slate-500 leading-relaxed text-lg italic">
-              {t.feature2Sub}
-            </p>
-          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="glass-card p-8 flex flex-col items-center text-center group hover:-translate-y-1 transition-all duration-300 bg-white border-slate-100 shadow-sm">
+              <div className="w-16 h-16 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 mb-6 group-hover:scale-105 transition-all">
+                <Bird size={32} />
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-slate-900">{t.feature1Title}</h3>
+              <p className="text-slate-600 leading-relaxed text-sm">
+                {t.feature1Sub}
+              </p>
+            </div>
 
-          <div className="glass-card p-12 flex flex-col items-center text-center group hover:-translate-y-2 transition-all duration-300 bg-white/30 border-white/50">
-            <div className="w-20 h-20 bg-blue-100 rounded-3xl flex items-center justify-center text-4xl mb-8 group-hover:scale-110 transition-transform">🌍</div>
-            <h3 className="text-2xl font-bold mb-4">{t.feature3Title}</h3>
-            <p className="text-slate-500 leading-relaxed text-lg italic">
-              {t.feature3Sub}
-            </p>
+            <div className="glass-card p-8 flex flex-col items-center text-center group hover:-translate-y-1 transition-all duration-300 bg-white border-slate-100 shadow-sm">
+              <div className="w-16 h-16 bg-orange-50 rounded-2xl flex items-center justify-center text-orange-600 mb-6 group-hover:scale-105 transition-all">
+                <Zap size={32} />
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-slate-900">{t.feature2Title}</h3>
+              <p className="text-slate-600 leading-relaxed text-sm">
+                {t.feature2Sub}
+              </p>
+            </div>
+
+            <div className="glass-card p-8 flex flex-col items-center text-center group hover:-translate-y-1 transition-all duration-300 bg-white border-slate-100 shadow-sm">
+              <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 mb-6 group-hover:scale-105 transition-all">
+                <Globe size={32} />
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-slate-900">{t.feature3Title}</h3>
+              <p className="text-slate-600 leading-relaxed text-sm">
+                {t.feature3Sub}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Value Props Section */}
+        <section className="bg-slate-50 py-24 border-y border-slate-100 overflow-hidden">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+              <div>
+                <span className="text-amber-600 font-bold uppercase tracking-wider text-xs mb-3 block">Engineered for Success</span>
+                <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-6 leading-tight">
+                  Seamlessly plan your journey with <span className="text-amber-500">Ancient Intelligence</span>
+                </h2>
+                <div className="space-y-5">
+                  {[
+                    { icon: Shield, title: "Unmatched Accuracy", sub: "Calculations based on 2000-year-old scriptures validated for today." },
+                    { icon: Clock, title: "Precision Scheduling", sub: "Down to the minute granularity for your most important decisions." },
+                    { icon: Users, title: "Trusted Community", sub: "Join over 50,000 users who trust Neram for their daily planning." }
+                  ].map((item, i) => (
+                    <div key={i} className="flex gap-4">
+                      <div className="shrink-0 w-10 h-10 bg-white rounded-lg shadow-sm border border-slate-100 flex items-center justify-center text-amber-500">
+                        <item.icon size={20} />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-slate-900 mb-0.5">{item.title}</h4>
+                        <p className="text-slate-500 text-sm leading-relaxed">{item.sub}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="relative">
+                <div className="rounded-3xl overflow-hidden shadow-2xl border-4 border-white rotate-2 hover:rotate-0 transition-all duration-500">
+                  <img 
+                    src="/assets/dashboard.png" 
+                    alt="Pancha Pakshi Interface" 
+                    className="w-full h-auto object-cover"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
         {/* Final CTA */}
-        <section className="bg-yellow-400/90 py-32 text-center px-6 relative overflow-hidden">
-           <div className="absolute inset-0 opacity-10 pointer-events-none grayscale brightness-200">
+        <section className="bg-slate-950 py-24 text-center px-6 relative overflow-hidden">
+           <div className="absolute inset-0 opacity-10 pointer-events-none mix-blend-overlay">
              <img src="/assets/hero-bg.png" alt="" className="w-full h-full object-cover" />
            </div>
            
-           <div className="relative z-10">
-              <h2 className="text-5xl font-black text-yellow-950 mb-8">{t.readyTitle}</h2>
-              <p className="text-yellow-900 text-xl mb-12 max-w-2xl mx-auto font-bold opacity-70">
+           <div className="relative z-10 max-w-3xl mx-auto">
+              <h2 className="text-4xl md:text-5xl font-black text-white mb-6 leading-tight">{t.readyTitle}</h2>
+              <p className="text-slate-400 text-lg mb-10 max-w-xl mx-auto">
                 {t.readySub}
               </p>
-              <Link to="/login" className="bg-white text-yellow-600 px-12 py-5 rounded-3xl font-black text-2xl shadow-2xl shadow-yellow-950/20 hover:scale-105 active:scale-95 transition-all inline-block">
+              <Link to="/login" className="bg-amber-500 text-amber-950 px-10 py-4 rounded-xl font-black text-xl shadow-xl shadow-amber-500/20 hover:scale-105 active:scale-95 transition-all inline-flex items-center gap-3 group">
                 {t.startBtn}
+                <ArrowRight size={24} className="group-hover:translate-x-1 transition-transform" />
               </Link>
            </div>
         </section>
       </main>
 
-      <footer className="py-16 px-6 border-t border-slate-100 text-center bg-white">
-        <div className="text-3xl font-black font-serif text-yellow-600 mb-6">Neram</div>
+      <footer className="py-10 px-6 border-t border-slate-100 text-center bg-white">
+        <div className="text-2xl font-black font-serif text-yellow-600 mb-4">Neram</div>
         <p className="text-slate-400 text-sm font-bold uppercase tracking-widest">
           © 2026 Neram Pancha Pakshi. All rights reserved.
         </p>
