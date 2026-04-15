@@ -37,6 +37,158 @@ function getBirdByZeroBasedIndex(index) {
   return birdOptions[index] ?? birdOptions[0];
 }
 
+const HORAI_SEQUENCE = [
+  { key: 'sun', label: 'Sun', tamil: 'சூரியன்' },
+  { key: 'venus', label: 'Venus', tamil: 'சுக்கிரன்' },
+  { key: 'mercury', label: 'Mercury', tamil: 'புதன்' },
+  { key: 'moon', label: 'Moon', tamil: 'சந்திரன்' },
+  { key: 'saturn', label: 'Saturn', tamil: 'சனி' },
+  { key: 'jupiter', label: 'Jupiter', tamil: 'குரு' },
+  { key: 'mars', label: 'Mars', tamil: 'செவ்வாய்' },
+];
+
+const WEEKDAY_HORAI_START_INDEX = {
+  0: 0, // Sunday -> Sun
+  1: 3, // Monday -> Moon
+  2: 6, // Tuesday -> Mars
+  3: 2, // Wednesday -> Mercury
+  4: 5, // Thursday -> Jupiter
+  5: 1, // Friday -> Venus
+  6: 4, // Saturday -> Saturn
+};
+
+function calculateHoraiSchedule({ sunrise, sunset, nextSunrise, weekdayIndex, timezone }) {
+  const daySlotDurationMs = (sunset.toMillis() - sunrise.toMillis()) / 12;
+  const nightSlotDurationMs = (nextSunrise.toMillis() - sunset.toMillis()) / 12;
+  const startIndex = WEEKDAY_HORAI_START_INDEX[weekdayIndex];
+
+  const horai = [];
+
+  // Day Horas
+  for (let i = 0; i < 12; i++) {
+    const start = DateTime.fromMillis(Math.round(sunrise.toMillis() + daySlotDurationMs * i), { zone: timezone });
+    const end = DateTime.fromMillis(Math.round(sunrise.toMillis() + daySlotDurationMs * (i + 1)), { zone: timezone });
+    const planet = HORAI_SEQUENCE[(startIndex + i) % 7];
+    horai.push({
+      index: i + 1,
+      period: 'day',
+      start: start.toISO({ suppressMilliseconds: true }),
+      end: end.toISO({ suppressMilliseconds: true }),
+      startLabel: start.toFormat('hh:mm a'),
+      endLabel: end.toFormat('hh:mm a'),
+      planet,
+    });
+  }
+
+  // Night Horas
+  for (let i = 0; i < 12; i++) {
+    const start = DateTime.fromMillis(Math.round(sunset.toMillis() + nightSlotDurationMs * i), { zone: timezone });
+    const end = DateTime.fromMillis(Math.round(sunset.toMillis() + nightSlotDurationMs * (i + 1)), { zone: timezone });
+    const planet = HORAI_SEQUENCE[(startIndex + 12 + i) % 7];
+    horai.push({
+      index: i + 13,
+      period: 'night',
+      start: start.toISO({ suppressMilliseconds: true }),
+      end: end.toISO({ suppressMilliseconds: true }),
+      startLabel: start.toFormat('hh:mm a'),
+      endLabel: end.toFormat('hh:mm a'),
+      planet,
+    });
+  }
+
+  return horai;
+}
+
+const RAHU_KAALAM_PARTS = { 0: 8, 1: 2, 2: 7, 3: 5, 4: 6, 5: 4, 6: 3 };
+const YAMAGANDAM_PARTS = { 0: 5, 1: 4, 2: 3, 3: 2, 4: 1, 5: 7, 6: 6 };
+const KULIKAI_PARTS = { 0: 7, 1: 6, 2: 5, 3: 4, 4: 3, 5: 2, 6: 1 };
+
+function calculateSpecialPeriods({ sunrise, sunset, weekdayIndex, timezone }) {
+  const dayDurationMs = sunset.toMillis() - sunrise.toMillis();
+  const partDurationMs = dayDurationMs / 8;
+
+  const getPeriod = (partNumber) => {
+    const start = DateTime.fromMillis(Math.round(sunrise.toMillis() + partDurationMs * (partNumber - 1)), { zone: timezone });
+    const end = DateTime.fromMillis(Math.round(sunrise.toMillis() + partDurationMs * partNumber), { zone: timezone });
+    return {
+      start: start.toISO({ suppressMilliseconds: true }),
+      end: end.toISO({ suppressMilliseconds: true }),
+      startLabel: start.toFormat('hh:mm a'),
+      endLabel: end.toFormat('hh:mm a'),
+    };
+  };
+
+  return {
+    rahu: getPeriod(RAHU_KAALAM_PARTS[weekdayIndex]),
+    yamagandam: getPeriod(YAMAGANDAM_PARTS[weekdayIndex]),
+    kulikai: getPeriod(KULIKAI_PARTS[weekdayIndex]),
+  };
+}
+
+const GOWRI_TYPES = [
+  { key: 'amritham', label: 'Amritham', tamil: 'அமிர்தம்', nature: 'good' },
+  { key: 'siddham', label: 'Siddham', tamil: 'சித்தம்', nature: 'good' },
+  { key: 'rogam', label: 'Rogam', tamil: 'ரோகம்', nature: 'bad' },
+  { key: 'labham', label: 'Labham', tamil: 'லாபம்', nature: 'good' },
+  { key: 'sugam', label: 'Sugam', tamil: 'சுகம்', nature: 'good' },
+  { key: 'soram', label: 'Soram', tamil: 'சோரம்', nature: 'bad' },
+  { key: 'dhanam', label: 'Dhanam', tamil: 'தனம்', nature: 'good' },
+  { key: 'visham', label: 'Visham', tamil: 'விஷம்', nature: 'bad' },
+];
+
+const WEEKDAY_GOWRI_START_INDEX = {
+  0: 6, // Sunday -> Dhanam
+  1: 0, // Monday -> Amritham
+  2: 1, // Tuesday -> Siddham
+  3: 2, // Wednesday -> Rogam
+  4: 3, // Thursday -> Labham
+  5: 4, // Friday -> Sugam
+  6: 5, // Saturday -> Soram
+};
+
+function calculateGowriSchedule({ sunrise, sunset, nextSunrise, weekdayIndex, timezone }) {
+  const daySlotDurationMs = (sunset.toMillis() - sunrise.toMillis()) / 12;
+  const nightSlotDurationMs = (nextSunrise.toMillis() - sunset.toMillis()) / 12;
+  const startIndex = WEEKDAY_GOWRI_START_INDEX[weekdayIndex];
+
+  const gowri = [];
+
+  // Day Gowri
+  for (let i = 0; i < 12; i++) {
+    const start = DateTime.fromMillis(Math.round(sunrise.toMillis() + daySlotDurationMs * i), { zone: timezone });
+    const end = DateTime.fromMillis(Math.round(sunrise.toMillis() + daySlotDurationMs * (i + 1)), { zone: timezone });
+    const type = GOWRI_TYPES[(startIndex + i) % 8];
+    gowri.push({
+      index: i + 1,
+      period: 'day',
+      start: start.toISO({ suppressMilliseconds: true }),
+      end: end.toISO({ suppressMilliseconds: true }),
+      startLabel: start.toFormat('hh:mm a'),
+      endLabel: end.toFormat('hh:mm a'),
+      type,
+    });
+  }
+
+  // Night Gowri
+  for (let i = 0; i < 12; i++) {
+    const start = DateTime.fromMillis(Math.round(sunset.toMillis() + nightSlotDurationMs * i), { zone: timezone });
+    const end = DateTime.fromMillis(Math.round(sunset.toMillis() + nightSlotDurationMs * (i + 1)), { zone: timezone });
+    const type = GOWRI_TYPES[(startIndex + 12 + i) % 8];
+    gowri.push({
+      index: i + 13,
+      period: 'night',
+      start: start.toISO({ suppressMilliseconds: true }),
+      end: end.toISO({ suppressMilliseconds: true }),
+      startLabel: start.toFormat('hh:mm a'),
+      endLabel: end.toFormat('hh:mm a'),
+      type,
+    });
+  }
+
+  return gowri;
+}
+
+
 export const activityLabelMap = Object.fromEntries(
   activityOptions.map((activity) => [activity.key, activity]),
 );
@@ -187,17 +339,31 @@ export async function fetchAstronomy({ latitude, longitude, date, timezone }) {
   };
 }
 
-export function resolvePaksha(date, timezone, mode = 'auto') {
+export function resolvePaksha(date, timezone, longitude, latitude, mode = 'auto') {
   if (mode === 'bright' || mode === 'dark') {
     return mode;
   }
 
-  const localNoon = DateTime.fromISO(date, { zone: timezone })
-    .set({ hour: 12, minute: 0, second: 0, millisecond: 0 })
-    .toJSDate();
-  const illumination = SunCalc.getMoonIllumination(localNoon);
-  return illumination.phase < 0.5 ? 'bright' : 'dark';
+  const responseZone = timezone || 'UTC';
+  const dayStart = DateTime.fromISO(date, { zone: responseZone });
+  const sunTimes = SunCalc.getTimes(dayStart.toJSDate(), latitude, longitude);
+  const sunrise = DateTime.fromJSDate(sunTimes.sunrise).setZone(responseZone);
+  const sunset = DateTime.fromJSDate(sunTimes.sunset).setZone(responseZone);
+
+  // Core Rule: 24 minutes (1 Nazhigai) after sunrise/sunset
+  const checkDayPoint = sunrise.plus({ minutes: 24 }).toJSDate();
+  const checkNightPoint = sunset.plus({ minutes: 24 }).toJSDate();
+
+  const dayIllumination = SunCalc.getMoonIllumination(checkDayPoint);
+  const nightIllumination = SunCalc.getMoonIllumination(checkNightPoint);
+
+  // phase 0-0.5 is bright, 0.5-1.0 is dark
+  const dayPaksha = dayIllumination.phase < 0.5 ? 'bright' : 'dark';
+  const nightPaksha = nightIllumination.phase < 0.5 ? 'bright' : 'dark';
+
+  return { dayPaksha, nightPaksha };
 }
+
 
 function formatTimeLabel(dateTime) {
   return dateTime.toFormat('hh:mm a');
@@ -247,11 +413,13 @@ function mapRow(row) {
   };
 }
 
-function buildYamaRows(rows, { startTime, endTime, timezone, yamaIndex, birdId, palangalList = [] }) {
+function buildYamaRows(rows, { startTime, endTime, timezone, yamaIndex, birdId, palangalList = [], paksha, intrinsicStrength, direction }) {
   const yamaDurationMs = endTime.toMillis() - startTime.toMillis();
   const yamaDurationMinutes = yamaDurationMs / 60000;
   const mappedRows = rows.map(mapRow);
   const mainRow = mappedRows[0];
+  const mainActivityKey = mainRow.mainActivity?.key;
+  const mainFactor = activityStrengthFactors[mainActivityKey] || 1;
 
   const parent = {
     index: yamaIndex + 1,
@@ -270,7 +438,9 @@ function buildYamaRows(rows, { startTime, endTime, timezone, yamaIndex, birdId, 
           : null,
     paduBird: mainRow.paduBird,
     bharanaBird: mainRow.bharanaBird,
+    direction,
   };
+
 
   const childRows = [];
   let cursor = startTime;
@@ -315,6 +485,10 @@ function buildYamaRows(rows, { startTime, endTime, timezone, yamaIndex, birdId, 
       }
     }
 
+    const subActivityKey = row.subActivity?.key;
+    const subFactor = activityStrengthFactors[subActivityKey] || 1;
+    const strengthPercentage = intrinsicStrength * mainFactor * subFactor;
+
     childRows.push({
       index: subIdx,
       start: roundedCursor.toISO({ suppressMilliseconds: true }),
@@ -329,7 +503,9 @@ function buildYamaRows(rows, { startTime, endTime, timezone, yamaIndex, birdId, 
       powerFactor: row.powerFactor,
       rating: row.rating,
       palan: bestPalan,
+      strength: strengthPercentage.toFixed(2),
     });
+
 
     cursor = nextCursor;
   });
@@ -373,23 +549,33 @@ export async function buildPanchaPakshiSchedule({
     timezone,
   });
 
-  const paksha = resolvePaksha(date, astronomy.timezone, pakshaMode);
-  const pakshaIndex = paksha === 'bright' ? 0 : 1;
+  const { dayPaksha, nightPaksha } = resolvePaksha(date, astronomy.timezone, longitude, latitude, pakshaMode);
+  const dayPakshaIndex = dayPaksha === 'bright' ? 0 : 1;
+  const nightPakshaIndex = nightPaksha === 'bright' ? 0 : 1;
+
   const weekdayIndex = DateTime.fromISO(date, { zone: astronomy.timezone }).weekday % 7;
   const bird = getBirdById(birdId);
 
+  const birdStrengthData = birdIntrinsicStrengths;
+  const dayIntrinsic = birdStrengthData[dayPaksha][birdId];
+  const nightIntrinsic = birdStrengthData[nightPaksha][birdId];
+
+  const dayDirection = birdDirections[dayPaksha][birdId];
+  const nightDirection = birdDirections[nightPaksha][birdId];
+
   const dayRows = getRowsForKey({
     weekdayIndex,
-    pakshaIndex,
+    pakshaIndex: dayPakshaIndex,
     dayNightIndex: 0,
     birdIndex: bird.id - 1,
   });
   const nightRows = getRowsForKey({
     weekdayIndex,
-    pakshaIndex,
+    pakshaIndex: nightPakshaIndex,
     dayNightIndex: 1,
     birdIndex: bird.id - 1,
   });
+
 
   if (dayRows.length < 25 || nightRows.length < 25) {
     throw new Error('Pancha Pakshi data was incomplete for the requested combination');
@@ -418,10 +604,14 @@ export async function buildPanchaPakshiSchedule({
       yamaIndex: index,
       birdId,
       palangalList,
+      paksha: dayPaksha,
+      intrinsicStrength: dayIntrinsic,
+      direction: dayDirection,
     });
   });
 
   const nightYamas = groupIntoYamas(nightRows).map((rows, index) => {
+
     const start = DateTime.fromMillis(
       Math.round(astronomy.sunset.toMillis() + nightYamaDurationMs * index),
       { zone: astronomy.timezone },
@@ -440,11 +630,17 @@ export async function buildPanchaPakshiSchedule({
       yamaIndex: index,
       birdId,
       palangalList,
+      paksha: nightPaksha,
+      intrinsicStrength: nightIntrinsic,
+      direction: nightDirection,
     });
   });
 
+
   const weekday = getWeekdayByIndex(weekdayIndex);
-  const pakshaLabel = getPakshaByKey(paksha);
+  const dayPakshaLabel = getPakshaByKey(dayPaksha);
+  const nightPakshaLabel = getPakshaByKey(nightPaksha);
+
 
   return {
     date,
@@ -457,10 +653,20 @@ export async function buildPanchaPakshiSchedule({
     weekday,
     bird,
     paksha: {
-      key: paksha,
-      label: pakshaLabel.label,
-      tamil: pakshaLabel.tamil,
+      day: {
+        key: dayPaksha,
+        label: dayPakshaLabel.label,
+        tamil: dayPakshaLabel.tamil,
+        direction: dayDirection,
+      },
+      night: {
+        key: nightPaksha,
+        label: nightPakshaLabel.label,
+        tamil: nightPakshaLabel.tamil,
+        direction: nightDirection,
+      }
     },
+
     astronomy: {
       sunrise: astronomy.sunrise.toISO({ suppressMilliseconds: true }),
       sunset: astronomy.sunset.toISO({ suppressMilliseconds: true }),
@@ -472,6 +678,26 @@ export async function buildPanchaPakshiSchedule({
     },
     dayYamas,
     nightYamas,
+    horai: calculateHoraiSchedule({
+      sunrise: astronomy.sunrise,
+      sunset: astronomy.sunset,
+      nextSunrise: astronomy.nextSunrise,
+      weekdayIndex,
+      timezone: astronomy.timezone,
+    }),
+    specialPeriods: calculateSpecialPeriods({
+      sunrise: astronomy.sunrise,
+      sunset: astronomy.sunset,
+      weekdayIndex,
+      timezone: astronomy.timezone,
+    }),
+    gowri: calculateGowriSchedule({
+      sunrise: astronomy.sunrise,
+      sunset: astronomy.sunset,
+      nextSunrise: astronomy.nextSunrise,
+      weekdayIndex,
+      timezone: astronomy.timezone,
+    }),
   };
 }
 

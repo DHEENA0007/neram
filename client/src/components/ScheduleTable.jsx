@@ -1,85 +1,65 @@
-import { useState } from 'react';
-import { DateTime } from 'luxon';
-import { birdOptions, activityOptions } from '../shared/constants.js';
+import React, { useState } from 'react';
 
-const COL = {
+const L = {
   en: {
-    yama: 'Yama', subBird: 'Sub Bird', subActivity: 'Sub Bird Activity',
-    subTime: 'Sub Bird Time', relation: 'Relation', palan: 'Prediction',
+    yama: 'Yama', subBird: 'Sub Bird', subActivity: 'Activity',
+    subTime: 'Sub Time', relation: 'Relation', palan: 'Palan',
     paduBird: 'Padu Bird', rulingBird: 'Ruling Bird',
     dayTable: 'Day Schedule', nightTable: 'Night Schedule',
+    strength: 'Strength',
   },
   ta: {
-    yama: 'ஜாமம்', subBird: 'அந்தர பட்சி', subActivity: 'அந்தர பட்சி தொழில்',
+    yama: 'யாமம்', subBird: 'அந்தர பட்சி', subActivity: 'தொழில்',
     subTime: 'அந்தர பட்சி நேரம்', relation: 'உறவு', palan: 'பலன்',
     paduBird: 'படுபட்சி', rulingBird: 'அதிகார பட்சி',
     dayTable: 'பகல் அட்டவணை', nightTable: 'இரவு அட்டவணை',
+    strength: 'பலம்',
   },
 };
 
 function n(obj, lang) { return lang === 'ta' ? obj?.tamil : obj?.label; }
 
 const SOOKSHIMA_PAIRS = [
-  { birdId: 1, activityKey: 'eating' },
-  { birdId: 4, activityKey: 'dying' },
-  { birdId: 2, activityKey: 'sleeping' },
-  { birdId: 5, activityKey: 'ruling' },
-  { birdId: 3, activityKey: 'walking' },
+  { birdId: 1, activity: 'eating', duration: 13 },
+  { birdId: 2, activity: 'walking', duration: 12 },
+  { birdId: 3, activity: 'sleeping', duration: 9 },
+  { birdId: 4, activity: 'dying', duration: 15 },
+  { birdId: 5, activity: 'ruling', duration: 11 },
 ];
 
-function getSookshimaDetails(parentBirdId, parentActivityKey, startISO, endISO, lang) {
-  const startIndex = SOOKSHIMA_PAIRS.findIndex(
-    p => p.birdId === parentBirdId && p.activityKey === parentActivityKey
-  );
-  
-  const rotated = startIndex === -1 
-    ? SOOKSHIMA_PAIRS 
-    : [...SOOKSHIMA_PAIRS.slice(startIndex), ...SOOKSHIMA_PAIRS.slice(0, startIndex)];
+function getSookshimaDetails(birdId, activity, startTime, endTime, lang) {
+  const start = new Date(startTime).getTime();
+  const end = new Date(endTime).getTime();
+  const totalDuration = end - start;
+  const slotCount = 5;
+  const slotDuration = totalDuration / slotCount;
 
-  const start = DateTime.fromISO(startISO);
-  const end = DateTime.fromISO(endISO);
-  const totalDurationMs = end.diff(start).as('milliseconds');
-  const stepMs = totalDurationMs / 5;
-
-  return rotated.map((pair, i) => {
-    const sTime = start.plus({ milliseconds: stepMs * i });
-    const eTime = i === 4 ? end : start.plus({ milliseconds: stepMs * (i + 1) });
-    
-    const bird = birdOptions.find(b => b.id === pair.birdId);
-    const activity = activityOptions.find(a => a.key === pair.activityKey);
-
+  return Array.from({ length: slotCount }).map((_, i) => {
+    const s = start + (i * slotDuration);
+    const e = s + slotDuration;
+    const sLabel = new Date(s).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    const eLabel = new Date(e).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
     return {
-      bird,
-      activity,
-      timeLabel: `${sTime.toFormat('h:mm a').toLowerCase()} to ${eTime.toFormat('h:mm a').toLowerCase()}`
+      index: i + 1,
+      timeLabel: `${sLabel} - ${eLabel}`,
     };
   });
 }
 
-export function ScheduleTable({ tone, yamas, lang = 'ta' }) {
-  const [expanded, setExpanded] = useState({}); 
-  const c = COL[lang];
-
-  const toggleExpand = (yIdx, sIdx) => {
-    setExpanded(prev => {
-      const yamaExp = prev[yIdx] || {};
-      return {
-        ...prev,
-        [yIdx]: { ...yamaExp, [sIdx]: !yamaExp[sIdx] }
-      };
-    });
-  };
-
-  const first = yamas[0];
-  const title = tone === 'day' ? c.dayTable : c.nightTable;
+export function ScheduleTable({ tone, yamas, lang }) {
+  const c = L[lang];
+  const [expandSubs, setExpandSubs] = useState('');
 
   return (
-    <section className={`glass-card overflow-hidden shadow-card border-none ${tone === 'day' ? 'bg-yellow-50/40' : 'bg-blue-50/40'}`}>
-      <div className={`px-6 py-3 flex flex-wrap items-baseline justify-between gap-4 border-b ${tone === 'day' ? 'bg-yellow-400/10 border-yellow-200' : 'bg-blue-400/10 border-blue-200'}`}>
-        <h2 className={`text-xl font-black ${tone === 'day' ? 'text-yellow-700' : 'text-blue-700'}`}>{title}</h2>
-        <div className="flex gap-4 text-xs font-bold uppercase tracking-wider opacity-60">
-           <span>{c.paduBird}: <strong className="text-red-600">{n(first?.paduBird, lang)}</strong></span>
-           <span>{c.rulingBird}: <strong className="text-green-700">{n(first?.bharanaBird, lang)}</strong></span>
+    <section className="glass-card overflow-hidden p-0 border-none shadow-premium animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className={`px-8 py-5 flex items-center justify-between border-b ${
+        tone === 'day' ? 'bg-amber-400/10 border-amber-100/50' : 'bg-indigo-400/10 border-indigo-100/50'
+      }`}>
+        <div className="flex items-center gap-4">
+          <div className={`w-3 h-3 rounded-full ${tone === 'day' ? 'bg-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.6)]' : 'bg-indigo-400 shadow-[0_0_12px_rgba(129,140,248,0.6)]'}`} />
+          <h2 className={`text-xl font-black uppercase tracking-tight ${tone === 'day' ? 'text-amber-700' : 'text-indigo-700'}`}>
+            {tone === 'day' ? c.dayTable : c.nightTable}
+          </h2>
         </div>
       </div>
 
@@ -91,87 +71,84 @@ export function ScheduleTable({ tone, yamas, lang = 'ta' }) {
               <th className="px-6 py-4 border-b border-white/50">{c.subBird}</th>
               <th className="px-6 py-4 border-b border-white/50">{c.subActivity}</th>
               <th className="px-6 py-4 border-b border-white/50">{c.subTime}</th>
-              <th className="px-6 py-4 border-b border-white/50">{c.relation}</th>
+              <th className="px-6 py-4 border-b border-white/50">{lang === 'ta' ? 'திசை' : 'Direction'}</th>
               <th className="px-6 py-4 border-b border-white/50">{c.palan}</th>
+              <th className="px-6 py-4 border-b border-white/50">{c.strength}</th>
             </tr>
           </thead>
+
           <tbody className="text-sm">
             {yamas.map((yama) => (
               <tr key={yama.index} className="group border-b border-white/30 last:border-none">
                 <td className="px-6 py-4 align-top">
                   <div className="flex flex-col">
-                    <span className="font-black text-slate-900">{lang === 'ta' ? 'ஜாமம்' : 'Yama'} {yama.index}</span>
-                    <span className="text-xs font-bold text-slate-400 lowercase whitespace-nowrap">{yama.startLabel} – {yama.endLabel}</span>
-                    <span className="text-[10px] font-black uppercase text-yellow-600 mt-2">{lang === 'ta' ? yama.mainActivity?.tamil : yama.mainActivity?.label}</span>
+                    <span className="text-lg font-black text-slate-800 tabular-nums leading-none mb-1">#{yama.index}</span>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{yama.startLabel}</span>
                   </div>
                 </td>
-                
-                <td colSpan={5} className="p-0 align-top">
-                   <table className="w-full">
-                     <tbody>
-                       {yama.subRows.map((s, i) => {
-                         const isExp = expanded[yama.index]?.[s.index];
-                         return (
-                           <tr key={i} className="border-b border-white/20 last:border-none">
-                             <td className="px-6 py-4 w-1/5">
-                               <div className="font-bold text-slate-700">{lang === 'ta' ? s.bird?.tamil : s.bird?.label}</div>
-                               {isExp && getSookshimaDetails(s.bird?.id, s.activity?.key, s.start, s.end, lang).map((sk, j) => (
-                                 <div key={j} className="text-xs font-medium text-slate-400 pl-4 py-1 border-l-2 border-yellow-200 mt-1">
-                                   {lang === 'ta' ? sk.bird?.tamil : sk.bird?.label}
-                                 </div>
-                               ))}
-                             </td>
-                             <td className="px-6 py-4 w-1/5">
-                               <div className={`font-bold ${
-                                 s.activity?.key === 'ruling' ? 'text-blue-600' : 
-                                 s.activity?.key === 'eating' ? 'text-orange-600' :
-                                 s.activity?.key === 'walking' ? 'text-green-600' :
-                                 s.activity?.key === 'sleeping' ? 'text-purple-600' : 'text-red-600'
-                               }`}>
-                                 {lang === 'ta' ? s.activity?.tamil : s.activity?.label}
-                               </div>
-                               {isExp && getSookshimaDetails(s.bird?.id, s.activity?.key, s.start, s.end, lang).map((sk, j) => (
-                                 <div key={j} className="text-[10px] font-black uppercase opacity-40 py-1 mt-1">
-                                   {lang === 'ta' ? sk.activity?.tamil : sk.activity?.label}
-                                 </div>
-                               ))}
-                             </td>
-                             <td className="px-6 py-4 w-1/4">
-                               <div className="flex items-center justify-between gap-4">
-                                 <span className="text-xs font-bold text-slate-500">{s.startLabel} – {s.endLabel}</span>
-                                 <button 
-                                   className={`w-6 h-6 rounded-lg flex items-center justify-center text-lg transition-colors ${isExp ? 'bg-yellow-500 text-white' : 'bg-slate-100 text-slate-400 hover:bg-yellow-200'}`}
-                                   onClick={() => toggleExpand(yama.index, s.index)}
-                                 >
-                                   {isExp ? '−' : '+'}
-                                 </button>
-                               </div>
-                               {isExp && getSookshimaDetails(s.bird?.id, s.activity?.key, s.start, s.end, lang).map((sk, j) => (
-                                 <div key={j} className="text-[10px] font-bold text-slate-400 py-1 mt-1 tabular-nums">
-                                   {sk.timeLabel}
-                                 </div>
-                               ))}
-                             </td>
-                             <td className="px-6 py-4 w-1/8">
-                               <div className={`font-bold ${
-                                 s.relation?.key === 'friend' ? 'text-green-600' : 
-                                 s.relation?.key === 'enemy' ? 'text-red-600' : 'text-orange-600'
-                               }`}>
-                                 {lang === 'ta' ? s.relation?.tamil : s.relation?.label}
-                               </div>
-                               {isExp && <div className="h-[92px]" />}
-                             </td>
-                             <td className="px-6 py-4">
-                               <div className="text-xs text-slate-500 leading-relaxed max-w-[200px]">
-                                 {s.palan || <span className="opacity-30">—</span>}
-                               </div>
-                               {isExp && <div className="h-[92px]" />}
-                             </td>
-                           </tr>
-                         );
-                       })}
-                     </tbody>
-                   </table>
+                <td colSpan="6" className="p-0">
+                    <table className="w-full">
+                      <tbody className="text-xs">
+                        {yama.children.map((s, i) => {
+                          const isExp = expandSubs === `${yama.index}-${i}`;
+                          return (
+                            <tr key={i} className="group hover:bg-slate-50 transition-colors">
+                              <td className="px-6 py-4 w-1/8 border-b border-white/10 group-last:border-none font-bold text-slate-900">
+                                {n(s.bird, lang)}
+                              </td>
+                              <td className="px-6 py-4 border-b border-white/10 group-last:border-none">
+                                <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                                  s.activity?.key === 'ruling' ? 'bg-amber-100 text-amber-700' :
+                                  s.activity?.key === 'eating' ? 'bg-emerald-100 text-emerald-700' :
+                                  s.activity?.key === 'walking' ? 'bg-blue-100 text-blue-700' :
+                                  'bg-slate-100 text-slate-500'
+                                }`}>
+                                   {n(s.activity, lang)}
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 border-b border-white/10 group-last:border-none">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs font-bold text-slate-600 tabular-nums">{s.startLabel} - {s.endLabel}</span>
+                                  <button 
+                                    onClick={() => setExpandSubs(isExp ? '' : `${yama.index}-${i}`)}
+                                    className="w-5 h-5 rounded flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-400"
+                                  >
+                                    {isExp ? '−' : '+'}
+                                  </button>
+                                </div>
+                                {isExp && getSookshimaDetails(s.bird?.id, s.activity?.key, s.start, s.end, lang).map((sk, j) => (
+                                  <div key={j} className="text-[10px] font-bold text-slate-400 py-1 mt-1 tabular-nums">
+                                    {sk.timeLabel}
+                                  </div>
+                                ))}
+                              </td>
+                              <td className="px-6 py-4 w-1/4 border-b border-white/10 group-last:border-none">
+                                <div className="text-xs font-bold text-indigo-600">
+                                   {lang === 'ta' ? yama.parent.direction?.tamil : yama.parent.direction?.label}
+                                </div>
+                                {isExp && <div className="h-[92px]" />}
+                              </td>
+                              <td className="px-6 py-4 border-b border-white/10 group-last:border-none">
+                                <div className="text-xs text-slate-500 leading-relaxed max-w-[200px]">
+                                  {s.palan || <span className="opacity-30">—</span>}
+                                </div>
+                                {isExp && <div className="h-[92px]" />}
+                              </td>
+                              <td className="px-6 py-4 w-1/8 font-bold border-b border-white/10 group-last:border-none">
+                                <div className={`px-2 py-1 rounded text-[10px] text-center ${
+                                  Number(s.strength) >= 75 ? 'bg-emerald-100 text-emerald-700' :
+                                  Number(s.strength) >= 50 ? 'bg-blue-100 text-blue-700' :
+                                  Number(s.strength) >= 25 ? 'bg-orange-100 text-orange-700' : 'bg-rose-100 text-rose-700'
+                                }`}>
+                                  {s.strength}%
+                                </div>
+                                {isExp && <div className="h-[92px]" />}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
                 </td>
               </tr>
             ))}

@@ -1,5 +1,14 @@
 import { useState } from 'react';
 import { birdOptions } from '../shared/constants.js';
+import { IconArrowRight, IconVulture, IconOwl, IconCrow, IconHen, IconPeacock } from './Icons.jsx';
+
+const BIRD_ICONS = {
+  vulture: IconVulture,
+  owl: IconOwl,
+  crow: IconCrow,
+  cock: IconHen,
+  peacock: IconPeacock
+};
 
 const VOWEL_TO_BIRD = {
   '\u0B85': 1, '\u0B86': 1, '\u0B90': 1, '\u0B94': 1, // அ, ஆ, ஐ, ஔ
@@ -90,7 +99,7 @@ export function NameBirdSection({ onUpdateBird, lang }) {
     <div className="glass-card overflow-hidden">
       <div className="bg-amber-400 px-6 py-3 flex items-center justify-between">
         <h3 className="text-lg font-black text-amber-950 tracking-tight">{text.title}</h3>
-        <span className="text-xl animate-bounce-slow">🐦</span>
+        <span className="text-xl text-amber-800"><IconVulture size={24} /></span>
       </div>
       
       <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -105,22 +114,25 @@ export function NameBirdSection({ onUpdateBird, lang }) {
                 placeholder="..."
               />
               <button 
-                className={`absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg flex items-center justify-center transition-all ${bird1 ? 'bg-yellow-100 text-yellow-600 hover:scale-110' : 'opacity-20 cursor-not-allowed'}`}
+                className={`absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg flex items-center justify-center transition-all ${bird1 ? 'bg-amber-100 text-amber-600 hover:scale-110' : 'opacity-20 cursor-not-allowed'}`}
                 onClick={() => bird1 && onUpdateBird(bird1.id)}
                 disabled={!bird1}
                 title={text.sync}
               >
-                ▲
+                <IconArrowRight size={14} className="-rotate-90" />
               </button>
             </div>
             
             {bird1 && (
-              <div className="flex items-center gap-4 p-4 bg-yellow-50 rounded-2xl border border-yellow-100 animate-in zoom-in duration-300">
-                <div className="text-3xl bg-white w-12 h-12 flex items-center justify-center rounded-xl shadow-sm">
-                  {bird1.emoji}
+              <div className="flex items-center gap-4 p-4 bg-amber-50 rounded-2xl border border-amber-100 animate-in zoom-in duration-300">
+                <div className="text-3xl bg-white w-12 h-12 flex items-center justify-center rounded-xl shadow-sm text-amber-600">
+                  {(() => {
+                    const Icon = BIRD_ICONS[bird1.key];
+                    return <Icon size={28} />;
+                  })()}
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-black text-yellow-500 uppercase tracking-tighter">{text.result}</span>
+                  <span className="text-[10px] font-black text-amber-500 uppercase tracking-tighter">{text.result}</span>
                   <strong className="text-xl font-black text-slate-900 leading-none">
                     {lang === 'ta' ? bird1.tamil : bird1.label}
                   </strong>
@@ -142,8 +154,11 @@ export function NameBirdSection({ onUpdateBird, lang }) {
             
             {bird2 && (
               <div className="flex items-center gap-4 p-4 bg-orange-50 rounded-2xl border border-orange-100 animate-in zoom-in duration-300">
-                <div className="text-3xl bg-white w-12 h-12 flex items-center justify-center rounded-xl shadow-sm">
-                  {bird2.emoji}
+                <div className="text-3xl bg-white w-12 h-12 flex items-center justify-center rounded-xl shadow-sm text-orange-600">
+                  {(() => {
+                    const Icon = BIRD_ICONS[bird2.key];
+                    return <Icon size={28} />;
+                  })()}
                 </div>
                 <div className="flex flex-col">
                   <span className="text-[10px] font-black text-orange-500 uppercase tracking-tighter">{text.result}</span>

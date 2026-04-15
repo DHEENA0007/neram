@@ -65,7 +65,7 @@ export function LoginPage() {
           ) : null}
 
           <button 
-            className="btn-primary w-full py-4 text-lg" 
+            className="btn-primary" 
             type="submit" 
             disabled={loading}
           >
