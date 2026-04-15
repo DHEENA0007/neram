@@ -8,6 +8,9 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import {
   activityOptions,
+  activityStrengthFactors,
+  birdDirections,
+  birdIntrinsicStrengths,
   birdOptions,
   effectOptions,
   getBirdById,
