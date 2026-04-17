@@ -203,6 +203,7 @@ export function UserPortal() {
   }
 
   return (
+    <>
     <PortalShell title={t.title} lang={lang} onToggleLang={() => setLang(lang === 'ta' ? 'en' : 'ta')}>
       <div className="flex flex-col xl:flex-row gap-6 sm:gap-8 items-start">
 
@@ -509,5 +510,6 @@ export function UserPortal() {
         onPrintRange={handleRangePrint}
       />
     )}
+    </>
   );
 }
