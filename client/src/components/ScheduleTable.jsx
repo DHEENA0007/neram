@@ -142,8 +142,8 @@ export function ScheduleTable({ tone, yamas, lang }) {
                         </div>
                       </td>
                       <td className="px-5 py-4">
-                        {i === 0 && (
-                          <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-lg">{n(yama.direction, lang)}</span>
+                        {s.direction && (
+                          <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-lg">{n(s.direction, lang)}</span>
                         )}
                       </td>
                       <td className="px-5 py-4 text-xs text-slate-500 leading-relaxed">{s.palan || <span className="text-slate-300">—</span>}</td>
@@ -223,6 +223,9 @@ export function ScheduleTable({ tone, yamas, lang }) {
                       </div>
                       <div className="flex items-center gap-3 mb-2">
                          <ActivityBadge activity={s.activity} lang={lang} />
+                         {s.direction && (
+                           <span className="text-[9px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-lg">{n(s.direction, lang)}</span>
+                         )}
                       </div>
                       <p className="text-xs text-slate-500 leading-normal italic px-1">
                         {s.palan || '—'}
