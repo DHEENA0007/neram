@@ -244,32 +244,42 @@ app.post(
     const needsHorai    = categories.includes('horai');
     const needsSchedule = categories.includes('schedule');
     const tz = selectedPlace.timezone || selectedPlace.timeZone || 'UTC';
+    // slim = skip yamas/horai/gowri when only special periods needed
+    const useSlim = !needsHorai && !needsSchedule;
 
+    const offsets = Array.from({ length: diffDays + 1 }, (_, i) => i);
+
+    // Parallel batches of 30 days for speed
+    const BATCH = 30;
     const days = [];
-    for (let i = 0; i <= diffDays; i++) {
-      const d = new Date(from);
-      d.setDate(from.getDate() + i);
-      const dateStr = d.toISOString().split('T')[0];
+    for (let b = 0; b < offsets.length; b += BATCH) {
+      const batch = offsets.slice(b, b + BATCH);
+      const results = await Promise.all(batch.map(async (i) => {
+        const d = new Date(from);
+        d.setDate(from.getDate() + i);
+        const dateStr = d.toISOString().split('T')[0];
 
-      const schedule = await buildPanchaPakshiSchedule({
-        date: dateStr,
-        latitude:  selectedPlace.latitude,
-        longitude: selectedPlace.longitude,
-        timezone:  tz,
-        birdId:    Number(birdId || 1),
-        pakshaMode: 'auto',
-      });
+        const schedule = await buildPanchaPakshiSchedule({
+          date: dateStr,
+          latitude:  selectedPlace.latitude,
+          longitude: selectedPlace.longitude,
+          timezone:  tz,
+          birdId:    Number(birdId || 1),
+          pakshaMode: 'auto',
+          slim: useSlim,
+        });
 
-      const entry = {
-        date:           schedule.date,
-        weekday:        schedule.weekday,
-        paksha:         schedule.paksha,
-        specialPeriods: schedule.specialPeriods,
-      };
-      if (needsHorai)    entry.horai      = schedule.horai;
-      if (needsSchedule) { entry.dayYamas = schedule.dayYamas; entry.nightYamas = schedule.nightYamas; }
-
-      days.push(entry);
+        const entry = {
+          date:           schedule.date,
+          weekday:        schedule.weekday,
+          paksha:         schedule.paksha,
+          specialPeriods: schedule.specialPeriods,
+        };
+        if (needsHorai)    entry.horai      = schedule.horai;
+        if (needsSchedule) { entry.dayYamas = schedule.dayYamas; entry.nightYamas = schedule.nightYamas; }
+        return entry;
+      }));
+      days.push(...results);
     }
 
     return res.json({ days });
