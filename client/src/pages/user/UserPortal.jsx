@@ -372,14 +372,12 @@ export function UserPortal() {
               <div className="no-print space-y-8">
                 <SpecialPeriods periods={prediction.specialPeriods} lang={lang} />
                 
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                   {[
                     { label: t.date_label, value: formatDateDisplay(summary.date) },
                     { label: t.weekday, value: lang === 'ta' ? summary.weekday.tamil : summary.weekday.label, highlight: 'text-amber-600' },
                     { label: t.sunrise, value: formatTimeFromISO(summary.sunrise), mono: true },
                     { label: t.paksha, value: lang === 'ta' ? summary.paksha?.tamil : summary.paksha?.label, badge: 'emerald' },
-                    { label: lang === 'ta' ? 'பகல் திசை' : 'Day Direction', value: lang === 'ta' ? summary.dayPaksha?.direction?.tamil : summary.dayPaksha?.direction?.label, badge: 'indigo' },
-                    { label: lang === 'ta' ? 'இரவு திசை' : 'Night Direction', value: lang === 'ta' ? summary.nightPaksha?.direction?.tamil : summary.nightPaksha?.direction?.label, badge: 'indigo' },
                     { 
                       label: lang === 'ta' ? 'இன்றைய ஹோரை' : 'Current Horai', 
                       node: summary.currentHorai ? (
