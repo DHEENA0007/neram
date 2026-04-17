@@ -173,25 +173,31 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai }) {
                       <td className="px-5 py-4 font-bold text-slate-800 text-sm">{n(s.bird, lang)}</td>
                       <td className="px-5 py-4"><ActivityBadge activity={s.activity} lang={lang} /></td>
                       <td className="px-5 py-4">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-xs font-bold text-slate-600 tabular-nums whitespace-nowrap">{s.startLabel} – {s.endLabel}</span>
-                          {hora && (
-                            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wide bg-slate-100 text-slate-600`}>
-                              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${PLANET_DOT[hora.planet.key] || 'bg-slate-400'}`} />
-                              {lang === 'ta' ? hora.planet.tamil : hora.planet.label}
-                            </span>
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-slate-600 tabular-nums whitespace-nowrap">{s.startLabel} – {s.endLabel}</span>
+                            <button
+                              onClick={() => setExpandSubs(isExp ? '' : key)}
+                              className={`w-5 h-5 rounded-md flex items-center justify-center text-[11px] font-black transition-all shrink-0 ${isExp ? 'bg-amber-400 text-amber-950' : 'bg-slate-100 hover:bg-slate-200 text-slate-500'}`}
+                            >
+                              {isExp ? '−' : '+'}
+                            </button>
+                          </div>
+                          {(hora || warnings.length > 0) && (
+                            <div className="flex items-center gap-1 flex-wrap">
+                              {hora && (
+                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wide bg-slate-100 text-slate-600">
+                                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${PLANET_DOT[hora.planet.key] || 'bg-slate-400'}`} />
+                                  {lang === 'ta' ? hora.planet.tamil : hora.planet.label}
+                                </span>
+                              )}
+                              {warnings.map(w => (
+                                <span key={w} className={`px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wide ${SPECIAL_BADGE[w].cls}`}>
+                                  {SPECIAL_BADGE[w][lang]}
+                                </span>
+                              ))}
+                            </div>
                           )}
-                          {warnings.map(w => (
-                            <span key={w} className={`px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wide ${SPECIAL_BADGE[w].cls}`}>
-                              {SPECIAL_BADGE[w][lang]}
-                            </span>
-                          ))}
-                          <button
-                            onClick={() => setExpandSubs(isExp ? '' : key)}
-                            className={`w-5 h-5 rounded-md flex items-center justify-center text-[11px] font-black transition-all shrink-0 ${isExp ? 'bg-amber-400 text-amber-950' : 'bg-slate-100 hover:bg-slate-200 text-slate-500'}`}
-                          >
-                            {isExp ? '−' : '+'}
-                          </button>
                         </div>
                       </td>
                       <td className="px-5 py-4">
