@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { nakshatraOptions, lagnaOptions, birdOptions, dayPakshaBirdMap, tithiPakshaBirdMap, weekdayOptions } from '../shared/constants.js';
-import { nameBird } from '../api.js';
 import { IconSearch, IconVulture, IconOwl, IconCrow, IconHen, IconPeacock } from './Icons.jsx';
 
 const BIRD_ICONS = {
@@ -27,20 +26,6 @@ const TITHI_OPTIONS = [
 
 const WEEKDAY_OPTS = weekdayOptions.map(w => ({ id: w.index, tamil: w.tamil, label: w.label }));
 
-function useNameBird(name) {
-  const [bird, setBird] = useState(null);
-  const timer = useRef(null);
-  useEffect(() => {
-    setBird(null);
-    if (!name?.trim()) return;
-    clearTimeout(timer.current);
-    timer.current = setTimeout(async () => {
-      try { const r = await nameBird(name.trim()); setBird(r.bird ?? null); } catch { setBird(null); }
-    }, 300);
-    return () => clearTimeout(timer.current);
-  }, [name]);
-  return bird;
-}
 
 function BirdResult({ birdId, lang, onSelect }) {
   const bird = birdId != null ? birdOptions.find(b => b.id === Number(birdId)) : null;
@@ -97,12 +82,6 @@ export function BirdHelper({ lang, onSelectBird }) {
   const [dbNight, setDbNight]           = useState(0);
   const [ddDay, setDdDay]               = useState(0);
   const [ddNight, setDdNight]           = useState(0);
-  const [name1, setName1]               = useState('');
-  const [name2, setName2]               = useState('');
-
-  const nameBird1 = useNameBird(name1);
-  const nameBird2 = useNameBird(name2);
-
   const tl = lang === 'ta';
 
   // Derived bird IDs
@@ -175,27 +154,6 @@ export function BirdHelper({ lang, onSelectBird }) {
         <Row label={tl ? 'இரவு' : 'Night'}>
           <Sel value={ddNight} onChange={setDdNight} options={WEEKDAY_OPTS} lang={lang} />
           <BirdResult birdId={ddNightBird} lang={lang} onSelect={onSelectBird} />
-        </Row>
-
-        {/* Name Bird */}
-        <Section title={tl ? 'பெயர் பட்சி' : 'Name Bird'} />
-        <Row label={tl ? 'உங்கள்' : 'Your'}>
-          <input
-            value={name1}
-            onChange={e => setName1(e.target.value)}
-            placeholder={tl ? 'பெயர்…' : 'Name…'}
-            className="flex-1 min-w-0 text-[11px] font-bold text-slate-700 bg-white border border-slate-200 rounded-lg px-2 py-1.5 outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-500/10"
-          />
-          <BirdResult birdId={nameBird1?.id} lang={lang} onSelect={onSelectBird} />
-        </Row>
-        <Row label={tl ? 'எதிரர்' : 'Other'}>
-          <input
-            value={name2}
-            onChange={e => setName2(e.target.value)}
-            placeholder={tl ? 'பெயர்…' : 'Name…'}
-            className="flex-1 min-w-0 text-[11px] font-bold text-slate-700 bg-white border border-slate-200 rounded-lg px-2 py-1.5 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/10"
-          />
-          <BirdResult birdId={nameBird2?.id} lang={lang} onSelect={onSelectBird} />
         </Row>
 
       </div>

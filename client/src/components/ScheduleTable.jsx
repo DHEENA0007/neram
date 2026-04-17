@@ -30,6 +30,8 @@ function getSookshimaSlots(subRows, currentIndex, parentStart, parentEnd) {
     return {
       bird: row.bird,
       activity: row.activity,
+      start: new Date(s).toISOString(),
+      end: new Date(e).toISOString(),
       startLabel: new Date(s).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
       endLabel: new Date(e).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
     };
@@ -222,13 +224,26 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai }) {
                                 </tr>
                               </thead>
                               <tbody>
-                                {getSookshimaSlots(yama.subRows, i, s.start, s.end).map((sk, j) => (
-                                  <tr key={j} className="border-t border-amber-100/60">
-                                    <td className="py-2 pr-4 font-bold text-slate-800 text-xs">{n(sk.bird, lang)}</td>
-                                    <td className="py-2 pr-4"><ActivityBadge activity={sk.activity} lang={lang} /></td>
-                                    <td className="py-2 text-xs font-bold text-slate-500 tabular-nums whitespace-nowrap">{sk.startLabel} – {sk.endLabel}</td>
-                                  </tr>
-                                ))}
+                                {getSookshimaSlots(yama.subRows, i, s.start, s.end).map((sk, j) => {
+                                  const skHora = getHorai(sk.start, sk.end, horai);
+                                  return (
+                                    <tr key={j} className="border-t border-amber-100/60">
+                                      <td className="py-2 pr-4 font-bold text-slate-800 text-xs">{n(sk.bird, lang)}</td>
+                                      <td className="py-2 pr-4"><ActivityBadge activity={sk.activity} lang={lang} /></td>
+                                      <td className="py-2 text-xs font-bold text-slate-500 tabular-nums whitespace-nowrap">
+                                        <div className="flex items-center gap-1.5 flex-wrap">
+                                          <span>{sk.startLabel} – {sk.endLabel}</span>
+                                          {skHora && (
+                                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wide bg-slate-100 text-slate-600">
+                                              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${PLANET_DOT[skHora.planet.key] || 'bg-slate-400'}`} />
+                                              {lang === 'ta' ? skHora.planet.tamil : skHora.planet.label}
+                                            </span>
+                                          )}
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  );
+                                })}
                               </tbody>
                             </table>
                           </div>
@@ -310,15 +325,26 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai }) {
                         <div className="mt-4 p-4 rounded-2xl bg-amber-50/50 border border-amber-100 animate-in slide-in-from-top-2">
                            <p className="text-[9px] font-black uppercase tracking-widest text-amber-600 mb-3">{c.sookshima}</p>
                            <div className="space-y-4">
-                              {getSookshimaSlots(yama.subRows, i, s.start, s.end).map((sk, j) => (
-                                <div key={j} className="flex justify-between items-start">
-                                   <div className="flex flex-col">
-                                      <span className="text-xs font-black text-slate-800">{n(sk.bird, lang)}</span>
-                                      <span className="text-[10px] font-bold text-slate-400 tabular-nums">{sk.startLabel} – {sk.endLabel}</span>
-                                   </div>
-                                   <ActivityBadge activity={sk.activity} lang={lang} />
-                                </div>
-                              ))}
+                              {getSookshimaSlots(yama.subRows, i, s.start, s.end).map((sk, j) => {
+                                const skHora = getHorai(sk.start, sk.end, horai);
+                                return (
+                                  <div key={j} className="flex justify-between items-start">
+                                     <div className="flex flex-col gap-0.5">
+                                        <span className="text-xs font-black text-slate-800">{n(sk.bird, lang)}</span>
+                                        <div className="flex items-center gap-1 flex-wrap">
+                                          <span className="text-[10px] font-bold text-slate-400 tabular-nums">{sk.startLabel} – {sk.endLabel}</span>
+                                          {skHora && (
+                                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wide bg-slate-100 text-slate-600">
+                                              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${PLANET_DOT[skHora.planet.key] || 'bg-slate-400'}`} />
+                                              {lang === 'ta' ? skHora.planet.tamil : skHora.planet.label}
+                                            </span>
+                                          )}
+                                        </div>
+                                     </div>
+                                     <ActivityBadge activity={sk.activity} lang={lang} />
+                                  </div>
+                                );
+                              })}
                            </div>
                         </div>
                       )}
