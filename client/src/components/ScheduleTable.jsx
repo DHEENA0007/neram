@@ -226,6 +226,7 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai }) {
                               <tbody>
                                 {getSookshimaSlots(yama.subRows, i, s.start, s.end).map((sk, j) => {
                                   const skHora = getHorai(sk.start, sk.end, horai);
+                                  const skWarnings = getSpecialWarnings(sk.start, sk.end, specialPeriods);
                                   return (
                                     <tr key={j} className="border-t border-amber-100/60">
                                       <td className="py-2 pr-4 font-bold text-slate-800 text-xs">{n(sk.bird, lang)}</td>
@@ -239,6 +240,11 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai }) {
                                               {lang === 'ta' ? skHora.planet.tamil : skHora.planet.label}
                                             </span>
                                           )}
+                                          {skWarnings.map(w => (
+                                            <span key={w} className={`px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wide ${SPECIAL_BADGE[w].cls}`}>
+                                              {SPECIAL_BADGE[w][lang]}
+                                            </span>
+                                          ))}
                                         </div>
                                       </td>
                                     </tr>
@@ -327,6 +333,7 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai }) {
                            <div className="space-y-4">
                               {getSookshimaSlots(yama.subRows, i, s.start, s.end).map((sk, j) => {
                                 const skHora = getHorai(sk.start, sk.end, horai);
+                                const skWarnings = getSpecialWarnings(sk.start, sk.end, specialPeriods);
                                 return (
                                   <div key={j} className="flex justify-between items-start">
                                      <div className="flex flex-col gap-0.5">
@@ -339,6 +346,11 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai }) {
                                               {lang === 'ta' ? skHora.planet.tamil : skHora.planet.label}
                                             </span>
                                           )}
+                                          {skWarnings.map(w => (
+                                            <span key={w} className={`px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wide ${SPECIAL_BADGE[w].cls}`}>
+                                              {SPECIAL_BADGE[w][lang]}
+                                            </span>
+                                          ))}
                                         </div>
                                      </div>
                                      <ActivityBadge activity={sk.activity} lang={lang} />
