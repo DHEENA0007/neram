@@ -91,7 +91,23 @@ const SPECIAL_BADGE = {
   kuli: { en: 'Gulikai', ta: 'குளிகன்', cls: 'bg-violet-100 text-violet-600' },
 };
 
-export function ScheduleTable({ tone, yamas, lang, specialPeriods }) {
+const PLANET_DOT = {
+  sun:     'bg-orange-400',
+  moon:    'bg-slate-400',
+  mars:    'bg-red-500',
+  mercury: 'bg-teal-500',
+  jupiter: 'bg-amber-400',
+  venus:   'bg-pink-400',
+  saturn:  'bg-slate-700',
+};
+
+function getHorai(start, end, horai) {
+  if (!horai) return null;
+  const mid = (new Date(start).getTime() + new Date(end).getTime()) / 2;
+  return horai.find(h => mid >= new Date(h.start).getTime() && mid < new Date(h.end).getTime()) ?? null;
+}
+
+export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai }) {
   const c = L[lang];
   const [expandSubs, setExpandSubs] = useState('');
 
@@ -142,6 +158,7 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods }) {
                 const key = `${yama.index}-${i}`;
                 const isExp = expandSubs === key;
                 const warnings = getSpecialWarnings(s.start, s.end, specialPeriods);
+                const hora = getHorai(s.start, s.end, horai);
                 return (
                   <React.Fragment key={key}>
                     <tr className="hover:bg-slate-50/60 transition-colors duration-150">
@@ -158,6 +175,12 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods }) {
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="text-xs font-bold text-slate-600 tabular-nums whitespace-nowrap">{s.startLabel} – {s.endLabel}</span>
+                          {hora && (
+                            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wide bg-slate-100 text-slate-600`}>
+                              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${PLANET_DOT[hora.planet.key] || 'bg-slate-400'}`} />
+                              {lang === 'ta' ? hora.planet.tamil : hora.planet.label}
+                            </span>
+                          )}
                           {warnings.map(w => (
                             <span key={w} className={`px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wide ${SPECIAL_BADGE[w].cls}`}>
                               {SPECIAL_BADGE[w][lang]}
@@ -235,6 +258,7 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods }) {
                  const key = `mob-${yama.index}-${i}`;
                  const isExp = expandSubs === key;
                  const mobWarnings = getSpecialWarnings(s.start, s.end, specialPeriods);
+                 const mobHora = getHorai(s.start, s.end, horai);
                  return (
                    <div key={key} className="p-4 bg-white/60">
                       <div className="flex justify-between items-start mb-2">
@@ -242,6 +266,12 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods }) {
                             <span className="text-sm font-black text-slate-800">{n(s.bird, lang)}</span>
                             <div className="flex items-center gap-1 flex-wrap">
                               <span className="text-[10px] font-bold text-slate-400 tabular-nums">{s.startLabel} – {s.endLabel}</span>
+                              {mobHora && (
+                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wide bg-slate-100 text-slate-600">
+                                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${PLANET_DOT[mobHora.planet.key] || 'bg-slate-400'}`} />
+                                  {lang === 'ta' ? mobHora.planet.tamil : mobHora.planet.label}
+                                </span>
+                              )}
                               {mobWarnings.map(w => (
                                 <span key={w} className={`px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wide ${SPECIAL_BADGE[w].cls}`}>
                                   {SPECIAL_BADGE[w][lang]}
