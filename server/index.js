@@ -225,6 +225,57 @@ app.post(
   }),
 );
 
+app.post(
+  '/api/range-schedule',
+  requireUser,
+  asyncRoute(async (req, res) => {
+    const { fromDate, toDate, birdId, place, categories = ['rahu', 'yama', 'kuli'] } = req.body || {};
+    if (!fromDate || !toDate) return res.status(400).json({ error: 'fromDate and toDate required' });
+
+    const selectedPlace = place || req.currentUser.defaultPlace;
+    if (!selectedPlace?.latitude) return res.status(400).json({ error: 'Place is required' });
+
+    const from = new Date(fromDate + 'T00:00:00');
+    const to   = new Date(toDate   + 'T00:00:00');
+    const diffDays = Math.round((to - from) / 86400000);
+    if (diffDays < 0)   return res.status(400).json({ error: 'toDate must be after fromDate' });
+    if (diffDays > 365) return res.status(400).json({ error: 'Range cannot exceed 366 days' });
+
+    const needsHorai    = categories.includes('horai');
+    const needsSchedule = categories.includes('schedule');
+    const tz = selectedPlace.timezone || selectedPlace.timeZone || 'UTC';
+
+    const days = [];
+    for (let i = 0; i <= diffDays; i++) {
+      const d = new Date(from);
+      d.setDate(from.getDate() + i);
+      const dateStr = d.toISOString().split('T')[0];
+
+      const schedule = await buildPanchaPakshiSchedule({
+        date: dateStr,
+        latitude:  selectedPlace.latitude,
+        longitude: selectedPlace.longitude,
+        timezone:  tz,
+        birdId:    Number(birdId || 1),
+        pakshaMode: 'auto',
+      });
+
+      const entry = {
+        date:           schedule.date,
+        weekday:        schedule.weekday,
+        paksha:         schedule.paksha,
+        specialPeriods: schedule.specialPeriods,
+      };
+      if (needsHorai)    entry.horai      = schedule.horai;
+      if (needsSchedule) { entry.dayYamas = schedule.dayYamas; entry.nightYamas = schedule.nightYamas; }
+
+      days.push(entry);
+    }
+
+    return res.json({ days });
+  }),
+);
+
 app.get(
   '/api/admin/users',
   requireUser,

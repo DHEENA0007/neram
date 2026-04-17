@@ -51,6 +51,10 @@ export function requestPrediction(payload) {
   return apiFetch('/api/prediction', { method: 'POST', body: JSON.stringify(payload) });
 }
 
+export function requestRangeSchedule(payload) {
+  return apiFetch('/api/range-schedule', { method: 'POST', body: JSON.stringify(payload) });
+}
+
 // ── Admin: Users ──────────────────────────────────
 export function loadAdminUsers() {
   return apiFetch('/api/admin/users');

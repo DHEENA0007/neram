@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { birdOptions, getBirdById, pakshaOptions } from '../../shared/constants.js';
-import { requestPrediction } from '../../api.js';
+import { requestPrediction, requestRangeSchedule } from '../../api.js';
 import { PortalShell } from '../../components/PortalShell.jsx';
 import { ScheduleTable } from '../../components/ScheduleTable.jsx';
 import { NameBirdSection } from '../../components/NameBirdSection.jsx';
@@ -10,6 +10,8 @@ import { GowriTable } from '../../components/GowriTable.jsx';
 import { BirdHelper } from '../../components/BirdHelper.jsx';
 import { IconArrowRight, IconVulture, IconOwl, IconCrow, IconHen, IconPeacock, IconCheck, IconCalendar, IconLocation, IconSun, IconSearch, IconDownload } from '../../components/Icons.jsx';
 import { PrintView } from '../../components/PrintView.jsx';
+import { PrintOptionsModal } from '../../components/PrintOptionsModal.jsx';
+import { RangePrintView } from '../../components/RangePrintView.jsx';
 
 const BIRD_ICONS = {
   vulture: IconVulture,
@@ -66,6 +68,12 @@ export function UserPortal() {
   const [prediction, setPrediction] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const [showPrintModal, setShowPrintModal] = useState(false);
+  const [printLoading, setPrintLoading] = useState(false);
+  const [rangeData, setRangeData] = useState(null);
+  const [rangeCategories, setRangeCategories] = useState([]);
+  const [rangeDates, setRangeDates] = useState({ from: date, to: date });
 
   const t = L[lang];
 
@@ -141,6 +149,49 @@ export function UserPortal() {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function handleRangePrint({ fromDate, toDate, categories }) {
+    setPrintLoading(true);
+    setRangeData(null);
+    try {
+      const data = await requestRangeSchedule({
+        fromDate,
+        toDate,
+        birdId: Number(birdId),
+        place: { latitude: lat, longitude: lng, name: locationName, timezone: Intl.DateTimeFormat().resolvedOptions().timeZone },
+        categories,
+      });
+      setRangeData(data);
+      setRangeCategories(categories);
+      setRangeDates({ from: fromDate, to: toDate });
+      setShowPrintModal(false);
+      // show range print view and print
+      setTimeout(() => {
+        const el = document.getElementById('range-print-view');
+        if (el) el.style.display = 'block';
+        const daily = document.getElementById('print-view');
+        if (daily) daily.style.display = 'none';
+        window.print();
+        setTimeout(() => {
+          if (el) el.style.display = 'none';
+        }, 1000);
+      }, 100);
+    } catch (err) {
+      alert(err.message || 'Failed to generate range schedule');
+    } finally {
+      setPrintLoading(false);
+    }
+  }
+
+  function handleSinglePrint() {
+    setShowPrintModal(false);
+    const el = document.getElementById('range-print-view');
+    if (el) el.style.display = 'none';
+    const daily = document.getElementById('print-view');
+    if (daily) daily.style.display = 'block';
+    window.print();
+    setTimeout(() => { if (daily) daily.style.display = 'none'; }, 1000);
   }
 
   function formatTimeFromISO(iso) {
@@ -354,13 +405,21 @@ export function UserPortal() {
           {prediction && summary ? (
             <div className="space-y-12 animate-in fade-in slide-in-from-right-8 duration-1000">
 
-              {/* PRINT VIEW (hidden on screen, visible only when printing) */}
+              {/* PRINT VIEWS (hidden on screen) */}
               <PrintView prediction={prediction} lang={lang} locationName={locationName} />
+              <RangePrintView
+                rangeData={rangeData}
+                categories={rangeCategories}
+                lang={lang}
+                locationName={locationName}
+                fromDate={rangeDates.from}
+                toDate={rangeDates.to}
+              />
 
               {/* PRINT BUTTON */}
               <div className="no-print flex justify-end">
                 <button
-                  onClick={() => window.print()}
+                  onClick={() => setShowPrintModal(true)}
                   className="flex items-center gap-2 px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-slate-800/20 active:scale-95 transition-all"
                 >
                   <IconDownload size={14} />
@@ -439,5 +498,16 @@ export function UserPortal() {
         </div>
       </div>
     </PortalShell>
+
+    {showPrintModal && (
+      <PrintOptionsModal
+        lang={lang}
+        currentDate={date}
+        loading={printLoading}
+        onClose={() => setShowPrintModal(false)}
+        onPrintSingle={handleSinglePrint}
+        onPrintRange={handleRangePrint}
+      />
+    )}
   );
 }
