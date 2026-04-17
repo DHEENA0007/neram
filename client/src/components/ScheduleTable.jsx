@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 
 const L = {
   en: {
@@ -67,7 +67,31 @@ function StrengthBadge({ strength }) {
   );
 }
 
-export function ScheduleTable({ tone, yamas, lang }) {
+function overlaps(rowStart, rowEnd, periodStart, periodEnd) {
+  return rowStart < periodEnd && rowEnd > periodStart;
+}
+
+function getSpecialWarnings(start, end, specialPeriods) {
+  if (!specialPeriods) return [];
+  const s = new Date(start).getTime();
+  const e = new Date(end).getTime();
+  const warnings = [];
+  if (specialPeriods.rahu && overlaps(s, e, new Date(specialPeriods.rahu.start).getTime(), new Date(specialPeriods.rahu.end).getTime()))
+    warnings.push('rahu');
+  if (specialPeriods.yamagandam && overlaps(s, e, new Date(specialPeriods.yamagandam.start).getTime(), new Date(specialPeriods.yamagandam.end).getTime()))
+    warnings.push('yama');
+  if (specialPeriods.kulikai && overlaps(s, e, new Date(specialPeriods.kulikai.start).getTime(), new Date(specialPeriods.kulikai.end).getTime()))
+    warnings.push('kuli');
+  return warnings;
+}
+
+const SPECIAL_BADGE = {
+  rahu: { en: 'Rahu', ta: 'ராகு', cls: 'bg-rose-100 text-rose-600' },
+  yama: { en: 'Yama', ta: 'எமகண்டம்', cls: 'bg-orange-100 text-orange-600' },
+  kuli: { en: 'Gulikai', ta: 'குளிகன்', cls: 'bg-violet-100 text-violet-600' },
+};
+
+export function ScheduleTable({ tone, yamas, lang, specialPeriods }) {
   const c = L[lang];
   const [expandSubs, setExpandSubs] = useState('');
 
@@ -117,6 +141,7 @@ export function ScheduleTable({ tone, yamas, lang }) {
               {yama.subRows.map((s, i) => {
                 const key = `${yama.index}-${i}`;
                 const isExp = expandSubs === key;
+                const warnings = getSpecialWarnings(s.start, s.end, specialPeriods);
                 return (
                   <React.Fragment key={key}>
                     <tr className="hover:bg-slate-50/60 transition-colors duration-150">
@@ -133,6 +158,11 @@ export function ScheduleTable({ tone, yamas, lang }) {
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="text-xs font-bold text-slate-600 tabular-nums whitespace-nowrap">{s.startLabel} – {s.endLabel}</span>
+                          {warnings.map(w => (
+                            <span key={w} className={`px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wide ${SPECIAL_BADGE[w].cls}`}>
+                              {SPECIAL_BADGE[w][lang]}
+                            </span>
+                          ))}
                           <button
                             onClick={() => setExpandSubs(isExp ? '' : key)}
                             className={`w-5 h-5 rounded-md flex items-center justify-center text-[11px] font-black transition-all shrink-0 ${isExp ? 'bg-amber-400 text-amber-950' : 'bg-slate-100 hover:bg-slate-200 text-slate-500'}`}
@@ -204,12 +234,20 @@ export function ScheduleTable({ tone, yamas, lang }) {
                {yama.subRows.map((s, i) => {
                  const key = `mob-${yama.index}-${i}`;
                  const isExp = expandSubs === key;
+                 const mobWarnings = getSpecialWarnings(s.start, s.end, specialPeriods);
                  return (
                    <div key={key} className="p-4 bg-white/60">
                       <div className="flex justify-between items-start mb-2">
-                         <div className="flex flex-col">
+                         <div className="flex flex-col gap-1">
                             <span className="text-sm font-black text-slate-800">{n(s.bird, lang)}</span>
-                            <span className="text-[10px] font-bold text-slate-400 tabular-nums">{s.startLabel} – {s.endLabel}</span>
+                            <div className="flex items-center gap-1 flex-wrap">
+                              <span className="text-[10px] font-bold text-slate-400 tabular-nums">{s.startLabel} – {s.endLabel}</span>
+                              {mobWarnings.map(w => (
+                                <span key={w} className={`px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wide ${SPECIAL_BADGE[w].cls}`}>
+                                  {SPECIAL_BADGE[w][lang]}
+                                </span>
+                              ))}
+                            </div>
                          </div>
                          <div className="flex items-center gap-2">
                             <StrengthBadge strength={s.strength} />
