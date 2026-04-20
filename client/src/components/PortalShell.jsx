@@ -46,13 +46,21 @@ export function PortalShell({ title, children, lang, onToggleLang }) {
                 {lang === 'ta' ? 'English' : 'தமிழ்'}
               </button>
             )}
-            <NavLink 
-              className={({ isActive }) => 
+            <NavLink
+              className={({ isActive }) =>
                 `px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${isActive ? 'bg-amber-100 text-amber-900 shadow-sm' : 'text-slate-600 hover:bg-slate-50'}`
-              } 
+              }
               to="/user"
             >
               {lang === 'ta' ? 'பஞ்சபட்சி' : 'Schedule'}
+            </NavLink>
+            <NavLink
+              className={({ isActive }) =>
+                `px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${isActive ? 'bg-emerald-100 text-emerald-900 shadow-sm' : 'text-slate-600 hover:bg-slate-50'}`
+              }
+              to="/nalla-neram"
+            >
+              {lang === 'ta' ? 'நல்ல நேரம்' : 'Nalla Neram'}
             </NavLink>
             {user?.role === 'admin' && (
               <NavLink 

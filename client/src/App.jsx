@@ -7,6 +7,7 @@ import { UsersPage } from './pages/admin/UsersPage.jsx';
 import { PalangalPage } from './pages/admin/PalangalPage.jsx';
 import { SettingsPage } from './pages/admin/SettingsPage.jsx';
 import { UserPortal } from './pages/user/UserPortal.jsx';
+import { NallaNeram } from './pages/user/NallaNeram.jsx';
 import { LandingPage } from './pages/LandingPage.jsx';
 
 function LoadingScreen() {
@@ -45,6 +46,10 @@ export function App() {
           <Route
             path="/user"
             element={<RequireAuth><UserPortal /></RequireAuth>}
+          />
+          <Route
+            path="/nalla-neram"
+            element={<RequireAuth><NallaNeram /></RequireAuth>}
           />
           <Route
             path="/admin"
