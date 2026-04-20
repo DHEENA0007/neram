@@ -392,31 +392,22 @@ export async function searchPlaces(query) {
 
 export async function fetchAstronomy({ latitude, longitude, date, timezone }) {
   const responseZone = timezone || 'UTC';
-  const day = DateTime.fromISO(date, { zone: responseZone });
-  const nextDay = day.plus({ days: 1 }).toISODate();
+  const day     = DateTime.fromISO(date, { zone: responseZone });
+  const nextDay = day.plus({ days: 1 });
 
-  const [todayData, nextData] = await Promise.all([
-    fetchJsonWithCurl(
-      `https://api.sunrise-sunset.org/json?lat=${latitude}&lng=${longitude}&date=${day.toISODate()}&formatted=0`,
-    ),
-    fetchJsonWithCurl(
-      `https://api.sunrise-sunset.org/json?lat=${latitude}&lng=${longitude}&date=${nextDay}&formatted=0`,
-    ),
-  ]);
+  // Compute locally with SunCalc — no external API calls needed
+  const todayTimes    = SunCalc.getTimes(day.toJSDate(),     latitude, longitude);
+  const nextDayTimes  = SunCalc.getTimes(nextDay.toJSDate(), latitude, longitude);
 
-  if (todayData.status !== 'OK' || nextData.status !== 'OK') {
-    throw new Error('Sunrise/sunset data was incomplete for this date');
-  }
-
-  const sunrise = DateTime.fromISO(todayData.results?.sunrise, { zone: 'utc' }).setZone(responseZone);
-  const sunset = DateTime.fromISO(todayData.results?.sunset, { zone: 'utc' }).setZone(responseZone);
-  const nextSunrise = DateTime.fromISO(nextData.results?.sunrise, { zone: 'utc' }).setZone(responseZone);
+  const sunrise    = DateTime.fromJSDate(todayTimes.sunrise,   { zone: 'utc' }).setZone(responseZone);
+  const sunset     = DateTime.fromJSDate(todayTimes.sunset,    { zone: 'utc' }).setZone(responseZone);
+  const nextSunrise = DateTime.fromJSDate(nextDayTimes.sunrise, { zone: 'utc' }).setZone(responseZone);
 
   if (!sunrise.isValid || !sunset.isValid || !nextSunrise.isValid) {
     throw new Error('Sunrise/sunset data was incomplete for this date');
   }
 
-  const dayMinutes = sunset.diff(sunrise, 'minutes').minutes;
+  const dayMinutes   = sunset.diff(sunrise,     'minutes').minutes;
   const nightMinutes = nextSunrise.diff(sunset, 'minutes').minutes;
 
   return {
@@ -427,7 +418,6 @@ export async function fetchAstronomy({ latitude, longitude, date, timezone }) {
     nextSunrise,
     dayMinutes,
     nightMinutes,
-    raw: { todayData, nextData },
   };
 }
 

@@ -21,6 +21,28 @@
       "passwordHash": "$2a$10$54YHG63pNMdDdDInOBhJZeDuJeTNHZ7bvPl0STEkLQy5HatvsaunO",
       "createdAt": "2026-04-08T16:08:47.178Z",
       "updatedAt": "2026-04-08T16:08:47.178Z"
+    },
+    {
+      "id": "593ba9f3-c3cd-4daa-a61e-5a8456da71c7",
+      "username": "tt@gmail.com",
+      "name": "ttt",
+      "role": "user",
+      "active": false,
+      "defaultPlace": null,
+      "passwordHash": "$2a$10$oMSsDeZV11eTehe.W2ZoD.L10ZoziFFA1WPomTDyC9HyDiVTLZVFi",
+      "createdAt": "2026-04-17T09:07:16.639Z",
+      "updatedAt": "2026-04-17T09:07:58.793Z"
+    },
+    {
+      "id": "8a0d774c-4aef-4fa9-988d-895832e37a23",
+      "username": "test",
+      "name": "testt",
+      "role": "user",
+      "active": true,
+      "defaultPlace": null,
+      "passwordHash": "$2a$10$fhkNB0HzxSjUu7rUcini2uld8nPfcb4/CnPgVlDurixab6iaLr2Na",
+      "createdAt": "2026-04-20T11:31:57.813Z",
+      "updatedAt": "2026-04-20T11:31:57.813Z"
     }
   ],
   "palangal": [

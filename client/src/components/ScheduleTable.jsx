@@ -9,7 +9,7 @@ const L = {
     sookshima: 'Sookshima Breakdown',
   },
   ta: {
-    yama: 'யாமம்', bird: 'பட்சி', activity: 'தொழில்',
+    yama: 'ஜாமம்', bird: 'பட்சி', activity: 'தொழில்',
     time: 'நேரம்', direction: 'திசை', palan: 'பலன்',
     strength: 'பலம்',
     dayTable: 'பகல் அட்டவணை', nightTable: 'இரவு அட்டவணை',
@@ -167,8 +167,9 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai }) {
                       <td className="px-5 py-4 align-top">
                         {i === 0 && (
                           <div className="flex flex-col gap-0.5">
-                            <span className={`text-base font-black tabular-nums ${accentTxt}`}>#{yama.index}</span>
-                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide tabular-nums">{yama.startLabel}</span>
+                            <span className={`text-base font-black tabular-nums ${accentTxt}`}>{lang === 'ta' ? 'ஜாமம்' : 'Jamam'} {yama.index}</span>
+                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide tabular-nums">{yama.startLabel} – {yama.endLabel}</span>
+                            {yama.mainActivity && <span className="text-[9px] font-bold text-slate-500">{n(yama.mainActivity, lang)}</span>}
                           </div>
                         )}
                       </td>
@@ -271,8 +272,9 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai }) {
             {/* Yama Header */}
             <div className="px-6 py-3 bg-white border-b border-slate-100 flex justify-between items-center">
                <div className="flex flex-col">
-                  <span className={`text-lg font-black ${accentTxt}`}>#{yama.index}</span>
+                  <span className={`text-lg font-black ${accentTxt}`}>{lang === 'ta' ? 'ஜாமம்' : 'Jamam'} {yama.index}</span>
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{yama.startLabel} – {yama.endLabel}</span>
+                  {yama.mainActivity && <span className="text-[9px] font-bold text-slate-500">{n(yama.mainActivity, lang)}</span>}
                </div>
                <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full uppercase tracking-tight">
                  {n(yama.direction, lang)}

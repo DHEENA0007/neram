@@ -35,7 +35,7 @@ export const activityOptions = [
   { key: 'ruling', label: 'Ruling', tamil: 'அரசு' },
   { key: 'eating', label: 'Eating', tamil: 'ஊன்' },
   { key: 'walking', label: 'Walking', tamil: 'நடை' },
-  { key: 'sleeping', label: 'Sleeping', tamil: 'தூயில்' },
+  { key: 'sleeping', label: 'Sleeping', tamil: 'துயில்' },
   { key: 'dying', label: 'Dying', tamil: 'சாவு' },
 ];
 
