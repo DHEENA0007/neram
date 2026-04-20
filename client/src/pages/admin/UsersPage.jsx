@@ -1,415 +1,317 @@
-import { useEffect, useState, useMemo } from 'react';
-import { createAdminUser, loadAdminUsers, updateAdminUser } from '../../api.js';
-import { IconLocation, IconUserPlus, IconShield, IconBan, IconCheckCircle } from '../../components/Icons.jsx';
+import { useEffect, useState } from 'react';
+import { loadAdminUsers, createAdminUser, updateAdminUser } from '../../api.js';
+import { useAuth } from '../../auth.jsx';
+import { 
+  IconUserPlus, IconCheck, IconX, IconClock, 
+  IconShield, IconCreditCard, IconHistory
+} from '../../components/Icons.jsx';
 
-/* ── Password strength ───────────────────────────────── */
-const RULES = [
-  { key: 'len',     label: 'At least 8 characters',        test: p => p.length >= 8 },
-  { key: 'upper',   label: 'One uppercase letter (A–Z)',    test: p => /[A-Z]/.test(p) },
-  { key: 'lower',   label: 'One lowercase letter (a–z)',    test: p => /[a-z]/.test(p) },
-  { key: 'digit',   label: 'One number (0–9)',              test: p => /[0-9]/.test(p) },
-  { key: 'special', label: 'One special character (!@#…)',  test: p => /[^A-Za-z0-9]/.test(p) },
-];
-
-function getStrength(p) {
-  if (!p) return 0;
-  return RULES.filter(r => r.test(p)).length;
-}
-
-const STRENGTH_LABEL = ['', 'Very Weak', 'Weak', 'Fair', 'Strong', 'Very Strong'];
-const STRENGTH_COLOR = ['', 'bg-red-500', 'bg-orange-400', 'bg-yellow-400', 'bg-emerald-400', 'bg-emerald-600'];
-const STRENGTH_TEXT  = ['', 'text-red-500', 'text-orange-500', 'text-yellow-500', 'text-emerald-500', 'text-emerald-600'];
-
-function PasswordStrength({ password }) {
-  const score = getStrength(password);
-  if (!password) return null;
+function Field({ label, error, children, language }) {
   return (
-    <div className="mt-2 space-y-2">
-      {/* Bar */}
-      <div className="flex gap-1">
-        {[1,2,3,4,5].map(i => (
-          <div key={i} className={`h-1 flex-1 rounded-full transition-all duration-300 ${i <= score ? STRENGTH_COLOR[score] : 'bg-slate-200'}`} />
-        ))}
-      </div>
-      <p className={`text-[10px] font-black ${STRENGTH_TEXT[score]}`}>{STRENGTH_LABEL[score]}</p>
-      {/* Rules checklist */}
-      <div className="grid grid-cols-1 gap-0.5">
-        {RULES.map(r => {
-          const ok = r.test(password);
-          return (
-            <div key={r.key} className={`flex items-center gap-1.5 text-[10px] font-bold transition-colors ${ok ? 'text-emerald-600' : 'text-slate-400'}`}>
-              <span className={`w-3 h-3 rounded-full flex items-center justify-center text-[8px] ${ok ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-300'}`}>
-                {ok ? '✓' : '○'}
-              </span>
-              {r.label}
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-/* ── Username validation ─────────────────────────────── */
-function validateUsername(u) {
-  if (!u) return 'Username is required';
-  if (u.length < 3) return 'At least 3 characters';
-  if (u.length > 32) return 'Max 32 characters';
-  if (!/^[a-z0-9_]+$/.test(u)) return 'Only lowercase letters, numbers, underscore';
-  return null;
-}
-
-/* ── Field component ─────────────────────────────────── */
-function Field({ label, hint, error, children }) {
-  return (
-    <div className="ap-field">
-      <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">{label}</label>
+    <div className="flex flex-col gap-1">
+      <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">{label}</label>
       {children}
-      {hint  && !error && <p className="text-[10px] text-slate-400 font-medium mt-1">{hint}</p>}
-      {error && <p className="text-[10px] text-rose-500 font-bold mt-1">⚠ {error}</p>}
+      {error && <p className="text-[11px] text-rose-500 font-bold ml-1">⚠ {error}</p>}
     </div>
   );
 }
 
-const BLANK = { name: '', username: '', password: '', confirmPassword: '', role: 'user' };
+const DEFAULT_DEMO_CONFIG = {
+  trialEndDate: '',
+  maxGenerations: 5,
+  maxNallaNeram: 10,
+  maxDownloads: 0,
+  features: ['panchaPakshi', 'nallaNeram']
+};
 
-/* ── Main Page ───────────────────────────────────────── */
+const DEFAULT_SUB_CONFIG = {
+  subscriptionType: 'pro',
+  features: ['panchaPakshi', 'nallaNeram', 'download']
+};
+
 export function UsersPage() {
-  const [users, setUsers]   = useState([]);
+  const { language } = useAuth();
+  const [users, setUsers]     = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving]   = useState(false);
-  const [error, setError]     = useState('');
-  const [success, setSuccess] = useState('');
+  const [mode, setMode]       = useState('create');
+  
+  const [form, setForm] = useState({
+    username: '',
+    name: '',
+    password: '',
+    role: 'user',
+    userType: 'demo',
+    active: true,
+    demoConfig: { ...DEFAULT_DEMO_CONFIG },
+    subscriptionConfig: { ...DEFAULT_SUB_CONFIG }
+  });
+  
+  const [errors, setErrors] = useState({});
+  const [viewingUsage, setViewingUsage] = useState(null);
 
-  // form mode: 'create' | 'edit'
-  const [mode, setMode]     = useState('create');
-  const [editId, setEditId] = useState(null);
-  const [form, setForm]     = useState(BLANK);
-  const [showPass, setShowPass] = useState(false);
-  const [touched, setTouched]   = useState({});
-
-  async function refresh() {
+  async function fetchUsers() {
     setLoading(true);
-    try { const d = await loadAdminUsers(); setUsers(d.users || []); }
-    finally { setLoading(false); }
-  }
-  useEffect(() => { refresh(); }, []);
-
-  function field(key) {
-    return (e) => {
-      setForm(f => ({ ...f, [key]: e.target.value }));
-      setTouched(t => ({ ...t, [key]: true }));
-    };
+    try {
+      const data = await loadAdminUsers();
+      setUsers(data.users || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   }
 
-  function startEdit(u) {
+  useEffect(() => { fetchUsers(); }, []);
+
+  function handleEdit(u) {
     setMode('edit');
-    setEditId(u.id);
-    setForm({ name: u.name || '', username: u.username || '', password: '', confirmPassword: '', role: u.role || 'user' });
-    setTouched({});
-    setError(''); setSuccess('');
-    setShowPass(false);
+    setForm({
+      id: u.id,
+      username: u.username,
+      name: u.name,
+      password: '',
+      role: u.role || 'user',
+      userType: u.userType || 'demo',
+      active: u.active !== false,
+      demoConfig: u.demoConfig || { ...DEFAULT_DEMO_CONFIG },
+      subscriptionConfig: u.subscriptionConfig || { ...DEFAULT_SUB_CONFIG }
+    });
+    setErrors({});
   }
-
-  function startCreate() {
-    setMode('create');
-    setEditId(null);
-    setForm(BLANK);
-    setTouched({});
-    setError(''); setSuccess('');
-    setShowPass(false);
-  }
-
-  /* ── Derived validation ── */
-  const usernameErr = touched.username ? validateUsername(form.username) : null;
-  const nameErr     = touched.name && !form.name.trim() ? 'Full name is required' : null;
-  const passScore   = getStrength(form.password);
-  const passErr     = touched.password && form.password && passScore < 3 ? 'Password is too weak' : null;
-  const confirmErr  = touched.confirmPassword && form.password !== form.confirmPassword ? 'Passwords do not match' : null;
-
-  const canSubmit = useMemo(() => {
-    if (!form.name.trim() || !form.username.trim()) return false;
-    if (validateUsername(form.username)) return false;
-    if (mode === 'create') {
-      if (!form.password || passScore < 3) return false;
-      if (form.password !== form.confirmPassword) return false;
-    }
-    if (mode === 'edit' && form.password) {
-      if (passScore < 3) return false;
-      if (form.password !== form.confirmPassword) return false;
-    }
-    return true;
-  }, [form, passScore, mode]);
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setTouched({ name: true, username: true, password: true, confirmPassword: true });
-    if (!canSubmit) return;
-    setError(''); setSuccess(''); setSaving(true);
+    setErrors({});
+    setSaving(true);
     try {
       if (mode === 'create') {
-        await createAdminUser({ name: form.name.trim(), username: form.username.trim(), password: form.password, role: form.role, active: true });
-        setSuccess('User created successfully.');
-        startCreate();
+        await createAdminUser(form);
       } else {
-        const patch = { name: form.name.trim(), username: form.username.trim(), role: form.role };
-        if (form.password) patch.password = form.password;
-        await updateAdminUser(editId, patch);
-        setSuccess('User updated successfully.');
-        startCreate();
+        await updateAdminUser(form.id, form);
       }
-      await refresh();
+      setMode('create');
+      setForm({
+        username: '', name: '', password: '', role: 'user', userType: 'demo', active: true,
+        demoConfig: { ...DEFAULT_DEMO_CONFIG },
+        subscriptionConfig: { ...DEFAULT_SUB_CONFIG }
+      });
+      fetchUsers();
     } catch (err) {
-      setError(err.message || 'Failed to save user');
+      setErrors({ server: err.message });
     } finally {
       setSaving(false);
     }
   }
 
-  async function toggleActive(u) {
-    await updateAdminUser(u.id, { active: !u.active });
-    await refresh();
-  }
-
-  function fmtDate(d) {
-    if (!d) return '—';
-    return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-  }
+  const T_HEAD = language === 'en' ? 'ஊழியர்கள் · User Management' : 'பயனர் மேலாண்மை';
+  const T_TITLE = language === 'en' ? 'Users & Access' : 'பயனர்கள் மற்றும் அனுமதி';
+  const T_NEW_U = language === 'en' ? 'Register New User' : 'புதிய பயனரை பதிவு செய்';
+  const T_EDIT_U = language === 'en' ? 'Update User Access' : 'அனுமதியை மாற்றியமைக்கவும்';
 
   return (
     <div className="admin-page">
-      <div className="admin-page-header">
+      <div className="admin-page-header mb-8">
         <div>
-          <p className="admin-eyebrow">பயனர் மேலாண்மை · Access Control</p>
-          <h1 className="admin-page-title">Users</h1>
-        </div>
-        <div className="admin-page-actions text-right">
-          <p className="admin-page-sub">{users.length} total · {users.filter(u=>u.active).length} active</p>
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-500 mb-1">{T_HEAD}</p>
+          <h1 className="text-4xl font-black text-slate-900 tracking-tight">{T_TITLE}</h1>
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.4fr) minmax(320px,.6fr)', gap: '2rem', alignItems: 'start' }}>
-
-        {/* ── User Table ── */}
-        <div className="ap-card" style={{ padding: 0 }}>
-          <div className="ap-card-head" style={{ padding: '1.5rem 2rem 1rem' }}>
-            <p className="ap-eyebrow">அணுகல் பட்டியல்</p>
-            <h2>Portal Access List</h2>
-          </div>
-          <div className="table-wrap">
-            <table className="pp-table">
-              <thead>
-                <tr>
-                  <th style={{ paddingLeft: '2rem' }}>User</th>
-                  <th>Role</th>
-                  <th>Status</th>
-                  <th>Created</th>
-                  <th style={{ textAlign: 'right', paddingRight: '2rem' }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  <tr><td colSpan="5" className="py-16 text-center text-slate-400 font-medium">Loading users…</td></tr>
-                ) : users.length === 0 ? (
-                  <tr><td colSpan="5" className="py-16 text-center text-slate-400 font-medium">No users found.</td></tr>
-                ) : users.map(u => (
-                  <tr key={u.id} className={`pp-yama-row ${editId === u.id ? 'bg-amber-50/60' : ''}`}>
-                    <td style={{ paddingLeft: '2rem' }}>
-                      <div className="flex items-center gap-3">
-                        <div className={`sidebar-avatar flex-shrink-0`} style={{ width: '2.2rem', height: '2.2rem', fontSize: '0.9rem', borderRadius: '10px', background: u.role === 'admin' ? '#b45309' : '#64748b' }}>
-                          {(u.name || u.username || '?')[0].toUpperCase()}
-                        </div>
-                        <div className="flex flex-col min-w-0">
-                          <strong className="text-sm text-slate-900 truncate">{u.name || '—'}</strong>
-                          <span className="text-xs text-slate-400 font-mono">@{u.username}</span>
-                        </div>
-                      </div>
-                      {u.defaultPlace && (
-                        <div className="mt-1.5 text-[10px] font-bold text-slate-400 flex items-center gap-1 uppercase tracking-wider ml-1">
-                          <IconLocation size={10} className="text-amber-500 shrink-0" />
-                          <span className="truncate">{u.defaultPlace.label || u.defaultPlace.name}</span>
-                        </div>
-                      )}
-                    </td>
-                    <td>
-                      <span className={`role-chip ${u.role === 'admin' ? 'role-admin' : 'role-user'} flex items-center gap-1 w-fit`}>
-                        {u.role === 'admin' && <IconShield size={10} />}
-                        {u.role}
-                      </span>
-                    </td>
-                    <td>
-                      <span className={`${u.active ? 'status-on' : 'status-off'} flex items-center gap-1.5 text-xs`}>
-                        {u.active ? <IconCheckCircle size={13} /> : <IconBan size={13} />}
-                        {u.active ? 'Active' : 'Disabled'}
-                      </span>
-                    </td>
-                    <td className="text-xs text-slate-400 font-medium">{fmtDate(u.createdAt)}</td>
-                    <td style={{ textAlign: 'right', paddingRight: '2rem' }}>
-                      <div className="flex items-center gap-2 justify-end">
-                        <button
-                          type="button"
-                          onClick={() => startEdit(u)}
-                          className="text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg border border-amber-100 text-amber-600 hover:bg-amber-50 transition-all"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => toggleActive(u)}
-                          disabled={u.role === 'admin'}
-                          style={{ opacity: u.role === 'admin' ? 0.3 : 1 }}
-                          className={`text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg border transition-all ${u.active ? 'text-rose-600 border-rose-100 hover:bg-rose-50' : 'text-emerald-600 border-emerald-100 hover:bg-emerald-50'}`}
-                        >
-                          {u.active ? 'Disable' : 'Restore'}
-                        </button>
-                      </div>
-                    </td>
+      <div className="flex flex-row gap-8 items-start h-[calc(100vh-200px)]">
+        
+        {/* User List Table */}
+        <div className="flex-1 min-w-0 ap-card overflow-hidden flex flex-col bg-white border border-slate-100">
+           <div className="flex-1 overflow-y-auto">
+              <table className="w-full text-left">
+                <thead className="sticky top-0 bg-white z-10 border-b border-slate-50">
+                  <tr>
+                    <th className="px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest">{language === 'en' ? 'User Identity' : 'பயனர் விவரம்'}</th>
+                    <th className="px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest">{language === 'en' ? 'Tier' : 'வகை'}</th>
+                    <th className="px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest">{language === 'en' ? 'Status' : 'நிலை'}</th>
+                    <th className="px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest text-right">{language === 'en' ? 'Controls' : 'நிர்வாகம்'}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {users.map(u => (
+                    <tr key={u.id} className="hover:bg-slate-50/50 transition-colors group">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center font-black text-slate-500 text-sm">{u.name[0]}</div>
+                          <div className="flex flex-col">
+                            <span className="text-sm font-black text-slate-900">{u.name}</span>
+                            <span className="text-[11px] font-bold text-slate-400">@{u.username}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        {u.userType === 'demo' ? (
+                          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-600 rounded-lg text-[11px] font-black uppercase">
+                            <IconClock size={10} /> {language === 'en' ? 'Trial' : 'சோதனை'}
+                          </div>
+                        ) : (
+                          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[11px] font-black uppercase">
+                            <IconCreditCard size={10} /> {language === 'en' ? 'Paid' : 'கட்டணம்'}
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        {u.active !== false ? (
+                           <span className="flex items-center gap-1.5 text-emerald-500 text-xs font-black uppercase whitespace-nowrap"><IconCheck size={12}/> {language === 'en' ? 'Active' : 'இயக்கத்தில்'}</span>
+                        ) : (
+                           <span className="flex items-center gap-1.5 text-slate-300 text-xs font-black uppercase whitespace-nowrap"><IconX size={12}/> {language === 'en' ? 'Suspended' : 'நிறுத்தப்பட்டது'}</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                         <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onClick={() => setViewingUsage(u)} className="p-2 hover:bg-white rounded-lg text-slate-400 hover:text-slate-900 shadow-sm border border-transparent hover:border-slate-100 transition-all"><IconHistory size={16}/></button>
+                            <button onClick={() => handleEdit(u)} className="px-4 py-2 bg-slate-900 text-white text-[11px] font-black uppercase rounded-lg shadow-lg shadow-slate-900/10 hover:bg-black transition-all">{language === 'en' ? 'Edit' : 'மாற்று'}</button>
+                         </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+           </div>
         </div>
 
-        {/* ── Create / Edit Form ── */}
-        <div className="ap-card" style={{ position: 'sticky', top: '2rem' }}>
-          <div className="ap-card-head">
-            <span className="ap-eyebrow">{mode === 'create' ? 'புதிய பயனர்' : 'பயனர் திருத்தம்'}</span>
-            <div className="flex items-center justify-between">
-              <h2 className="flex items-center gap-2">
-                <IconUserPlus size={20} className="text-amber-500" />
-                {mode === 'create' ? 'Create User' : 'Edit User'}
-              </h2>
-              {mode === 'edit' && (
-                <button type="button" onClick={startCreate} className="text-[10px] font-black text-slate-400 hover:text-slate-600 uppercase tracking-widest">
-                  + New
-                </button>
-              )}
-            </div>
+        {/* User Form Panel */}
+        <div className="w-96 shrink-0 ap-card p-8 bg-white border border-slate-100 flex flex-col h-full overflow-hidden">
+          <div className="mb-8">
+            <h2 className="text-2xl font-black text-slate-900">{mode === 'create' ? T_NEW_U : T_EDIT_U}</h2>
+            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-1">{language === 'en' ? 'Configuration & Permissions' : 'அனுமதி மற்றும் கட்டமைப்பு'}</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="ap-form" noValidate>
-
-            {/* Full Name */}
-            <Field label="Full Name · பெயர்" error={nameErr}>
-              <input
-                className={`text-input ${nameErr ? 'border-rose-300' : ''}`}
-                value={form.name}
-                onChange={field('name')}
-                onBlur={() => setTouched(t => ({...t, name: true}))}
-                placeholder="Full Name"
-                required
-              />
-            </Field>
-
-            {/* Username */}
-            <Field label="Username · பயனர்பெயர்" hint="Lowercase letters, numbers, underscore only" error={usernameErr}>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm select-none">@</span>
-                <input
-                  className={`text-input pl-7 font-mono ${usernameErr ? 'border-rose-300' : ''}`}
-                  value={form.username}
-                  onChange={e => { field('username')(e); }}
-                  onBlur={() => setTouched(t => ({...t, username: true}))}
-                  placeholder="username"
-                  required
-                  autoComplete="off"
-                />
-              </div>
-            </Field>
-
-            {/* Role */}
-            <Field label="Role · பங்கு">
-              <div className="flex gap-2 mt-1">
-                {[
-                  { val: 'user',  label: 'User',  icon: null },
-                  { val: 'admin', label: 'Admin', icon: <IconShield size={12} /> },
-                ].map(r => (
-                  <button
-                    key={r.val}
-                    type="button"
-                    onClick={() => setForm(f => ({...f, role: r.val}))}
-                    className={`flex items-center gap-1.5 flex-1 justify-center py-2 rounded-xl border-2 text-xs font-black uppercase tracking-wide transition-all ${
-                      form.role === r.val
-                        ? r.val === 'admin' ? 'bg-amber-500 border-amber-500 text-white' : 'bg-slate-800 border-slate-800 text-white'
-                        : 'bg-white border-slate-200 text-slate-400 hover:border-slate-300'
-                    }`}
-                  >
-                    {r.icon}{r.label}
-                  </button>
-                ))}
-              </div>
-            </Field>
-
-            {/* Password */}
-            <Field
-              label={mode === 'edit' ? 'New Password (leave blank to keep)' : 'Password · கடவுச்சொல்'}
-              error={passErr}
-            >
-              <div className="relative">
-                <input
-                  className={`text-input pr-10 ${passErr ? 'border-rose-300' : ''}`}
-                  type={showPass ? 'text' : 'password'}
-                  value={form.password}
-                  onChange={field('password')}
-                  onBlur={() => setTouched(t => ({...t, password: true}))}
-                  placeholder={mode === 'edit' ? 'Leave blank to keep current' : '••••••••'}
-                  required={mode === 'create'}
-                  autoComplete="new-password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPass(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-[10px] font-black uppercase"
-                >
-                  {showPass ? 'Hide' : 'Show'}
-                </button>
-              </div>
-              {form.password && <PasswordStrength password={form.password} />}
-            </Field>
-
-            {/* Confirm Password */}
-            {(mode === 'create' || form.password) && (
-              <Field label="Confirm Password · உறுதிப்படுத்து" error={confirmErr}>
-                <input
-                  className={`text-input ${confirmErr ? 'border-rose-300' : form.confirmPassword && !confirmErr ? 'border-emerald-300' : ''}`}
-                  type={showPass ? 'text' : 'password'}
-                  value={form.confirmPassword}
-                  onChange={field('confirmPassword')}
-                  onBlur={() => setTouched(t => ({...t, confirmPassword: true}))}
-                  placeholder="Re-enter password"
-                  autoComplete="new-password"
-                />
-                {form.confirmPassword && form.password === form.confirmPassword && (
-                  <p className="text-[10px] text-emerald-600 font-bold mt-1">✓ Passwords match</p>
-                )}
+          <form onSubmit={handleSubmit} className="space-y-6 flex-1 overflow-y-auto pr-2 custom-scrollbar">
+            <div className="grid grid-cols-2 gap-4">
+              <Field label={language === 'en' ? "Username" : "பயனர் பெயர்"} error={errors.username}>
+                <input className="text-input h-10 px-4" value={form.username} onChange={e => setForm({...form, username: e.target.value})} placeholder="dheena" required />
               </Field>
+              <Field label={language === 'en' ? "Display Name" : "பெயர்"} error={errors.name}>
+                <input className="text-input h-10 px-4" value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="Dheena" required />
+              </Field>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <button type="button" onClick={() => setForm(f => ({ ...f, userType: 'demo' }))}
+                className={`py-2 rounded-xl border-2 text-xs font-black uppercase transition-all ${form.userType === 'demo' ? 'border-amber-500 bg-amber-500 text-white' : 'border-slate-50 bg-slate-50 text-slate-400'}`}>
+                {language === 'en' ? 'Trial User' : 'சோதனை பயனர்'}
+              </button>
+              <button type="button" onClick={() => setForm(f => ({ ...f, userType: 'subscribed' }))}
+                className={`py-2 rounded-xl border-2 text-xs font-black uppercase transition-all ${form.userType === 'subscribed' ? 'border-amber-500 bg-amber-500 text-white' : 'border-slate-50 bg-slate-50 text-slate-400'}`}>
+                {language === 'en' ? 'Paid User' : 'கட்டண பயனர்'}
+              </button>
+            </div>
+
+            {form.userType === 'demo' ? (
+              <div className="p-5 bg-amber-50 rounded-3xl border border-amber-100/50 space-y-5">
+                <Field label={language === 'en' ? "Trial Expiry Date" : "சோதனை முடிவு நாள்"}>
+                   <input type="date" className="text-input h-9 px-3 text-xs" value={form.demoConfig.trialEndDate} onChange={e => setForm({...form, demoConfig: {...form.demoConfig, trialEndDate: e.target.value}})} />
+                </Field>
+                <div className="grid grid-cols-2 gap-4">
+                  <Field label={language === 'en' ? "Max Generations" : "அதிகபட்ச கணக்கீடு"}>
+                    <input type="number" className="text-input h-9 px-3 text-xs" value={form.demoConfig.maxGenerations} onChange={e => setForm({...form, demoConfig: {...form.demoConfig, maxGenerations: Number(e.target.value)}})} />
+                  </Field>
+                  <Field label={language === 'en' ? "Max Nalla Neram" : "அதிகபட்ச நல்ல நேரம்"}>
+                    <input type="number" className="text-input h-9 px-3 text-xs" value={form.demoConfig.maxNallaNeram} onChange={e => setForm({...form, demoConfig: {...form.demoConfig, maxNallaNeram: Number(e.target.value)}})} />
+                  </Field>
+                </div>
+                
+                {/* Fixed Feature Toggles for Demo */}
+                <div className="space-y-3">
+                  <p className="text-[11px] font-black uppercase tracking-widest text-amber-600/60 ml-1">{language === 'en' ? 'Feature Access' : 'அனுமதிகள்'}</p>
+                  <div className="flex gap-2">
+                    {['panchaPakshi', 'nallaNeram'].map(f => (
+                      <button key={f} type="button" 
+                        onClick={() => {
+                          const features = form.demoConfig.features || [];
+                          const updated = features.includes(f) ? features.filter(x => x !== f) : [...features, f];
+                          setForm({...form, demoConfig: {...form.demoConfig, features: updated}});
+                        }}
+                        className={`px-3 py-1.5 rounded-lg text-[11px] font-black uppercase border transition-all ${form.demoConfig.features?.includes(f) ? 'bg-amber-600 border-amber-600 text-white shadow-lg shadow-amber-600/20' : 'bg-white border-amber-200 text-amber-400'}`}>
+                        {f === 'panchaPakshi' ? 'Pancha Pakshi' : 'Nalla Neram'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="p-5 bg-emerald-50 rounded-3xl border border-emerald-100/50 space-y-4">
+                 <p className="text-[11px] font-black uppercase tracking-widest text-emerald-600/60 ml-1">{language === 'en' ? 'Assigned Features' : 'அனுமதிக்கப்பட்ட பக்கம்'}</p>
+                 <div className="flex flex-wrap gap-2">
+                    {['panchaPakshi', 'nallaNeram', 'download'].map(f => (
+                      <button key={f} type="button" 
+                        onClick={() => {
+                          const list = form.subscriptionConfig.features;
+                          const updated = list.includes(f) ? list.filter(x => x !== f) : [...list, f];
+                          setForm({...form, subscriptionConfig: {...form.subscriptionConfig, features: updated}});
+                        }}
+                        className={`px-3 py-1.5 rounded-lg text-[11px] font-black uppercase border transition-all ${form.subscriptionConfig.features.includes(f) ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-white border-emerald-200 text-emerald-400'}`}>
+                        {f === 'panchaPakshi' ? 'Pancha Pakshi' : f === 'nallaNeram' ? 'Nalla Neram' : 'Downloads'}
+                      </button>
+                    ))}
+                 </div>
+              </div>
             )}
 
-            {error   && <div className="ap-error">{error}</div>}
-            {success && <div className="ap-success">{success}</div>}
+            <Field label={language === 'en' ? (mode === 'create' ? 'Password' : 'Reset Password') : (mode === 'create' ? 'கடவுச்சொல்' : 'புதிய கடவுச்சொல்')}>
+               <input type="password" className="text-input h-10 px-4" value={form.password} onChange={e => setForm({...form, password: e.target.value})} placeholder="••••••••" />
+            </Field>
 
-            <button
-              className="primary-button"
-              type="submit"
-              disabled={saving}
-              style={{ marginTop: '1rem', opacity: canSubmit ? 1 : 0.6 }}
-            >
-              {saving
-                ? (mode === 'create' ? 'Creating…' : 'Saving…')
-                : (mode === 'create' ? 'Create User' : 'Save Changes')}
+            <button type="submit" disabled={saving} className="w-full py-4 bg-amber-500 text-white text-xs font-black uppercase rounded-2xl shadow-lg shadow-amber-500/20 active:scale-[0.98] transition-all">
+              {saving ? '...' : mode === 'create' ? (language === 'en' ? 'Create User' : 'பயனரை உருவாக்கு') : (language === 'en' ? 'Update User' : 'மாற்றியமைக்கவும்')}
             </button>
+            
+            {mode === 'edit' && (
+              <button type="button" onClick={() => {
+                setMode('create');
+                setForm({ username: '', name: '', password: '', role: 'user', userType: 'demo', active: true, demoConfig: {...DEFAULT_DEMO_CONFIG}, subscriptionConfig: {...DEFAULT_SUB_CONFIG} });
+              }} className="w-full text-xs font-black text-slate-400 uppercase tracking-widest py-2 active:scale-95 transition-all">
+                {language === 'en' ? 'Cancel Editing' : 'விட்டுவிடவும்'}
+              </button>
+            )}
+            
+            {errors.server && <p className="p-4 bg-rose-50 text-rose-500 border border-rose-100 rounded-2xl text-xs font-bold">⚠ {errors.server}</p>}
           </form>
-
-          <div className="mt-6 p-3 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] text-slate-500 leading-relaxed">
-            <strong className="text-slate-700 block mb-1">Security Notes:</strong>
-            <ul className="space-y-0.5 list-disc list-inside">
-              <li>Passwords require strength score of Fair or above</li>
-              <li>Admin accounts cannot be disabled</li>
-              <li>Usernames are case-insensitive, unique system-wide</li>
-            </ul>
-          </div>
         </div>
+
+        {/* Location History Modal */}
+        {viewingUsage && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm">
+            <div className="bg-white w-full max-w-md rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[80vh]">
+              <div className="p-8 border-b border-slate-50 flex items-center justify-between">
+                <div>
+                  <h3 className="text-2xl font-black text-slate-900">{viewingUsage.name}</h3>
+                  <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-1">{language === 'en' ? 'Activity Timeline' : 'செயல்பாட்டு வரலாறு'}</p>
+                </div>
+                <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400 font-black text-xs">{viewingUsage.name[0]}</div>
+              </div>
+              <div className="p-8 flex-1 overflow-y-auto space-y-6">
+                {(viewingUsage.locationHistory || []).length === 0 ? (
+                  <p className="text-center py-12 text-slate-300 font-black uppercase tracking-widest text-[11px]">{language === 'en' ? 'No history available' : 'வரலாறு இல்லை'}</p>
+                ) : (
+                  viewingUsage.locationHistory.map((h, i) => (
+                    <div key={i} className="flex gap-4">
+                      <div className="flex flex-col items-center">
+                        <div className="w-2 h-2 rounded-full bg-slate-200 mt-2" />
+                        <div className="w-px flex-1 bg-slate-100 min-h-[40px]" />
+                      </div>
+                      <div className="flex-1 pb-4">
+                        <div className="text-[11px] font-black text-slate-900 uppercase tracking-widest mb-1">{h.location}</div>
+                        <div className="text-[11px] font-bold text-slate-400">{new Date(h.timestamp).toLocaleString()}</div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+              <div className="p-8 pt-0">
+                <button onClick={() => setViewingUsage(null)} className="w-full py-4 bg-slate-900 text-white text-xs font-black uppercase rounded-2xl shadow-xl shadow-slate-900/10 active:scale-95 transition-all">
+                  {language === 'en' ? 'Close' : 'மூடவும்'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
       </div>
     </div>

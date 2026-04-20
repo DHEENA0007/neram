@@ -4,7 +4,8 @@ import {
   LucideUserPlus, LucideCheck, LucideMapPin, LucideShield, 
   LucideBan, LucideCheckCircle, LucideCpu, LucideDownload, 
   LucideTrash2, LucideInfo, LucideBird, LucideSearch, LucideStar, LucideMoon,
-  LucideSunrise, LucideSunset
+  LucideSunrise, LucideSunset, LucideZap, LucideCreditCard, LucideActivity,
+  LucideLock, LucideClock, LucideHistory, LucideX
 } from 'lucide-react';
 import { GiVulture, GiOwl, GiCrowDive, GiRooster, GiFeather } from "react-icons/gi";
 
@@ -31,6 +32,9 @@ export function IconStar({ size = 16, className }) { return <LucideStar size={si
 export function IconMoon({ size = 16, className }) { return <LucideMoon size={size} className={className} />; }
 export function IconSunrise({ size = 16, className }) { return <LucideSunrise size={size} className={className} />; }
 export function IconSunset({ size = 16, className }) { return <LucideSunset size={size} className={className} />; }
+export function IconClock({ size = 16, className }) { return <LucideClock size={size} className={className} />; }
+export function IconHistory({ size = 16, className }) { return <LucideHistory size={size} className={className} />; }
+export function IconX({ size = 16, className }) { return <LucideX size={size} className={className} />; }
 
 export function IconVulture({ size = 16, className }) { return <GiVulture size={size} className={className} />; }
 export function IconOwl({ size = 16, className }) { return <GiOwl size={size} className={className} />; }
@@ -38,5 +42,8 @@ export function IconCrow({ size = 16, className }) { return <GiCrowDive size={si
 export function IconHen({ size = 16, className }) { return <GiRooster size={size} className={className} />; }
 export function IconPeacock({ size = 16, className }) { return <GiFeather size={size} className={className} />; }
 export function IconSearch({ size = 16, className }) { return <LucideSearch size={size} className={className} />; }
-
-
+export function IconZap({ size = 16, className }) { return <LucideZap size={size} className={className} />; }
+export function IconCreditCard({ size = 16, className }) { return <LucideCreditCard size={size} className={className} />; }
+export function IconActivity({ size = 16, className }) { return <LucideActivity size={size} className={className} />; }
+export function IconLock({ size = 16, className }) { return <LucideLock size={size} className={className} />; }
+export function IconMapPin({ size = 16, className }) { return <LucideMapPin size={size} className={className} />; }

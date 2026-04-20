@@ -17,6 +17,7 @@ import {
   sanitizeCurrentUser,
   setUserDefaultPlace,
   updateUser,
+  recordUsage,
 } from './lib/db.js';
 import { buildPanchaPakshiSchedule, ensurePanchaPakshiDataLoaded, searchPlaces, getBirdIdFromName } from './lib/panchaPakshi.js';
 import { birdOptions } from '../shared/constants.js';
@@ -91,11 +92,54 @@ const requireUser = asyncRoute(async (req, res, next) => {
     }
 
     req.currentUser = sanitizeCurrentUser(user);
+    // Attach the full user object (needed for restriction checks)
+    req.fullUser = user;
     return next();
   } catch {
     return res.status(401).json({ error: 'Not authenticated' });
   }
 });
+
+function checkRestrictions(feature) {
+  return (req, res, next) => {
+    const user = req.fullUser;
+    if (!user) return res.status(401).json({ error: 'Not authenticated' });
+    if (user.role === 'admin') return next();
+
+    if (user.userType === 'demo') {
+      const { demoConfig, usageStats } = user;
+      
+      // Check trial period
+      if (demoConfig.trialEndDate && new Date() > new Date(demoConfig.trialEndDate)) {
+        return res.status(403).json({ error: 'Trial period has expired. Please subscribe to continue.' });
+      }
+
+      // Check feature-specific limits
+      if (feature === 'panchaPakshi' || feature === 'generation') {
+        if (usageStats.generationsCount >= demoConfig.maxGenerations) {
+          return res.status(403).json({ error: 'Generation limit reached for demo account.' });
+        }
+      }
+      if (feature === 'nallaNeram') {
+        if (usageStats.nallaNeramCount >= demoConfig.maxNallaNeram) {
+          return res.status(403).json({ error: 'Nalla Neram limit reached for demo account.' });
+        }
+      }
+      if (feature === 'download') {
+        if (usageStats.downloadsCount >= demoConfig.maxDownloads) {
+          return res.status(403).json({ error: 'Download limit reached for demo account.' });
+        }
+      }
+    } else if (user.userType === 'subscribed') {
+      const { subscriptionConfig } = user;
+      if (!subscriptionConfig.features.includes(feature)) {
+        return res.status(403).json({ error: `You do not have access to the ${feature === 'panchaPakshi' ? 'Pancha Pakshi' : feature} feature.` });
+      }
+    }
+
+    return next();
+  };
+}
 
 app.get(
   '/api/health',
@@ -181,6 +225,7 @@ app.get(
 app.post(
   '/api/prediction',
   requireUser,
+  checkRestrictions('panchaPakshi'),
   asyncRoute(async (req, res) => {
     const {
       date,
@@ -198,6 +243,12 @@ app.post(
     if (!selectedPlace?.latitude || !selectedPlace?.longitude) {
       return res.status(400).json({ error: 'Place is required' });
     }
+
+    // Record usage
+    await recordUsage(req.currentUser.id, { 
+      type: 'generation', 
+      location: selectedPlace.name || selectedPlace.label 
+    });
 
     const schedule = await buildPanchaPakshiSchedule({
       date,
@@ -228,12 +279,19 @@ app.post(
 app.post(
   '/api/range-schedule',
   requireUser,
+  checkRestrictions('nallaNeram'),
   asyncRoute(async (req, res) => {
     const { fromDate, toDate, birdId, place, categories = ['rahu', 'yama', 'kuli'] } = req.body || {};
     if (!fromDate || !toDate) return res.status(400).json({ error: 'fromDate and toDate required' });
 
     const selectedPlace = place || req.currentUser.defaultPlace;
     if (!selectedPlace?.latitude) return res.status(400).json({ error: 'Place is required' });
+
+    // Record usage
+    await recordUsage(req.currentUser.id, { 
+      type: 'nallaNeram', 
+      location: selectedPlace.name || selectedPlace.label 
+    });
 
     const from = new Date(fromDate + 'T00:00:00');
     const to   = new Date(toDate   + 'T00:00:00');
@@ -301,13 +359,26 @@ app.post(
   requireUser,
   requireRole('admin'),
   asyncRoute(async (req, res) => {
-    const { username, name, password, role = 'user', active = true } = req.body || {};
+    const { 
+      username, 
+      name, 
+      password, 
+      role = 'user', 
+      userType = 'demo',
+      active = true,
+      demoConfig,
+      subscriptionConfig
+    } = req.body || {};
+    
     const created = await createUser({
       username,
       name,
       password,
       role,
+      userType,
       active,
+      demoConfig,
+      subscriptionConfig
     });
 
     res.status(201).json({ user: created });

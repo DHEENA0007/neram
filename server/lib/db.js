@@ -125,7 +125,16 @@ export async function authenticateUser(username, password) {
   return matches ? sanitizeUser(user) : null;
 }
 
-export async function createUser({ username, name, password, role = 'user', active = true }) {
+export async function createUser({ 
+  username, 
+  name, 
+  password, 
+  role = 'user', 
+  active = true,
+  userType = 'demo',
+  demoConfig = null,
+  subscriptionConfig = null
+}) {
   const db = await loadDb();
   const normalizedUsername = String(username || '').trim();
   if (!normalizedUsername) throw new Error('Username is required');
@@ -138,9 +147,26 @@ export async function createUser({ username, name, password, role = 'user', acti
     username: normalizedUsername,
     name: String(name || '').trim() || normalizedUsername,
     role,
+    userType,
     active: Boolean(active),
     defaultPlace: null,
     passwordHash: bcrypt.hashSync(String(password || ''), 10),
+    demoConfig: demoConfig || {
+      maxGenerations: 10,
+      maxDownloads: 5,
+      maxNallaNeram: 5,
+      trialEndDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+    subscriptionConfig: subscriptionConfig || {
+      features: ['panchaPakshi'],
+    },
+    usageStats: {
+      generationsCount: 0,
+      downloadsCount: 0,
+      nallaNeramCount: 0,
+      lastLocations: [],
+      lastUsedAt: null,
+    },
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -166,13 +192,52 @@ export async function updateUser(id, patch) {
   }
   if (typeof patch.name === 'string') user.name = patch.name.trim() || user.name;
   if (typeof patch.role === 'string') user.role = patch.role;
+  if (typeof patch.userType === 'string') user.userType = patch.userType;
   if (typeof patch.active === 'boolean') user.active = patch.active;
   if (Object.prototype.hasOwnProperty.call(patch, 'defaultPlace')) user.defaultPlace = patch.defaultPlace;
+  if (patch.demoConfig) user.demoConfig = { ...(user.demoConfig || {}), ...patch.demoConfig };
+  if (patch.subscriptionConfig) user.subscriptionConfig = { ...(user.subscriptionConfig || {}), ...patch.subscriptionConfig };
+  
   if (typeof patch.password === 'string' && patch.password.length > 0) {
     user.passwordHash = bcrypt.hashSync(patch.password, 10);
   }
 
   user.updatedAt = new Date().toISOString();
+  await persist(db);
+  return sanitizeUser(user);
+}
+
+export async function recordUsage(userId, { type, location }) {
+  const db = await loadDb();
+  const user = db.users.find((u) => u.id === userId);
+  if (!user) return null;
+
+  if (!user.usageStats) {
+    user.usageStats = {
+      generationsCount: 0,
+      downloadsCount: 0,
+      nallaNeramCount: 0,
+      lastLocations: [],
+      lastUsedAt: null,
+    };
+  }
+
+  if (type === 'generation') user.usageStats.generationsCount++;
+  if (type === 'download') user.usageStats.downloadsCount++;
+  if (type === 'nallaNeram') user.usageStats.nallaNeramCount++;
+
+  if (location) {
+    user.usageStats.lastLocations.unshift({
+      name: location,
+      timestamp: new Date().toISOString(),
+    });
+    // Keep last 10 locations
+    if (user.usageStats.lastLocations.length > 10) {
+      user.usageStats.lastLocations.pop();
+    }
+  }
+
+  user.usageStats.lastUsedAt = new Date().toISOString();
   await persist(db);
   return sanitizeUser(user);
 }

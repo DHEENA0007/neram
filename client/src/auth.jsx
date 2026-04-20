@@ -6,6 +6,7 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [language, setLanguage] = useState(localStorage.getItem('admin_lang') || 'en');
 
   async function refresh() {
     setLoading(true);
@@ -20,6 +21,10 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     refresh();
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem('admin_lang', language);
+  }, [language]);
 
   async function login(username, password) {
     const data = await loginRequest(username, password);
@@ -40,6 +45,8 @@ export function AuthProvider({ children }) {
         login,
         logout,
         refresh,
+        language,
+        setLanguage
       }}
     >
       {children}
@@ -54,4 +61,3 @@ export function useAuth() {
   }
   return context;
 }
-
