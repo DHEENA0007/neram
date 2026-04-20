@@ -126,29 +126,54 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai, gowri 
   const accentBg  = isDay ? 'bg-amber-400/10 border-amber-100/50'   : 'bg-indigo-400/10 border-indigo-100/50';
   const accentDot = isDay ? 'bg-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.5)]' : 'bg-indigo-400 shadow-[0_0_12px_rgba(129,140,248,0.5)]';
   const accentTxt = isDay ? 'text-amber-700' : 'text-indigo-700';
-  const thTxt     = isDay ? 'text-amber-600/50' : 'text-indigo-600/50';
+   const thTxt     = isDay ? 'text-amber-800' : 'text-indigo-800';
 
   return (
     <section className="glass-card overflow-hidden p-0 border-none shadow-premium animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header */}
-      <div className={`px-6 md:px-8 py-5 flex items-center gap-4 border-b ${accentBg}`}>
-        <div className={`w-3 h-3 rounded-full shrink-0 ${accentDot}`} />
-        <h2 className={`text-lg md:text-xl font-black uppercase tracking-tight ${accentTxt}`}>
-          {isDay ? c.dayTable : c.nightTable}
-        </h2>
+      <div className={`px-6 md:px-8 py-5 flex items-center justify-between border-b ${accentBg}`}>
+        <div className="flex items-center gap-4">
+          <div className={`w-3 h-3 rounded-full shrink-0 ${accentDot}`} />
+          <h2 className={`text-lg md:text-xl font-black uppercase tracking-tight ${accentTxt}`}>
+            {isDay ? c.dayTable : c.nightTable}
+          </h2>
+        </div>
+        
+        <div className="flex items-center gap-6 no-print">
+          {yamas[0]?.paduBird && (
+            <div className="flex flex-col items-end">
+              <span className="text-[9px] font-black uppercase tracking-widest text-slate-800">
+                {lang === 'ta' ? 'படுபட்சி' : 'Padu Pakshi'}
+              </span>
+              <span className="text-xs font-black text-rose-600">
+                {lang === 'ta' ? yamas[0].paduBird.tamil : yamas[0].paduBird.label}
+              </span>
+            </div>
+          )}
+          {yamas[0]?.bharanaBird && (
+             <div className="flex flex-col items-end">
+              <span className="text-[9px] font-black uppercase tracking-widest text-slate-800">
+                {lang === 'ta' ? 'அதிகார பட்சி' : 'Adhikara Pakshi'}
+              </span>
+              <span className="text-xs font-black text-indigo-700">
+                {lang === 'ta' ? yamas[0].bharanaBird.tamil : yamas[0].bharanaBird.label}
+              </span>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* DESKTOP TABLE VIEW */}
       <div className="hidden lg:block overflow-x-auto">
         <table className="w-full text-left border-collapse" style={{ tableLayout: 'fixed' }}>
           <colgroup>
-            <col style={{ width: '90px' }} />
-            <col style={{ width: '120px' }} />
-            <col style={{ width: '110px' }} />
-            <col style={{ width: '200px' }} />
-            <col style={{ width: '110px' }} />
+            <col style={{ width: '140px' }} />
+            <col style={{ width: '150px' }} />
+            <col style={{ width: '130px' }} />
+            <col style={{ width: '220px' }} />
+            <col style={{ width: '130px' }} />
             <col />
-            <col style={{ width: '80px' }} />
+            <col style={{ width: '90px' }} />
           </colgroup>
 
           <thead>
@@ -177,13 +202,13 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai, gowri 
                       <td className="px-5 py-4 align-top">
                         {i === 0 && (
                           <div className="flex flex-col gap-0.5">
-                            <span className={`text-base font-black tabular-nums ${accentTxt}`}>{lang === 'ta' ? 'ஜாமம்' : 'Jamam'} {yama.index}</span>
+                            <span className={`text-sm font-black tabular-nums ${accentTxt}`}>{lang === 'ta' ? 'ஜாமம்' : 'Jamam'} {yama.index}</span>
                             <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide tabular-nums">{yama.startLabel} – {yama.endLabel}</span>
                             {yama.mainActivity && <span className="text-[9px] font-bold text-slate-500">{n(yama.mainActivity, lang)}</span>}
                           </div>
                         )}
                       </td>
-                      <td className="px-5 py-4 font-bold text-slate-800 text-sm">{n(s.bird, lang)}</td>
+                      <td className="px-5 py-4 font-black text-slate-800 text-sm align-top">{n(s.bird, lang)}</td>
                       <td className="px-5 py-4"><ActivityBadge activity={s.activity} lang={lang} /></td>
                       <td className="px-5 py-4">
                         <div className="flex flex-col gap-1">
@@ -295,7 +320,7 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai, gowri 
             {/* Yama Header */}
             <div className="px-6 py-3 bg-white border-b border-slate-100 flex justify-between items-center">
                <div className="flex flex-col">
-                  <span className={`text-lg font-black ${accentTxt}`}>{lang === 'ta' ? 'ஜாமம்' : 'Jamam'} {yama.index}</span>
+                  <span className={`text-base font-black uppercase tracking-tight ${accentTxt}`}>{lang === 'ta' ? 'ஜாமம்' : 'Jamam'} {yama.index}</span>
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{yama.startLabel} – {yama.endLabel}</span>
                   {yama.mainActivity && <span className="text-[9px] font-bold text-slate-500">{n(yama.mainActivity, lang)}</span>}
                </div>

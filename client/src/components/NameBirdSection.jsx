@@ -66,28 +66,28 @@ export function NameBirdSection({ onUpdateBird, lang }) {
       {/* Title */}
       <div className="flex items-center gap-3">
         <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-        <h3 className="text-[11px] font-black uppercase tracking-[0.25em] text-slate-400">{t.title}</h3>
+        <h3 className="text-sm font-black uppercase tracking-[0.25em] text-slate-700">{t.title}</h3>
       </div>
 
       {/* Row 1 — Your name */}
       <div className="space-y-2">
-        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 block">
+        <label className="text-[12px] font-black text-slate-700 uppercase tracking-widest ml-1 block">
           {t.label1}
         </label>
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <div className="relative flex-1 w-full">
             <input
-              className="w-full px-4 py-2.5 pr-9 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-500/10 text-sm font-bold text-slate-800 placeholder:text-slate-300 transition-all"
+              className="w-full px-4 py-2.5 pr-9 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-500/10 text-[13px] font-bold text-slate-900 placeholder:text-slate-400 transition-all"
               value={name1}
               onChange={(e) => setName1(e.target.value)}
               placeholder={lang === 'ta' ? 'பெயர் உள்ளிடுக…' : 'Enter name…'}
             />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none text-xs">▽</span>
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-xs">▽</span>
           </div>
 
           {bird1 ? (
             <div className="flex items-center gap-2 shrink-0 bg-amber-50/50 p-2 sm:p-0 rounded-xl sm:bg-transparent border border-amber-100/50 sm:border-none">
-              <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider whitespace-nowrap">{t.yourBird}</span>
+              <span className="text-[10px] font-black text-slate-600 uppercase tracking-wider whitespace-nowrap">{t.yourBird}</span>
               <BirdChip bird={bird1} lang={lang} color="amber" />
               <button
                 onClick={() => onUpdateBird(bird1.id)}
@@ -98,7 +98,7 @@ export function NameBirdSection({ onUpdateBird, lang }) {
               </button>
             </div>
           ) : (
-            <span className="hidden sm:block text-[9px] font-black text-slate-300 uppercase tracking-wider shrink-0 whitespace-nowrap">{t.yourBird} —</span>
+            <span className="hidden sm:block text-[10px] font-black text-slate-400 uppercase tracking-wider shrink-0 whitespace-nowrap">{t.yourBird} —</span>
           )}
         </div>
       </div>
@@ -108,27 +108,27 @@ export function NameBirdSection({ onUpdateBird, lang }) {
 
       {/* Row 2 — Other name */}
       <div className="space-y-2">
-        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 block">
+        <label className="text-[12px] font-black text-slate-700 uppercase tracking-widest ml-1 block">
           {t.label2}
         </label>
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <div className="relative flex-1 w-full">
             <input
-              className="w-full px-4 py-2.5 pr-9 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 text-sm font-bold text-slate-800 placeholder:text-slate-300 transition-all"
+              className="w-full px-4 py-2.5 pr-9 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 text-[13px] font-bold text-slate-900 placeholder:text-slate-400 transition-all"
               value={name2}
               onChange={(e) => setName2(e.target.value)}
               placeholder={lang === 'ta' ? 'பெயர் உள்ளிடுக…' : 'Enter name…'}
             />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none text-xs">▽</span>
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-xs">▽</span>
           </div>
 
           {bird2 ? (
             <div className="flex items-center gap-2 shrink-0 bg-indigo-50/50 p-2 sm:p-0 rounded-xl sm:bg-transparent border border-indigo-100/50 sm:border-none">
-              <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider whitespace-nowrap">{t.otherBird}</span>
+              <span className="text-[10px] font-black text-slate-600 uppercase tracking-wider whitespace-nowrap">{t.otherBird}</span>
               <BirdChip bird={bird2} lang={lang} color="indigo" />
             </div>
           ) : (
-            <span className="hidden sm:block text-[9px] font-black text-slate-300 uppercase tracking-wider shrink-0 whitespace-nowrap">{t.otherBird} —</span>
+            <span className="hidden sm:block text-[10px] font-black text-slate-400 uppercase tracking-wider shrink-0 whitespace-nowrap">{t.otherBird} —</span>
           )}
         </div>
       </div>

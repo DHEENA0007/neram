@@ -49,7 +49,7 @@ export function GowriTable({ gowri, lang }) {
             <h3 className="text-sm font-black uppercase tracking-tight text-amber-700">
               {lang === 'ta' ? 'பகல் கௌரி' : 'Day Gowri'}
             </h3>
-            <span className="text-[9px] font-bold text-amber-600/60 uppercase tracking-widest">12 Sections</span>
+            <span className="text-[9px] font-bold text-amber-600/60 uppercase tracking-widest">8 Sections</span>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-px bg-amber-100/30">
             {daySlots.map(s => <GowriCard key={s.index} slot={s} lang={lang} />)}
@@ -62,7 +62,7 @@ export function GowriTable({ gowri, lang }) {
             <h3 className="text-sm font-black uppercase tracking-tight text-slate-600">
               {lang === 'ta' ? 'இரவு கௌரி' : 'Night Gowri'}
             </h3>
-            <span className="text-[9px] font-bold text-slate-500/60 uppercase tracking-widest">12 Sections</span>
+            <span className="text-[9px] font-bold text-slate-500/60 uppercase tracking-widest">8 Sections</span>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-px bg-slate-100/40">
             {nightSlots.map(s => <GowriCard key={s.index} slot={s} lang={lang} />)}

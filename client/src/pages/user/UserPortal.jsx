@@ -8,7 +8,7 @@ import { HoraiTable } from '../../components/HoraiTable.jsx';
 import { SpecialPeriods } from '../../components/SpecialPeriods.jsx';
 import { GowriTable } from '../../components/GowriTable.jsx';
 import { BirdHelper } from '../../components/BirdHelper.jsx';
-import { IconArrowRight, IconVulture, IconOwl, IconCrow, IconHen, IconPeacock, IconCheck, IconCalendar, IconLocation, IconSun, IconSearch, IconDownload } from '../../components/Icons.jsx';
+import { IconArrowRight, IconVulture, IconOwl, IconCrow, IconHen, IconPeacock, IconCheck, IconCalendar, IconLocation, IconSun, IconSearch, IconDownload, IconSunrise, IconSunset } from '../../components/Icons.jsx';
 import { PrintView } from '../../components/PrintView.jsx';
 import { PrintOptionsModal } from '../../components/PrintOptionsModal.jsx';
 import { RangePrintView } from '../../components/RangePrintView.jsx';
@@ -35,6 +35,7 @@ const L = {
     selected: 'Selected Location:',
     weekday: 'Weekday',
     sunrise: 'Sunrise',
+    sunset: 'Sunset',
     paksha: 'Paksha',
   },
   ta: {
@@ -50,6 +51,7 @@ const L = {
     selected: 'தேர்ந்தெடுக்கப்பட்ட இடம்:',
     weekday: 'கிழமை',
     sunrise: 'சூரிய உதயம்',
+    sunset: 'சூரிய அஸ்தமனம்',
     paksha: 'பிறை',
   }
 };
@@ -121,13 +123,31 @@ export function UserPortal() {
       dayPaksha: prediction.paksha?.day,
       nightPaksha: prediction.paksha?.night,
       sunrise: prediction.astronomy.sunrise,
+      sunset: prediction.astronomy.sunset,
       currentHorai: (() => {
         const horas = prediction.horai;
-        if (!horas) return null;
-        return horas.find(h => nowMs >= new Date(h.start).getTime() && nowMs < new Date(h.end).getTime())
-          || horas.filter(h => new Date(h.start).getTime() <= nowMs).at(-1);
+        if (!horas || !horas.length) return null;
+
+        const now = new Date();
+        const ref = new Date(prediction.date);
+        ref.setHours(now.getHours(), now.getMinutes(), now.getSeconds());
+        const refMs = ref.getTime();
+
+        return horas.find(h => refMs >= new Date(h.start).getTime() && refMs < new Date(h.end).getTime())
+          || horas.filter(h => new Date(h.start).getTime() <= refMs).at(-1);
       })(),
-      currentGowri: prediction.gowri?.find(g => nowMs >= new Date(g.start).getTime() && nowMs < new Date(g.end).getTime())
+      currentGowri: (() => {
+        const gowris = prediction.gowri;
+        if (!gowris || !gowris.length) return null;
+
+        const now = new Date();
+        const ref = new Date(prediction.date);
+        ref.setHours(now.getHours(), now.getMinutes(), now.getSeconds());
+        const refMs = ref.getTime();
+
+        return gowris.find(g => refMs >= new Date(g.start).getTime() && refMs < new Date(g.end).getTime())
+          || gowris.filter(g => new Date(g.start).getTime() <= refMs).at(-1);
+      })()
     };
   }, [prediction]);
 
@@ -200,7 +220,7 @@ export function UserPortal() {
   }
 
   function formatTimeFromISO(iso) {
-    return new Date(iso).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    return new Date(iso).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
   }
 
   function formatDateDisplay(d) {
@@ -211,7 +231,7 @@ export function UserPortal() {
     <section className={`glass-card shadow-card-sm border-none ring-1 ring-slate-100/80 bg-white/80 ${isSidebar ? 'p-6' : 'p-8'}`}>
       <div className="flex items-center gap-3 mb-8">
         <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-        <h3 className="text-[11px] font-black uppercase tracking-[0.25em] text-slate-600">
+        <h3 className="text-sm font-black uppercase tracking-[0.25em] text-slate-900">
           {lang === 'ta' ? 'அமைப்பு' : 'Configuration'}
         </h3>
       </div>
@@ -221,7 +241,7 @@ export function UserPortal() {
           
           {/* ROW 1: DATE & LOCATION */}
           <div className={`${isSidebar ? '' : 'md:col-span-4'} flex flex-col gap-2`}>
-            <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">{t.date_label}</label>
+            <label className="text-[12px] font-black text-slate-900 uppercase tracking-widest ml-1">{t.date_label}</label>
             <div className="relative group">
               <input
                 type="date"
@@ -326,7 +346,7 @@ export function UserPortal() {
                       const Icon = BIRD_ICONS[bird.key];
                       return <Icon size={24} className={String(birdId) === String(bird.id) ? 'scale-110' : ''} />;
                   })()}
-                  <span className="text-[8px] font-black uppercase tracking-tighter opacity-80">
+                  <span className="text-[9px] font-black uppercase tracking-widest text-slate-700 opacity-80">
                     {lang === 'ta' ? bird.tamil : bird.key}
                   </span>
                 </button>
@@ -399,7 +419,7 @@ export function UserPortal() {
       <div className="flex flex-col xl:flex-row gap-6 sm:gap-8 items-start">
 
         {/* CONFIG SIDEBAR */}
-        <aside className="no-print w-full xl:w-[420px] shrink-0 space-y-4 sm:space-y-6 xl:sticky xl:top-[88px] max-h-none xl:max-h-[calc(100vh-120px)] overflow-y-auto pr-0 xl:pr-2 pb-10 sm:pb-20 scrollbar-hide">
+        <aside className="no-print w-full xl:w-[380px] shrink-0 space-y-4 sm:space-y-6 xl:sticky xl:top-[88px] max-h-none xl:max-h-[calc(100vh-120px)] overflow-y-auto pr-0 xl:pr-2 pb-10 sm:pb-20 scrollbar-hide">
           <NameBirdSection 
             lang={lang} 
             onUpdateBird={(id) => setBirdId(String(id))} 
@@ -450,11 +470,27 @@ export function UserPortal() {
               <div className="no-print space-y-8">
                 <SpecialPeriods periods={prediction.specialPeriods} lang={lang} />
                 
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                   {[
                     { label: t.date_label, value: formatDateDisplay(summary.date) },
                     { label: t.weekday, value: lang === 'ta' ? summary.weekday.tamil : summary.weekday.label, highlight: 'text-amber-600' },
-                    { label: t.sunrise, value: formatTimeFromISO(summary.sunrise), mono: true },
+                    { 
+                      label: lang === 'ta' ? 'சூரிய உதயம் & அஸ்தமனம்' : 'Sunrise & Sunset', 
+                      span: 'md:col-span-2',
+                      node: (
+                        <div className="flex items-center gap-4 py-1">
+                          <div className="flex items-center gap-2 text-indigo-600">
+                            <IconSunrise size={16} className="opacity-80" />
+                            <span className="text-sm font-black font-mono whitespace-nowrap">{formatTimeFromISO(summary.sunrise)}</span>
+                          </div>
+                          <div className="w-px h-4 bg-slate-200" />
+                          <div className="flex items-center gap-2 text-orange-600">
+                            <IconSunset size={16} className="opacity-80" />
+                            <span className="text-sm font-black font-mono whitespace-nowrap">{formatTimeFromISO(summary.sunset)}</span>
+                          </div>
+                        </div>
+                      )
+                    },
                     { label: t.paksha, value: lang === 'ta' ? summary.paksha?.tamil : summary.paksha?.label, badge: 'emerald' },
                     { 
                       label: lang === 'ta' ? 'இந்த நேரத்தின் ஹோரை' : 'Current Horai',
@@ -468,7 +504,7 @@ export function UserPortal() {
                       ) : <span className="text-slate-300">—</span>
                     }
                   ].map((item, idx) => (
-                    <div key={idx} className="glass-card shadow-card-sm p-5 border-none ring-1 ring-slate-100/50 flex flex-col justify-center gap-2 hover:scale-[1.02] transition-all">
+                    <div key={idx} className={`glass-card shadow-card-sm p-5 border-none ring-1 ring-slate-100/50 flex flex-col justify-center gap-2 hover:scale-[1.02] transition-all ${item.span || ''}`}>
                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-800">{item.label}</span>
                        {item.node ? item.node : (
                          <span className={`text-sm font-black ${item.highlight || 'text-slate-800'} ${item.mono ? 'font-mono text-xs' : ''}`}>

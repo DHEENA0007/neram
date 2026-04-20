@@ -128,11 +128,11 @@ export function PrintView({ prediction, lang, locationName }) {
         <div style={{ display: 'flex', gap: 24, marginTop: 10, flexWrap: 'wrap' }}>
           {[
             [t ? 'பட்சி' : 'Bird', n(prediction.bird, lang)],
+            [t ? 'அதிகார பட்சி' : 'Adhikara Pakshi', n(prediction.dayYamas?.[0]?.bharanaBird, lang)],
+            [t ? 'படுபட்சி' : 'Padu Pakshi', n(prediction.dayYamas?.[0]?.paduBird, lang)],
             [t ? 'கிழமை' : 'Weekday', n(prediction.weekday, lang)],
             [t ? 'பகல் பிறை' : 'Day Paksha', n(dayPaksha, lang)],
             [t ? 'இரவு பிறை' : 'Night Paksha', n(nightPaksha, lang)],
-            [t ? 'பகல் திசை' : 'Day Direction', n(dayPaksha?.direction, lang)],
-            [t ? 'இரவு திசை' : 'Night Direction', n(nightPaksha?.direction, lang)],
           ].map(([label, val]) => (
             <div key={label}>
               <div style={{ fontSize: 7, fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{label}</div>

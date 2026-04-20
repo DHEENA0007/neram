@@ -153,43 +153,39 @@ const WEEKDAY_HORAI_START_INDEX = {
 };
 
 function calculateHoraiSchedule({ sunrise, sunset, nextSunrise, weekdayIndex, timezone }) {
-  const SIXTY_MIN_MS = 60 * 60 * 1000; // fixed 60-minute Horai slots
   const startIndex = WEEKDAY_HORAI_START_INDEX[weekdayIndex];
+  const dayMs   = sunset.toMillis()     - sunrise.toMillis();     // actual day length
+  const nightMs = nextSunrise.toMillis() - sunset.toMillis();     // actual night length
+  const dayHoraMs   = dayMs   / 12;
+  const nightHoraMs = nightMs / 12;
 
   const horai = [];
-
-  // Day Horas: 12 fixed 60-minute slots starting from sunrise
+  // 12 day horas — proportional to actual day length
   for (let i = 0; i < 12; i++) {
-    const start = DateTime.fromMillis(sunrise.toMillis() + SIXTY_MIN_MS * i, { zone: timezone });
-    const end = DateTime.fromMillis(sunrise.toMillis() + SIXTY_MIN_MS * (i + 1), { zone: timezone });
-    const planet = HORAI_SEQUENCE[(startIndex + i) % 7];
+    const start = DateTime.fromMillis(Math.round(sunrise.toMillis() + dayHoraMs * i),       { zone: timezone });
+    const end   = DateTime.fromMillis(Math.round(sunrise.toMillis() + dayHoraMs * (i + 1)), { zone: timezone });
     horai.push({
-      index: i + 1,
-      period: 'day',
+      index: i + 1, period: 'day',
       start: start.toISO({ suppressMilliseconds: true }),
-      end: end.toISO({ suppressMilliseconds: true }),
-      startLabel: start.toFormat('hh:mm a'),
-      endLabel: end.toFormat('hh:mm a'),
-      planet,
+      end:   end.toISO({ suppressMilliseconds: true }),
+      startLabel: start.toFormat('hh:mm:ss a'),
+      endLabel:   end.toFormat('hh:mm:ss a'),
+      planet: HORAI_SEQUENCE[(startIndex + i) % 7],
     });
   }
-
-  // Night Horas: 12 fixed 60-minute slots starting from sunset
+  // 12 night horas — proportional to actual night length
   for (let i = 0; i < 12; i++) {
-    const start = DateTime.fromMillis(sunset.toMillis() + SIXTY_MIN_MS * i, { zone: timezone });
-    const end = DateTime.fromMillis(sunset.toMillis() + SIXTY_MIN_MS * (i + 1), { zone: timezone });
-    const planet = HORAI_SEQUENCE[(startIndex + 12 + i) % 7];
+    const start = DateTime.fromMillis(Math.round(sunset.toMillis() + nightHoraMs * i),       { zone: timezone });
+    const end   = DateTime.fromMillis(Math.round(sunset.toMillis() + nightHoraMs * (i + 1)), { zone: timezone });
     horai.push({
-      index: i + 13,
-      period: 'night',
+      index: i + 13, period: 'night',
       start: start.toISO({ suppressMilliseconds: true }),
-      end: end.toISO({ suppressMilliseconds: true }),
-      startLabel: start.toFormat('hh:mm a'),
-      endLabel: end.toFormat('hh:mm a'),
-      planet,
+      end:   end.toISO({ suppressMilliseconds: true }),
+      startLabel: start.toFormat('hh:mm:ss a'),
+      endLabel:   end.toFormat('hh:mm:ss a'),
+      planet: HORAI_SEQUENCE[(startIndex + 12 + i) % 7],
     });
   }
-
   return horai;
 }
 
@@ -198,16 +194,17 @@ const YAMAGANDAM_PARTS = { 0: 5, 1: 4, 2: 3, 3: 2, 4: 1, 5: 7, 6: 6 };
 const KULIKAI_PARTS = { 0: 7, 1: 6, 2: 5, 3: 4, 4: 3, 5: 2, 6: 1 };
 
 function calculateSpecialPeriods({ sunrise, sunset, weekdayIndex, timezone }) {
-  const NINETY_MIN_MS = 90 * 60 * 1000; // fixed 90-minute parts (8 parts × 90 min = 12-hour day)
+  const dayMs = sunset.toMillis() - sunrise.toMillis();
+  const partMs = dayMs / 8;
 
   const getPeriod = (partNumber) => {
-    const start = DateTime.fromMillis(sunrise.toMillis() + NINETY_MIN_MS * (partNumber - 1), { zone: timezone });
-    const end = DateTime.fromMillis(sunrise.toMillis() + NINETY_MIN_MS * partNumber, { zone: timezone });
+    const start = DateTime.fromMillis(Math.round(sunrise.toMillis() + partMs * (partNumber - 1)), { zone: timezone });
+    const end = DateTime.fromMillis(Math.round(sunrise.toMillis() + partMs * partNumber), { zone: timezone });
     return {
       start: start.toISO({ suppressMilliseconds: true }),
       end: end.toISO({ suppressMilliseconds: true }),
-      startLabel: start.toFormat('hh:mm a'),
-      endLabel: end.toFormat('hh:mm a'),
+      startLabel: start.toFormat('hh:mm:ss a'),
+      endLabel: end.toFormat('hh:mm:ss a'),
     };
   };
 
@@ -240,43 +237,39 @@ const WEEKDAY_GOWRI_START_INDEX = {
 };
 
 function calculateGowriSchedule({ sunrise, sunset, nextSunrise, weekdayIndex, timezone }) {
-  const SIXTY_MIN_MS = 60 * 60 * 1000; // fixed 60-minute Gowri slots
   const startIndex = WEEKDAY_GOWRI_START_INDEX[weekdayIndex];
+  const dayMs   = sunset.toMillis()      - sunrise.toMillis();    // actual day length
+  const nightMs = nextSunrise.toMillis() - sunset.toMillis();     // actual night length
+  const dayGowriMs   = dayMs   / 8;
+  const nightGowriMs = nightMs / 8;
 
   const gowri = [];
-
-  // Day Gowri: 12 fixed 60-minute slots starting from sunrise
-  for (let i = 0; i < 12; i++) {
-    const start = DateTime.fromMillis(sunrise.toMillis() + SIXTY_MIN_MS * i, { zone: timezone });
-    const end = DateTime.fromMillis(sunrise.toMillis() + SIXTY_MIN_MS * (i + 1), { zone: timezone });
-    const type = GOWRI_TYPES[(startIndex + i) % 8];
+  // 8 day sections — proportional to actual day length
+  for (let i = 0; i < 8; i++) {
+    const start = DateTime.fromMillis(Math.round(sunrise.toMillis() + dayGowriMs * i),       { zone: timezone });
+    const end   = DateTime.fromMillis(Math.round(sunrise.toMillis() + dayGowriMs * (i + 1)), { zone: timezone });
     gowri.push({
-      index: i + 1,
-      period: 'day',
+      index: i + 1, period: 'day',
       start: start.toISO({ suppressMilliseconds: true }),
-      end: end.toISO({ suppressMilliseconds: true }),
-      startLabel: start.toFormat('hh:mm a'),
-      endLabel: end.toFormat('hh:mm a'),
-      type,
+      end:   end.toISO({ suppressMilliseconds: true }),
+      startLabel: start.toFormat('hh:mm:ss a'),
+      endLabel:   end.toFormat('hh:mm:ss a'),
+      type: GOWRI_TYPES[(startIndex + i) % 8],
     });
   }
-
-  // Night Gowri: 12 fixed 60-minute slots starting from sunset
-  for (let i = 0; i < 12; i++) {
-    const start = DateTime.fromMillis(sunset.toMillis() + SIXTY_MIN_MS * i, { zone: timezone });
-    const end = DateTime.fromMillis(sunset.toMillis() + SIXTY_MIN_MS * (i + 1), { zone: timezone });
-    const type = GOWRI_TYPES[(startIndex + 12 + i) % 8];
+  // 8 night sections — proportional to actual night length
+  for (let i = 0; i < 8; i++) {
+    const start = DateTime.fromMillis(Math.round(sunset.toMillis() + nightGowriMs * i),       { zone: timezone });
+    const end   = DateTime.fromMillis(Math.round(sunset.toMillis() + nightGowriMs * (i + 1)), { zone: timezone });
     gowri.push({
-      index: i + 13,
-      period: 'night',
+      index: i + 9, period: 'night',
       start: start.toISO({ suppressMilliseconds: true }),
-      end: end.toISO({ suppressMilliseconds: true }),
-      startLabel: start.toFormat('hh:mm a'),
-      endLabel: end.toFormat('hh:mm a'),
-      type,
+      end:   end.toISO({ suppressMilliseconds: true }),
+      startLabel: start.toFormat('hh:mm:ss a'),
+      endLabel:   end.toFormat('hh:mm:ss a'),
+      type: GOWRI_TYPES[(startIndex + 8 + i) % 8],
     });
   }
-
   return gowri;
 }
 
@@ -448,7 +441,7 @@ export function resolvePaksha(date, timezone, longitude, latitude, mode = 'auto'
 
 
 function formatTimeLabel(dateTime) {
-  return dateTime.toFormat('hh:mm a');
+  return dateTime.toFormat('hh:mm:ss a');
 }
 
 function mapRow(row) {

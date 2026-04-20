@@ -3,7 +3,8 @@ import {
   LucideCalendar, LucideArrowRight, LucideLogOut, LucideSun, 
   LucideUserPlus, LucideCheck, LucideMapPin, LucideShield, 
   LucideBan, LucideCheckCircle, LucideCpu, LucideDownload, 
-  LucideTrash2, LucideInfo, LucideBird, LucideSearch, LucideStar, LucideMoon
+  LucideTrash2, LucideInfo, LucideBird, LucideSearch, LucideStar, LucideMoon,
+  LucideSunrise, LucideSunset
 } from 'lucide-react';
 import { GiVulture, GiOwl, GiCrowDive, GiRooster, GiFeather } from "react-icons/gi";
 
@@ -28,6 +29,8 @@ export function IconInfo({ size = 16, className }) { return <LucideInfo size={si
 export function IconBird({ size = 16 }) { return <LucideBird size={size} />; }
 export function IconStar({ size = 16, className }) { return <LucideStar size={size} className={className} />; }
 export function IconMoon({ size = 16, className }) { return <LucideMoon size={size} className={className} />; }
+export function IconSunrise({ size = 16, className }) { return <LucideSunrise size={size} className={className} />; }
+export function IconSunset({ size = 16, className }) { return <LucideSunset size={size} className={className} />; }
 
 export function IconVulture({ size = 16, className }) { return <GiVulture size={size} className={className} />; }
 export function IconOwl({ size = 16, className }) { return <GiOwl size={size} className={className} />; }

@@ -79,7 +79,7 @@ export function PortalShell({ title, children, lang, onToggleLang }) {
         </div>
       </header>
 
-      <main className="w-full max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-8 space-y-6 sm:space-y-8 flex-1">
+      <main className="w-full max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-8 space-y-6 sm:space-y-8 flex-1">
 
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
           {children}

@@ -36,7 +36,7 @@ function BirdResult({ birdId, lang, onSelect }) {
       className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 text-amber-700 border border-amber-200/50 hover:border-amber-400 hover:shadow-sm active:scale-95 transition-all shrink-0 group/btn"
     >
       {Icon && <Icon size={14} className="group-hover/btn:scale-110 transition-transform" />}
-      <span className="text-[10px] font-black uppercase tracking-tighter whitespace-nowrap">{lang === 'ta' ? bird.tamil : bird.label}</span>
+      <span className="text-xs font-black uppercase tracking-tight whitespace-nowrap">{lang === 'ta' ? bird.tamil : bird.label}</span>
     </button>
   );
 }
@@ -46,7 +46,7 @@ function CustomSel({ value, onChange, options, lang }) {
     <select
       value={value}
       onChange={e => onChange(Number(e.target.value))}
-      className="text-[11px] font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 outline-none focus:bg-white focus:border-amber-400 focus:ring-4 focus:ring-amber-500/5 transition-all w-32 cursor-pointer shadow-none"
+      className="text-xs font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 outline-none focus:bg-white focus:border-amber-400 focus:ring-4 focus:ring-amber-500/5 transition-all w-36 cursor-pointer shadow-none"
     >
       {options.map(o => (
         <option key={o.id} value={o.id}>{lang === 'ta' ? o.tamil : o.label}</option>
@@ -61,7 +61,7 @@ function SectionHeader({ title, icon: Icon }) {
       <div className="w-6 h-6 rounded-lg bg-amber-50 flex items-center justify-center text-amber-500 shadow-sm border border-amber-100">
         <Icon size={12} />
       </div>
-      <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-600">
+      <h4 className="text-[13px] font-black uppercase tracking-[0.15em] text-slate-900">
         {title}
       </h4>
       <div className="flex-1 h-px bg-slate-100/80 ml-2" />
@@ -72,7 +72,7 @@ function SectionHeader({ title, icon: Icon }) {
 function DataRow({ label, children }) {
   return (
     <div className="group flex items-center justify-between gap-3 p-2 rounded-2xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100">
-      <span className="text-[9px] font-black text-slate-700 uppercase tracking-widest pl-2">{label}</span>
+      <span className="text-[12px] font-black text-slate-900 uppercase tracking-widest pl-2">{label}</span>
       <div className="flex items-center gap-2">
         {children}
       </div>
@@ -109,7 +109,7 @@ export function BirdHelper({ lang, onSelectBird }) {
           <div className="w-8 h-8 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-600 shadow-none ring-1 ring-amber-500/10">
             <IconSearch size={16} />
           </div>
-          <h3 className="text-[11px] font-black uppercase tracking-[0.25em] text-slate-800">
+          <h3 className="text-sm font-black uppercase tracking-[0.25em] text-slate-800">
             {tl ? 'பட்சி வழிகாட்டி' : 'Bird Reference'}
           </h3>
         </div>
