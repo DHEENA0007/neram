@@ -109,7 +109,16 @@ function getHorai(start, end, horai) {
   return horai.find(h => mid >= new Date(h.start).getTime() && mid < new Date(h.end).getTime()) ?? null;
 }
 
-export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai }) {
+function getGowri(start, end, gowri) {
+  if (!gowri) return null;
+  const mid = (new Date(start).getTime() + new Date(end).getTime()) / 2;
+  return gowri.find(g => mid >= new Date(g.start).getTime() && mid < new Date(g.end).getTime()) ?? null;
+}
+
+const GOWRI_DOT = { good: 'bg-emerald-500', bad: 'bg-rose-500' };
+const GOWRI_TEXT = { good: 'text-emerald-700', bad: 'text-rose-600' };
+
+export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai, gowri }) {
   const c = L[lang];
   const [expandSubs, setExpandSubs] = useState('');
 
@@ -161,6 +170,7 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai }) {
                 const isExp = expandSubs === key;
                 const warnings = getSpecialWarnings(s.start, s.end, specialPeriods);
                 const hora = getHorai(s.start, s.end, horai);
+                const gowriSlot = getGowri(s.start, s.end, gowri);
                 return (
                   <React.Fragment key={key}>
                     <tr className="hover:bg-slate-50/60 transition-colors duration-150">
@@ -186,12 +196,18 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai }) {
                               {isExp ? '−' : '+'}
                             </button>
                           </div>
-                          {(hora || warnings.length > 0) && (
+                          {(hora || gowriSlot || warnings.length > 0) && (
                             <div className="flex items-center gap-1 flex-wrap">
                               {hora && (
                                 <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wide bg-slate-100 text-slate-600">
                                   <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${PLANET_DOT[hora.planet.key] || 'bg-slate-400'}`} />
                                   {lang === 'ta' ? hora.planet.tamil : hora.planet.label}
+                                </span>
+                              )}
+                              {gowriSlot && (
+                                <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wide bg-slate-50 ${GOWRI_TEXT[gowriSlot.type.nature] || 'text-slate-600'}`}>
+                                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${GOWRI_DOT[gowriSlot.type.nature] || 'bg-slate-400'}`} />
+                                  {lang === 'ta' ? gowriSlot.type.tamil : gowriSlot.type.label}
                                 </span>
                               )}
                               {warnings.map(w => (
@@ -227,6 +243,7 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai }) {
                               <tbody>
                                 {getSookshimaSlots(yama.subRows, i, s.start, s.end).map((sk, j) => {
                                   const skHora = getHorai(sk.start, sk.end, horai);
+                                  const skGowri = getGowri(sk.start, sk.end, gowri);
                                   const skWarnings = getSpecialWarnings(sk.start, sk.end, specialPeriods);
                                   return (
                                     <tr key={j} className="border-t border-amber-100/60">
@@ -239,6 +256,12 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai }) {
                                             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wide bg-slate-100 text-slate-600">
                                               <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${PLANET_DOT[skHora.planet.key] || 'bg-slate-400'}`} />
                                               {lang === 'ta' ? skHora.planet.tamil : skHora.planet.label}
+                                            </span>
+                                          )}
+                                          {skGowri && (
+                                            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wide bg-slate-50 ${GOWRI_TEXT[skGowri.type.nature] || 'text-slate-600'}`}>
+                                              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${GOWRI_DOT[skGowri.type.nature] || 'bg-slate-400'}`} />
+                                              {lang === 'ta' ? skGowri.type.tamil : skGowri.type.label}
                                             </span>
                                           )}
                                           {skWarnings.map(w => (
@@ -288,6 +311,7 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai }) {
                  const isExp = expandSubs === key;
                  const mobWarnings = getSpecialWarnings(s.start, s.end, specialPeriods);
                  const mobHora = getHorai(s.start, s.end, horai);
+                 const mobGowri = getGowri(s.start, s.end, gowri);
                  return (
                    <div key={key} className="p-4 bg-white/60">
                       <div className="flex justify-between items-start mb-2">
@@ -299,6 +323,12 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai }) {
                                 <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wide bg-slate-100 text-slate-600">
                                   <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${PLANET_DOT[mobHora.planet.key] || 'bg-slate-400'}`} />
                                   {lang === 'ta' ? mobHora.planet.tamil : mobHora.planet.label}
+                                </span>
+                              )}
+                              {mobGowri && (
+                                <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wide bg-slate-50 ${GOWRI_TEXT[mobGowri.type.nature] || 'text-slate-600'}`}>
+                                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${GOWRI_DOT[mobGowri.type.nature] || 'bg-slate-400'}`} />
+                                  {lang === 'ta' ? mobGowri.type.tamil : mobGowri.type.label}
                                 </span>
                               )}
                               {mobWarnings.map(w => (
@@ -335,6 +365,7 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai }) {
                            <div className="space-y-4">
                               {getSookshimaSlots(yama.subRows, i, s.start, s.end).map((sk, j) => {
                                 const skHora = getHorai(sk.start, sk.end, horai);
+                                const skGowriMob = getGowri(sk.start, sk.end, gowri);
                                 const skWarnings = getSpecialWarnings(sk.start, sk.end, specialPeriods);
                                 return (
                                   <div key={j} className="flex justify-between items-start">
@@ -346,6 +377,12 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai }) {
                                             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wide bg-slate-100 text-slate-600">
                                               <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${PLANET_DOT[skHora.planet.key] || 'bg-slate-400'}`} />
                                               {lang === 'ta' ? skHora.planet.tamil : skHora.planet.label}
+                                            </span>
+                                          )}
+                                          {skGowriMob && (
+                                            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wide bg-slate-50 ${GOWRI_TEXT[skGowriMob.type.nature] || 'text-slate-600'}`}>
+                                              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${GOWRI_DOT[skGowriMob.type.nature] || 'bg-slate-400'}`} />
+                                              {lang === 'ta' ? skGowriMob.type.tamil : skGowriMob.type.label}
                                             </span>
                                           )}
                                           {skWarnings.map(w => (

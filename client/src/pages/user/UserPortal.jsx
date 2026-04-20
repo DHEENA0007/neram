@@ -486,8 +486,8 @@ export function UserPortal() {
 
               {/* SCHEDULE TABLES */}
               <div className="no-print space-y-20">
-                <ScheduleTable tone="day" yamas={prediction.dayYamas} lang={lang} specialPeriods={prediction.specialPeriods} horai={prediction.horai} />
-                <ScheduleTable tone="night" yamas={prediction.nightYamas} lang={lang} specialPeriods={prediction.specialPeriods} horai={prediction.horai} />
+                <ScheduleTable tone="day" yamas={prediction.dayYamas} lang={lang} specialPeriods={prediction.specialPeriods} horai={prediction.horai} gowri={prediction.gowri} />
+                <ScheduleTable tone="night" yamas={prediction.nightYamas} lang={lang} specialPeriods={prediction.specialPeriods} horai={prediction.horai} gowri={prediction.gowri} />
                 
                 <HoraiTable horai={prediction.horai} lang={lang} />
                 <GowriTable gowri={prediction.gowri} lang={lang} />
