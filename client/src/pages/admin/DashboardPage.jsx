@@ -31,7 +31,7 @@ export function DashboardPage() {
     <div className="space-y-12">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-500 mb-1">
+          <p className="text-sm font-black uppercase tracking-[0.25em] text-amber-500 mb-2">
             {language === 'en' ? 'நிர்வாகம் · Portal Dashboard' : 'நிர்வாகம் · போர்டல் டாஷ்போர்டு'}
           </p>
           <h1 className="text-4xl font-black text-slate-900 tracking-tight">
@@ -39,11 +39,11 @@ export function DashboardPage() {
           </h1>
         </div>
         <div className="text-right">
-            <p className="text-base font-black text-slate-900">
+            <p className="text-lg font-black text-slate-900">
                {language === 'en' ? 'Welcome' : 'வரவேற்கிறோம்'}, {user?.name || user?.username}
             </p>
-            <span className="text-xs text-emerald-600 font-bold flex items-center justify-end gap-1.5 mt-1">
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" /> {language === 'en' ? 'System Active' : 'கணினி செயல்படுகிறது'}
+            <span className="text-sm text-emerald-600 font-bold flex items-center justify-end gap-1.5 mt-1">
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" /> {language === 'en' ? 'System Active' : 'கணினி செயல்படுகிறது'}
             </span>
         </div>
       </div>
@@ -52,8 +52,8 @@ export function DashboardPage() {
         {stats.map(s => (
           <div key={s.label} className={`border p-6 rounded-[2rem] shadow-sm transition-all hover:scale-[1.02] ${s.theme}`}>
              <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-black uppercase tracking-widest opacity-70">{language === 'en' ? s.label : s.tamil}</span>
-                <s.icon size={20} className=" opacity-50" />
+                <span className="text-sm font-black uppercase tracking-widest opacity-70">{language === 'en' ? s.label : s.tamil}</span>
+                <s.icon size={24} className=" opacity-50" />
              </div>
              <div className="text-4xl font-black mb-1">{s.val}</div>
           </div>
@@ -61,7 +61,7 @@ export function DashboardPage() {
       </div>
 
       <div>
-        <h2 className="text-xs font-black uppercase tracking-[0.3em] text-slate-300 mb-8 flex items-center gap-4 after:h-px after:flex-1 after:bg-slate-200">
+        <h2 className="text-sm font-black uppercase tracking-[0.3em] text-slate-300 mb-8 flex items-center gap-4 after:h-px after:flex-1 after:bg-slate-200">
           {language === 'en' ? 'System Navigation' : 'கணினி ஆய்வு'}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -95,10 +95,10 @@ export function DashboardPage() {
       
       <div className="p-6 bg-slate-900 rounded-[2.5rem] flex items-center justify-between text-white shadow-xl shadow-slate-900/10">
          <div className="flex items-center gap-4">
-            <div className="w-3 h-3 rounded-full bg-emerald-400" />
-            <p className="text-xs font-black uppercase tracking-widest text-slate-400">Security & Integrity Check: <span className="text-white">Passed</span></p>
+            <div className="w-4 h-4 rounded-full bg-emerald-400" />
+            <p className="text-sm font-black uppercase tracking-widest text-slate-400">Security & Integrity Check: <span className="text-white">Passed</span></p>
          </div>
-         <span className="text-xs font-bold text-slate-500 italic">Version 1.5.2 Build Stable</span>
+         <span className="text-sm font-bold text-slate-500 italic">Version 1.5.2 Build Stable</span>
       </div>
     </div>
   );
@@ -110,8 +110,8 @@ function QuickLink({ to, icon: Icon, label, sub, amber }) {
       <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 transition-all group-hover:bg-white/10 group-hover:text-white ${amber ? 'bg-amber-100 text-amber-600' : 'bg-slate-50 text-slate-400'}`}>
         <Icon size={24} />
       </div>
-      <strong className="block text-lg font-black text-slate-900 group-hover:text-white mb-1 transition-colors">{label}</strong>
-      <span className="text-xs text-slate-400 block font-bold group-hover:text-white/40 transition-colors">{sub}</span>
+      <strong className="block text-xl font-black text-slate-900 group-hover:text-white mb-1 transition-colors">{label}</strong>
+      <span className="text-sm text-slate-400 block font-bold group-hover:text-white/40 transition-colors">{sub}</span>
     </Link>
   );
 }

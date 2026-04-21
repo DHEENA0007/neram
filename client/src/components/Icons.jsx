@@ -5,12 +5,14 @@ import {
   LucideBan, LucideCheckCircle, LucideCpu, LucideDownload, 
   LucideTrash2, LucideInfo, LucideBird, LucideSearch, LucideStar, LucideMoon,
   LucideSunrise, LucideSunset, LucideZap, LucideCreditCard, LucideActivity,
-  LucideLock, LucideClock, LucideHistory, LucideX
+  LucideLock, LucideClock, LucideHistory, LucideX, LucideUser, LucideChevronRight
 } from 'lucide-react';
 import { GiVulture, GiOwl, GiCrowDive, GiRooster, GiFeather } from "react-icons/gi";
 
 export function IconDashboard({ size = 16 }) { return <LucideLayoutDashboard size={size} />; }
 export function IconUsers({ size = 16 }) { return <LucideUsers size={size} />; }
+export function IconUser({ size = 16, className }) { return <LucideUser size={size} className={className} />; }
+export function IconChevronRight({ size = 16, className }) { return <LucideChevronRight size={size} className={className} />; }
 export function IconList({ size = 16 }) { return <LucideList size={size} />; }
 export function IconSettings({ size = 16 }) { return <LucideSettings size={size} />; }
 export function IconCalendar({ size = 16 }) { return <LucideCalendar size={size} />; }

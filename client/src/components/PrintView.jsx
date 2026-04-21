@@ -223,7 +223,7 @@ function YamaTable({ yamas, lang }) {
           <Th style={{ width: 55 }}>{t ? 'பட்சி' : 'Bird'}</Th>
           <Th style={{ width: 50 }}>{t ? 'தொழில்' : 'Activity'}</Th>
           <Th style={{ width: 50 }}>{t ? 'திசை' : 'Direction'}</Th>
-          <Th>{t ? 'சூட்சும விவரம்' : 'Sub-rows (Bird / Activity / Time)'}</Th>
+          <Th>{t ? 'அதி சூட்சும விவரம்' : 'Sub-rows (Bird / Activity / Time)'}</Th>
           <Th style={{ width: 35 }} align="right">{t ? 'பலம்' : 'Strength'}</Th>
         </tr>
       </thead>

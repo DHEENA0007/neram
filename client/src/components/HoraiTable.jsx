@@ -15,14 +15,14 @@ function HoraCard({ hora, lang }) {
   const color = PLANET_COLORS[hora.planet.key] || 'bg-slate-400';
   return (
     <div className="flex items-center gap-3 px-4 py-3 bg-white/70 hover:bg-white transition-colors duration-150">
-      <div className={`w-8 h-8 rounded-xl ${color} flex items-center justify-center text-white text-[10px] font-black shrink-0`}>
+      <div className={`w-9 h-9 rounded-xl ${color} flex items-center justify-center text-white text-xs font-black shrink-0`}>
         {hora.index}
       </div>
       <div className="min-w-0">
-        <div className="text-[12px] font-black text-slate-800 truncate">
+        <div className="text-sm font-black text-slate-800 truncate">
           {lang === 'ta' ? hora.planet.tamil : hora.planet.label}
         </div>
-        <div className="text-[9px] font-bold text-slate-400 tabular-nums whitespace-nowrap">
+        <div className="text-[11px] font-bold text-slate-400 tabular-nums whitespace-nowrap">
           {hora.startLabel} – {hora.endLabel}
         </div>
       </div>
@@ -41,7 +41,7 @@ export function HoraiTable({ horai, lang }) {
       {/* Section header */}
       <div className="flex items-center gap-4 px-2">
         <div className="h-px flex-1 bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
-        <h2 className="text-sm font-black text-slate-400 uppercase tracking-[0.4em] whitespace-nowrap">
+        <h2 className="text-base font-black text-slate-400 uppercase tracking-[0.4em] whitespace-nowrap">
           {lang === 'ta' ? 'ஹோரை கால அட்டவணை' : 'Horai Schedule'}
         </h2>
         <div className="h-px flex-1 bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
@@ -52,10 +52,10 @@ export function HoraiTable({ horai, lang }) {
         {/* Day */}
         <div className="glass-card overflow-hidden p-0 border-none bg-amber-50/30">
           <div className="px-5 py-3 border-b border-amber-100 bg-amber-400/10 flex items-center justify-between">
-            <h3 className="text-sm font-black uppercase tracking-tight text-amber-700">
+            <h3 className="text-base font-black uppercase tracking-tight text-amber-700">
               {lang === 'ta' ? 'பகல் ஹோரை' : 'Day Horai'}
             </h3>
-            <span className="text-[9px] font-bold text-amber-600/60 uppercase tracking-widest">12 Horas</span>
+            <span className="text-[11px] font-bold text-amber-600/60 uppercase tracking-widest">12 Horas</span>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-px bg-amber-100/40">
             {dayHoras.map(h => <HoraCard key={h.index} hora={h} lang={lang} />)}
@@ -65,10 +65,10 @@ export function HoraiTable({ horai, lang }) {
         {/* Night */}
         <div className="glass-card overflow-hidden p-0 border-none bg-indigo-50/30">
           <div className="px-5 py-3 border-b border-indigo-100 bg-indigo-400/10 flex items-center justify-between">
-            <h3 className="text-sm font-black uppercase tracking-tight text-indigo-700">
+            <h3 className="text-base font-black uppercase tracking-tight text-indigo-700">
               {lang === 'ta' ? 'இரவு ஹோரை' : 'Night Horai'}
             </h3>
-            <span className="text-[9px] font-bold text-indigo-600/60 uppercase tracking-widest">12 Horas</span>
+            <span className="text-[11px] font-bold text-indigo-600/60 uppercase tracking-widest">12 Horas</span>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-px bg-indigo-100/40">
             {nightHoras.map(h => <HoraCard key={h.index} hora={h} lang={lang} />)}
