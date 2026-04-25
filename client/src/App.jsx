@@ -10,6 +10,7 @@ import { PalangalPage } from './pages/admin/PalangalPage.jsx';
 import { SettingsPage } from './pages/admin/SettingsPage.jsx';
 import { UserPortal } from './pages/user/UserPortal.jsx';
 import { NallaNeram } from './pages/user/NallaNeram.jsx';
+import { BrandingPage } from './pages/user/BrandingPage.jsx';
 import { LandingPage } from './pages/LandingPage.jsx';
 
 function LoadingScreen() {
@@ -17,7 +18,7 @@ function LoadingScreen() {
     <div className="loading-screen">
       <div className="loading-card">
         <span className="loading-dot" />
-        <p>Loading Neram...</p>
+        <p>Loading Sri Vinayaga Astro...</p>
       </div>
     </div>
   );
@@ -52,6 +53,10 @@ export function App() {
           <Route
             path="/nalla-neram"
             element={<RequireAuth><NallaNeram /></RequireAuth>}
+          />
+          <Route
+            path="/branding"
+            element={<RequireAuth><BrandingPage /></RequireAuth>}
           />
           <Route
             path="/admin"

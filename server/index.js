@@ -18,6 +18,8 @@ import {
   setUserDefaultPlace,
   updateUser,
   recordUsage,
+  getSettings,
+  updateSettings,
 } from './lib/db.js';
 import { buildPanchaPakshiSchedule, ensurePanchaPakshiDataLoaded, searchPlaces, getBirdIdFromName } from './lib/panchaPakshi.js';
 import { birdOptions } from '../shared/constants.js';
@@ -404,6 +406,60 @@ app.put(
     return res.json({ user: updated });
   }),
 );
+
+// ── Settings ─────────────────────────────────────
+app.get('/api/admin/settings', requireUser, requireRole('admin'), asyncRoute(async (req, res) => {
+  const settings = await getSettings();
+  res.json(settings);
+}));
+
+app.post('/api/admin/settings', requireUser, requireRole('admin'), asyncRoute(async (req, res) => {
+  const settings = await updateSettings(req.body);
+  res.json(settings);
+}));
+
+// ── Branding ─────────────────────────────────────
+app.post('/api/user/branding-request', requireUser, asyncRoute(async (req, res) => {
+  const user = await updateUser(req.currentUser.id, {
+    branding: { requestStatus: 'pending' }
+  });
+  res.json(user);
+}));
+
+app.post('/api/user/branding', requireUser, asyncRoute(async (req, res) => {
+  // Check if approved or admin
+  const canEdit = req.fullUser.role === 'admin' || (req.fullUser.branding?.customEnabled && req.fullUser.branding?.requestStatus === 'approved');
+  if (!canEdit) {
+    return res.status(403).json({ error: 'Branding access not enabled. Please contact admin.' });
+  }
+
+  // If user, enforce some fields
+  const patch = req.body;
+  const user = await updateUser(req.currentUser.id, {
+    branding: {
+       ...req.fullUser.branding,
+       ...patch,
+       // Preserve these if not admin
+       ...(req.fullUser.role !== 'admin' ? { 
+         customEnabled: req.fullUser.branding.customEnabled,
+         requestStatus: req.fullUser.branding.requestStatus 
+       } : {})
+    }
+  });
+  res.json(user);
+}));
+
+app.get('/api/config/branding', requireUser, asyncRoute(async (req, res) => {
+  const settings = await getSettings();
+  const globalBranding = settings.branding;
+  
+  // If user has custom branding enabled and approved, use theirs
+  if (req.fullUser.branding?.customEnabled && req.fullUser.branding?.requestStatus === 'approved') {
+    return res.json({ ...globalBranding, ...req.fullUser.branding, isCustom: true });
+  }
+  
+  res.json({ ...globalBranding, isCustom: false });
+}));
 
 // ── Palangal routes ──────────────────────────────
 app.get(

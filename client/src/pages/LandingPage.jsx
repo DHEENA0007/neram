@@ -49,7 +49,7 @@ export function LandingPage() {
     <div className="flex flex-col min-h-screen">
       {/* Navigation */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 border-b border-white/5 px-6 py-3 flex items-center justify-between">
-        <div className="text-xl font-black font-serif text-yellow-500 tracking-tight">Neram</div>
+        <div className="text-xl font-black font-serif text-yellow-500 tracking-tight">Sri Vinayaga Astro</div>
         <div className="flex items-center gap-4">
           <button 
             className="text-xs font-bold text-white/60 hover:text-white px-3 py-1.5 rounded-full hover:bg-white/5 transition-all"
@@ -150,7 +150,7 @@ export function LandingPage() {
                   {[
                     { icon: Shield, title: "Unmatched Accuracy", sub: "Calculations based on 2000-year-old scriptures validated for today." },
                     { icon: Clock, title: "Precision Scheduling", sub: "Down to the minute granularity for your most important decisions." },
-                    { icon: Users, title: "Trusted Community", sub: "Join over 50,000 users who trust Neram for their daily planning." }
+                    { icon: Users, title: "Trusted Community", sub: "Join over 50,000 users who trust Sri Vinayaga Astro for their daily planning." }
                   ].map((item, i) => (
                     <div key={i} className="flex gap-4">
                       <div className="shrink-0 w-10 h-10 bg-white rounded-lg shadow-sm border border-slate-100 flex items-center justify-center text-amber-500">
@@ -197,9 +197,9 @@ export function LandingPage() {
       </main>
 
       <footer className="py-10 px-6 border-t border-slate-100 text-center bg-white">
-        <div className="text-2xl font-black font-serif text-yellow-600 mb-4">Neram</div>
+        <div className="text-2xl font-black font-serif text-yellow-600 mb-4">Sri Vinayaga Astro</div>
         <p className="text-slate-400 text-sm font-bold uppercase tracking-widest">
-          © 2026 Neram Pancha Pakshi. All rights reserved.
+          © 2026 Sri Vinayaga Astro. All rights reserved.
         </p>
       </footer>
     </div>

@@ -9,7 +9,7 @@ export function PortalShell({ title, children, lang, onToggleLang }) {
       <header className="no-print sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-100 flex flex-col sm:flex-row items-center justify-between px-4 sm:px-8 py-3 gap-4">
         <div className="flex items-center gap-4 sm:gap-8 self-start sm:self-center">
           <div className="flex items-center gap-2">
-            <div className="text-2xl font-black text-amber-600">Neram</div>
+            <img src="/logo.png" alt="Sri Vinayaga Astro Logo" className="h-10 w-auto object-contain" />
           </div>
 
           <div className="h-8 w-px bg-slate-200 hidden md:block" />
@@ -61,6 +61,14 @@ export function PortalShell({ title, children, lang, onToggleLang }) {
               to="/nalla-neram"
             >
               {lang === 'ta' ? 'நல்ல நேரம்' : 'Nalla Neram'}
+            </NavLink>
+            <NavLink
+              className={({ isActive }) =>
+                `px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${isActive ? 'bg-indigo-100 text-indigo-900 shadow-sm' : 'text-slate-600 hover:bg-slate-50'}`
+              }
+              to="/branding"
+            >
+              {lang === 'ta' ? 'பிராண்டிங்' : 'Branding'}
             </NavLink>
             {user?.role === 'admin' && (
               <NavLink 

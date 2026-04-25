@@ -85,7 +85,7 @@ const SPECIAL_LABELS = {
 };
 
 /* ── main PrintView ─────────────────────────────────────────── */
-export function PrintView({ prediction, lang, locationName, showSubTable = true }) {
+export function PrintView({ prediction, lang, locationName, showSubTable = true, branding }) {
   if (!prediction) return null;
 
   const t = lang === 'ta';
@@ -123,46 +123,39 @@ export function PrintView({ prediction, lang, locationName, showSubTable = true 
       fontSize: 8.5,
       lineHeight: 1.35,
     }}>
-
-      {/* ── HEADER ─────────────────────────────────────────── */}
-      <div style={{ borderBottom: '3px solid #f59e0b', paddingBottom: 10, marginBottom: 14 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <div>
-            <div style={{ fontSize: 18, fontWeight: 900, color: '#b45309', letterSpacing: '-0.02em' }}>
-              {t ? 'பஞ்சபட்சி அட்டவணை' : 'Pancha Pakshi Schedule'}
-            </div>
-            <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
-              {fmtDate(prediction.date, lang)}
-            </div>
-          </div>
-          <div style={{ textAlign: 'right', fontSize: 9, color: '#64748b' }}>
-            <div style={{ fontWeight: 700 }}>{locationName}</div>
-            <div style={{ marginTop: 2 }}>
-              {t ? 'சூரிய உதயம்' : 'Sunrise'}:{' '}
-              <strong>{new Date(prediction.astronomy?.sunrise).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</strong>
-            </div>
+      <style>{`
+        @media print {
+          @page { margin: 0; }
+          body { margin: 0; }
+          #print-view { padding: 1.5cm !important; }
+        }
+      `}</style>
+      
+      {/* ── HEADER ── */}
+      {branding && (
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          paddingBottom: 20, 
+          marginBottom: 30, 
+          borderBottom: '2px solid #f1f5f9' 
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <img src="/logo.png" style={{ height: 45, width: 'auto' }} />
             <div>
-              {t ? 'சூரிய அஸ்தமனம்' : 'Sunset'}:{' '}
-              <strong>{new Date(prediction.astronomy?.sunset).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</strong>
+               <div style={{ fontSize: 14, fontWeight: 900, color: '#0f172a' }}>{branding.astrologerName || 'Sri Vinayaga Astro'}</div>
+               <div style={{ fontSize: 10, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>{branding.companyName}</div>
             </div>
           </div>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: 9, fontStyle: 'italic', color: '#94a3b8', marginBottom: 2 }}>Exported Location: {locationName}</div>
+            <div style={{ fontSize: 11, fontWeight: 800, color: '#0f172a' }}>{branding.mobile}</div>
+          </div>
         </div>
+      )}
 
-        {/* Summary row */}
-        <div style={{ display: 'flex', gap: 24, marginTop: 10, flexWrap: 'wrap' }}>
-          {[
-            [t ? 'பட்சி' : 'Bird', n(prediction.bird, lang)],
-            [t ? 'கிழமை' : 'Weekday', n(prediction.weekday, lang)],
-            [t ? 'பகல் பிறை' : 'Day Paksha', n(dayPaksha, lang)],
-            [t ? 'இரவு பிறை' : 'Night Paksha', n(nightPaksha, lang)],
-          ].map(([label, val]) => (
-            <div key={label}>
-              <div style={{ fontSize: 7, fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{label}</div>
-              <div style={{ fontSize: 10, fontWeight: 800, color: '#1e293b' }}>{val || '—'}</div>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* ── SCHEDULE CONTENT ─────────────────────────────────── */}
 
       {/* ── SPECIAL PERIODS ─────────────────────────────────── */}
       <div style={{ display: 'flex', gap: 16, marginBottom: 12, fontSize: 9, fontWeight: 700 }}>
@@ -233,11 +226,47 @@ export function PrintView({ prediction, lang, locationName, showSubTable = true 
         </div>
       </div>
 
-      {/* ── FOOTER ───────────────────────────────────────────── */}
-      <div style={{ borderTop: '1px solid #e2e8f0', marginTop: 14, paddingTop: 4, display: 'flex', justifyContent: 'space-between', fontSize: 7, color: '#94a3b8' }}>
-        <span>{t ? 'நேரம் — பஞ்சபட்சி கணினி' : 'Neram — Pancha Pakshi Calculator'}</span>
-        <span>{new Date().toLocaleString()}</span>
-      </div>
+      {/* ── FOOTER ── */}
+      {branding && (
+        <div style={{ 
+          marginTop: 40, 
+          paddingTop: 20, 
+          borderTop: '2px solid #f1f5f9',
+          pageBreakInside: 'avoid'
+        }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+            <div>
+              <div style={{ fontSize: 8, fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', marginBottom: 4 }}>Contact Details</div>
+              <div style={{ fontSize: 9, fontWeight: 700, color: '#475569' }}>
+                {t ? 'தொலைபேசி:' : 'Phone:'} {branding.mobile}
+              </div>
+              <div style={{ fontSize: 9, fontWeight: 700, color: '#475569' }}>
+                {t ? 'வாட்ஸ்அப்:' : 'WhatsApp:'} {branding.whatsapp}
+              </div>
+              <div style={{ fontSize: 9, fontWeight: 700, color: '#475569' }}>
+                {t ? 'இணையதளம்:' : 'Website:'} {branding.website}
+              </div>
+            </div>
+            
+            {branding.address && (
+              <div>
+                <div style={{ fontSize: 8, fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', marginBottom: 4 }}>Address</div>
+                <div style={{ fontSize: 9, fontWeight: 700, color: '#475569', maxWidth: 200 }}>{branding.address}</div>
+              </div>
+            )}
+          </div>
+
+          {branding.socialMedia?.length > 0 && (
+            <div style={{ marginTop: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              {branding.socialMedia.map((s, i) => (
+                <div key={i} style={{ fontSize: 8, fontWeight: 800, color: '#6366f1', background: '#f5f3ff', padding: '2px 6px', borderRadius: 4 }}>
+                  {s.platform}: {s.url}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

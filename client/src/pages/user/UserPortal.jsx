@@ -12,6 +12,7 @@ import { IconArrowRight, IconVulture, IconOwl, IconCrow, IconHen, IconPeacock, I
 import { PrintView } from '../../components/PrintView.jsx';
 import { PrintOptionsModal } from '../../components/PrintOptionsModal.jsx';
 import { RangePrintView } from '../../components/RangePrintView.jsx';
+import { loadBrandingConfig } from '../../api.js';
 
 const BIRD_ICONS = {
   vulture: IconVulture,
@@ -77,11 +78,16 @@ export function UserPortal() {
   const [rangeCategories, setRangeCategories] = useState([]);
   const [rangeDates, setRangeDates] = useState({ from: date, to: date });
   const [printSubTable, setPrintSubTable] = useState(true);
+  const [branding, setBranding] = useState(null);
 
   const t = L[lang];
 
   const [results, setResults] = useState([]);
   const [showResults, setShowResults] = useState(false);
+
+  useEffect(() => {
+    loadBrandingConfig().then(setBranding).catch(console.error);
+  }, []);
 
   useEffect(() => {
     if (useGeo && 'geolocation' in navigator) {
@@ -481,7 +487,7 @@ export function UserPortal() {
               </div>
 
               {/* PRINT VIEWS (hidden on screen) */}
-              <PrintView prediction={prediction} lang={lang} locationName={locationName} showSubTable={printSubTable} />
+              <PrintView prediction={prediction} lang={lang} locationName={locationName} showSubTable={printSubTable} branding={branding} />
               <RangePrintView
                 rangeData={rangeData}
                 categories={rangeCategories}
@@ -489,6 +495,7 @@ export function UserPortal() {
                 locationName={locationName}
                 fromDate={rangeDates.from}
                 toDate={rangeDates.to}
+                branding={branding}
               />
 
               {/* PRINT BUTTON */}

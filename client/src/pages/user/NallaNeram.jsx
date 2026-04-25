@@ -2,7 +2,9 @@ import React, { useState, useMemo } from 'react';
 import { birdOptions } from '../../shared/constants.js';
 import { requestPrediction } from '../../api.js';
 import { PortalShell } from '../../components/PortalShell.jsx';
-import { IconVulture, IconOwl, IconCrow, IconHen, IconPeacock } from '../../components/Icons.jsx';
+import { IconVulture, IconOwl, IconCrow, IconHen, IconPeacock, IconDownload } from '../../components/Icons.jsx';
+import { NallaNeramPrintView } from '../../components/NallaNeramPrintView.jsx';
+import { loadBrandingConfig } from '../../api.js';
 
 const BIRD_ICONS = {
   vulture: IconVulture, owl: IconOwl, crow: IconCrow, cock: IconHen, peacock: IconPeacock,
@@ -58,6 +60,11 @@ export function NallaNeram() {
   const [prediction, setPrediction] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [branding, setBranding] = useState(null);
+
+  React.useEffect(() => {
+    loadBrandingConfig().then(setBranding).catch(console.error);
+  }, []);
 
   function toggleFilter(key) {
     setFilters(f => ({ ...f, [key]: !f[key] }));
@@ -148,6 +155,44 @@ export function NallaNeram() {
   }, [prediction, filters, lang]);
 
   const bird = birdId ? birdOptions.find(b => b.id === birdId) : null;
+
+  function handlePrint() {
+    const printEl = document.getElementById('nalla-neram-print-view');
+    if (!printEl) return;
+    
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+    const doc = iframe.contentWindow.document;
+    doc.open();
+    doc.write(`
+      <html>
+        <head>
+          <title>${lang === 'ta' ? 'நல்ல நேரம்' : 'Nalla Neram Report'}</title>
+          <link rel="preconnect" href="https://fonts.googleapis.com">
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+          <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&family=Noto+Sans+Tamil:wght@400;700;800;900&display=swap" rel="stylesheet">
+          <style>
+            body { margin: 0; padding: 0; }
+            @media print {
+              @page { margin: 1cm; size: auto; }
+              #nalla-neram-print-view { display: block !important; }
+            }
+          </style>
+        </head>
+        <body>
+          <div style="width: 100%;">${printEl.innerHTML}</div>
+          <script>
+            window.onload = () => {
+              window.print();
+              setTimeout(() => { window.frameElement.remove(); }, 1000);
+            };
+          </script>
+        </body>
+      </html>
+    `);
+    doc.close();
+  }
 
   return (
     <PortalShell title={lang === 'ta' ? 'நல்ல நேரம்' : 'Nalla Neram'} lang={lang} onToggleLang={() => setLang(l => l === 'ta' ? 'en' : 'ta')}>
@@ -253,6 +298,21 @@ export function NallaNeram() {
                 </h2>
                 <div className="h-px flex-1 bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
               </div>
+              
+              <div className="flex justify-end">
+                <button onClick={handlePrint} className="flex items-center gap-2 px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg active:scale-95 transition-all">
+                  <IconDownload size={18} />
+                  {lang === 'ta' ? 'PDF பதிவிறக்கம்' : 'Download PDF'}
+                </button>
+              </div>
+
+              <NallaNeramPrintView 
+                nallaSlots={nallaSlots} 
+                avoidPeriods={avoidPeriods} 
+                lang={lang} 
+                date={date} 
+                branding={branding} 
+              />
 
               {nallaSlots.length === 0 && (
                 <div className="glass-card p-8 text-center text-slate-400 text-sm font-bold">

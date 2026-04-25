@@ -51,7 +51,7 @@ export async function loadDb() {
 
   await mkdir(dataDir, { recursive: true });
 
-  let db = { users: [], palangal: [] };
+  let db = { users: [], palangal: [], settings: { branding: null } };
   if (existsSync(dbPath)) {
     try {
       const raw = await readFile(dbPath, 'utf8');
@@ -59,6 +59,7 @@ export async function loadDb() {
       db = {
         users: Array.isArray(parsed.users) ? parsed.users : [],
         palangal: Array.isArray(parsed.palangal) ? parsed.palangal : [],
+        settings: parsed.settings || { branding: null },
       };
     } catch {
       db = { users: [], palangal: [] };
@@ -78,6 +79,22 @@ export async function loadDb() {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     });
+  }
+
+  // Seed default global branding
+  if (!db.settings.branding) {
+    db.settings.branding = {
+      astrologerName: 'Sri Vinayaga Astro',
+      companyName: 'Astro Services',
+      mobile: '+91 98765 43210',
+      whatsapp: '+91 98765 43210',
+      website: 'www.srivinayagaastro.com',
+      socialMedia: [
+        { platform: 'Facebook', url: '#' },
+        { platform: 'Instagram', url: '#' }
+      ],
+      address: '123, Celestial Way, Tamil Nadu',
+    };
   }
 
   // Seed default palangal (fill in missing combinations)
@@ -160,6 +177,17 @@ export async function createUser({
     subscriptionConfig: subscriptionConfig || {
       features: ['panchaPakshi'],
     },
+    branding: {
+      customEnabled: false,
+      requestStatus: 'none',
+      astrologerName: '',
+      companyName: '',
+      mobile: '',
+      whatsapp: '',
+      website: '',
+      socialMedia: [],
+      address: '',
+    },
     usageStats: {
       generationsCount: 0,
       downloadsCount: 0,
@@ -197,6 +225,7 @@ export async function updateUser(id, patch) {
   if (Object.prototype.hasOwnProperty.call(patch, 'defaultPlace')) user.defaultPlace = patch.defaultPlace;
   if (patch.demoConfig) user.demoConfig = { ...(user.demoConfig || {}), ...patch.demoConfig };
   if (patch.subscriptionConfig) user.subscriptionConfig = { ...(user.subscriptionConfig || {}), ...patch.subscriptionConfig };
+  if (patch.branding) user.branding = { ...(user.branding || {}), ...patch.branding };
   
   if (typeof patch.password === 'string' && patch.password.length > 0) {
     user.passwordHash = bcrypt.hashSync(patch.password, 10);
@@ -308,4 +337,17 @@ export async function deletePalangal(id) {
     return true;
   }
   return false;
+}
+
+// ── Settings ─────────────────────────────────────
+export async function getSettings() {
+  const db = await loadDb();
+  return db.settings;
+}
+
+export async function updateSettings(patch) {
+  const db = await loadDb();
+  db.settings = { ...db.settings, ...patch };
+  await persist(db);
+  return db.settings;
 }

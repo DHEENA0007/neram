@@ -19,11 +19,9 @@ export function AdminShell() {
         
         {/* Branding */}
         <div className="p-8 pb-10 flex items-center gap-3">
-          <div className="w-9 h-9 bg-amber-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-amber-500/20">
-            <IconZap size={20} />
-          </div>
+          <img src="/logo.png" alt="Sri Vinayaga Astro Logo" className="w-12 h-12 object-contain" />
           <div>
-            <h1 className="text-xl font-black text-slate-900 leading-none tracking-tight">Neram</h1>
+            <h1 className="text-base font-black text-slate-900 leading-none tracking-tight">Sri Vinayaga Astro</h1>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Admin Portal</p>
           </div>
         </div>

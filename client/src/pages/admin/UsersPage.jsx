@@ -75,7 +75,8 @@ export function UsersPage() {
       userType: u.userType || 'demo',
       active: u.active !== false,
       demoConfig: u.demoConfig || { ...DEFAULT_DEMO_CONFIG },
-      subscriptionConfig: u.subscriptionConfig || { ...DEFAULT_SUB_CONFIG }
+      subscriptionConfig: u.subscriptionConfig || { ...DEFAULT_SUB_CONFIG },
+      branding: u.branding || { customEnabled: false, requestStatus: 'none' }
     });
     setErrors({});
   }
@@ -94,7 +95,8 @@ export function UsersPage() {
       setForm({
         username: '', name: '', password: '', role: 'user', userType: 'demo', active: true,
         demoConfig: { ...DEFAULT_DEMO_CONFIG },
-        subscriptionConfig: { ...DEFAULT_SUB_CONFIG }
+        subscriptionConfig: { ...DEFAULT_SUB_CONFIG },
+        branding: { customEnabled: false, requestStatus: 'none' }
       });
       fetchUsers();
     } catch (err) {
@@ -251,6 +253,35 @@ export function UsersPage() {
                       </button>
                     ))}
                  </div>
+              </div>
+            )}
+
+            {/* Branding Management */}
+            {form.userType === 'subscribed' && (
+              <div className="p-5 bg-indigo-50 rounded-3xl border border-indigo-100/50 space-y-4">
+                <div className="flex items-center justify-between">
+                  <p className="text-[11px] font-black uppercase tracking-widest text-indigo-600/60 ml-1">{language === 'en' ? 'Branding Access' : 'பிராண்டிங் அனுமதி'}</p>
+                  {form.branding?.requestStatus === 'pending' && <span className="bg-amber-500 text-white text-[9px] font-black px-2 py-0.5 rounded uppercase">Requested</span>}
+                </div>
+                
+                <div className="flex items-center gap-4">
+                  <button type="button" onClick={() => setForm({...form, branding: {...(form.branding || {}), customEnabled: !form.branding?.customEnabled}})}
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${form.branding?.customEnabled ? 'bg-indigo-600' : 'bg-slate-200'}`}>
+                    <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${form.branding?.customEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
+                  </button>
+                  <span className="text-xs font-bold text-slate-600">{language === 'en' ? 'Custom Branding Access' : 'தனிப்பயன் பிராண்டிங் அனுமதி'}</span>
+                </div>
+
+                {form.branding?.customEnabled && (
+                  <div className="flex bg-white/50 p-1 rounded-xl">
+                    {['pending', 'approved', 'rejected'].map(s => (
+                      <button key={s} type="button" onClick={() => setForm({...form, branding: {...(form.branding || {}), requestStatus: s}})}
+                        className={`flex-1 py-1 rounded-lg text-[9px] font-black uppercase transition-all ${form.branding?.requestStatus === s ? 'bg-indigo-600 text-white' : 'text-slate-400'}`}>
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 

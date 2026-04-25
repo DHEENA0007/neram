@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { updateAdminProfile } from '../../api.js';
+import { updateAdminProfile, loadAdminSettings, updateAdminSettings } from '../../api.js';
 import { useAuth } from '../../auth.jsx';
-import { IconShield, IconCheckCircle, IconZap, IconLock } from '../../components/Icons.jsx';
+import { IconShield, IconCheckCircle, IconZap, IconLock, IconSettings, IconExternalLink, IconPlus, IconTrash } from '../../components/Icons.jsx';
+import { useEffect } from 'react';
 
 export function SettingsPage() {
   const { user, refresh, language, setLanguage } = useAuth();
@@ -9,8 +9,24 @@ export function SettingsPage() {
   const [pwd,  setPwd]    = useState('');
   const [pwd2, setPwd2]   = useState('');
   const [saving, setSaving] = useState(false);
-  const [error,  setError]  = useState('');
   const [success, setSuccess] = useState('');
+
+  // Branding State
+  const [branding, setBranding] = useState({
+    astrologerName: '',
+    companyName: '',
+    mobile: '',
+    whatsapp: '',
+    website: '',
+    socialMedia: [],
+    address: '',
+  });
+
+  useEffect(() => {
+    loadAdminSettings().then(s => {
+      if (s.branding) setBranding(s.branding);
+    }).catch(console.error);
+  }, []);
 
   async function handleSave(e) {
     e.preventDefault();
@@ -26,15 +42,33 @@ export function SettingsPage() {
       const payload = { name };
       if (pwd) payload.password = pwd;
       await updateAdminProfile(payload);
+      
+      // Save branding too
+      await updateAdminSettings({ branding });
+      
       await refresh();
       setPwd(''); setPwd2('');
-      setSuccess(language === 'en' ? 'Profile updated successfully.' : 'சுயவிவரம் புதுப்பிக்கப்பட்டது.');
+      setSuccess(language === 'en' ? 'Settings updated successfully.' : 'அமைப்புகள் புதுப்பிக்கப்பட்டன.');
     } catch (err) {
-      setError(err.message || 'Failed to update profile');
+      setError(err.message || 'Failed to update settings');
     } finally {
       setSaving(false);
     }
   }
+
+  const handleSocialChange = (index, field, value) => {
+    const next = [...branding.socialMedia];
+    next[index][field] = value;
+    setBranding({ ...branding, socialMedia: next });
+  };
+
+  const addSocial = () => {
+    setBranding({ ...branding, socialMedia: [...branding.socialMedia, { platform: '', url: '' }] });
+  };
+
+  const removeSocial = (index) => {
+    setBranding({ ...branding, socialMedia: branding.socialMedia.filter((_, i) => i !== index) });
+  };
 
   const T_HEAD  = language === 'en' ? 'சுயவிவரம் · My Account' : 'எனது கணக்கு';
   const T_TITLE = language === 'en' ? 'Settings' : 'அமைப்புகள்';
@@ -148,8 +182,71 @@ export function SettingsPage() {
               </div>
             </div>
 
-            {error   && <div className="p-3 bg-rose-50 text-rose-500 rounded-xl text-xs font-bold border border-rose-100">⚠ {error}</div>}
-            {success && <div className="p-3 bg-emerald-50 text-emerald-500 rounded-xl text-xs font-bold border border-emerald-100">✔ {success}</div>}
+            {/* Global Branding Section */}
+            <div className="pt-8 border-t border-slate-100 space-y-6">
+              <div>
+                <h2 className="text-xl font-black text-slate-900">{language === 'en' ? 'Global PDF Branding' : 'உலகளாவிய PDF பிராண்டிங்'}</h2>
+                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-1">{language === 'en' ? 'Configure default header/footer for generated reports' : 'அறிக்கைகளுக்கான இயல்புநிலை தலைப்பு/அடிக்குறிப்பை உள்ளமைக்கவும்'}</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div className="flex flex-col gap-1.5 focus-within:ring-2 ring-amber-500/20 rounded-xl transition-all">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{language === 'en' ? 'Astrologer Name' : 'ஜோதிடர் பெயர்'}</label>
+                  <input className="text-input" value={branding.astrologerName} onChange={e => setBranding({...branding, astrologerName: e.target.value})} placeholder="e.g. Sri Vinayaga Astro" />
+                </div>
+                <div className="flex flex-col gap-1.5 focus-within:ring-2 ring-amber-500/20 rounded-xl transition-all">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{language === 'en' ? 'Company Name' : 'நிறுவனத்தின் பெயர்'}</label>
+                  <input className="text-input" value={branding.companyName} onChange={e => setBranding({...branding, companyName: e.target.value})} placeholder="e.g. Astro Services" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{language === 'en' ? 'Mobile Number' : 'தொலைபேசி எண்'}</label>
+                  <input className="text-input" value={branding.mobile} onChange={e => setBranding({...branding, mobile: e.target.value})} placeholder="+91 ..." />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{language === 'en' ? 'WhatsApp Number' : 'வாட்ஸ்அப் எண்'}</label>
+                  <input className="text-input" value={branding.whatsapp} onChange={e => setBranding({...branding, whatsapp: e.target.value})} placeholder="+91 ..." />
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{language === 'en' ? 'Website' : 'இணையதளம்'}</label>
+                <input className="text-input" value={branding.website} onChange={e => setBranding({...branding, website: e.target.value})} placeholder="www.example.com" />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{language === 'en' ? 'Office Address' : 'அலுவலக முகவரி'}</label>
+                <textarea className="text-input min-h-[80px] py-3" value={branding.address} onChange={e => setBranding({...branding, address: e.target.value})} placeholder="Full address..." />
+              </div>
+
+              {/* Social Media */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{language === 'en' ? 'Social Media Links' : 'சமூக ஊடக இணைப்புகள்'}</label>
+                  <button type="button" onClick={addSocial} className="flex items-center gap-1 text-[10px] font-black text-amber-600 uppercase hover:text-amber-700">
+                    <IconPlus size={12} /> {language === 'en' ? 'Add Link' : 'இணைப்பைச் சேர்'}
+                  </button>
+                </div>
+                
+                <div className="space-y-3">
+                  {branding.socialMedia.map((s, idx) => (
+                    <div key={idx} className="flex gap-2 items-center animate-in slide-in-from-left-2 duration-300">
+                      <input className="text-input h-9 text-xs w-32" value={s.platform} onChange={e => handleSocialChange(idx, 'platform', e.target.value)} placeholder="Platform" />
+                      <input className="text-input h-9 text-xs flex-1" value={s.url} onChange={e => handleSocialChange(idx, 'url', e.target.value)} placeholder="URL" />
+                      <button type="button" onClick={() => removeSocial(idx)} className="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all">
+                        <IconTrash size={16} />
+                      </button>
+                    </div>
+                  ))}
+                  {branding.socialMedia.length === 0 && <p className="text-[11px] text-slate-400 italic">No social media links added.</p>}
+                </div>
+              </div>
+            </div>
+
+            {error   && <div className="p-3 bg-rose-50 text-rose-500 rounded-xl text-xs font-bold border border-rose-100 animate-in shake duration-500">⚠ {error}</div>}
+            {success && <div className="p-3 bg-emerald-50 text-emerald-500 rounded-xl text-xs font-bold border border-emerald-100 animate-in fade-in duration-500">✔ {success}</div>}
 
             <div className="flex justify-end pt-4">
                 <button 

@@ -36,10 +36,10 @@ export function LoginPage() {
       <section className="relative w-full max-w-[480px]">
         {/* Logo area */}
         <div className="text-center mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-amber-500 rounded-[2rem] shadow-2xl shadow-amber-500/40 text-white mb-6 border-4 border-white">
-            <IconActivity size={40} />
+          <div className="mb-6">
+            <img src="/logo.png" alt="Sri Vinayaga Astro Logo" className="w-24 h-24 mx-auto object-contain drop-shadow-xl" />
           </div>
-          <h1 className="text-5xl font-black text-slate-900 tracking-tight mb-3">Neram</h1>
+          <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-3">Sri Vinayaga Astro</h1>
           <p className="text-lg font-bold text-slate-400 uppercase tracking-[0.2em]">{language === 'en' ? 'Pancha Pakshi Portal' : 'பஞ்சபட்சி போர்டல்'}</p>
         </div>
 
@@ -114,7 +114,7 @@ export function LoginPage() {
         </div>
 
         <div className="mt-12 text-center text-xs font-black text-slate-300 uppercase tracking-[0.3em]">
-           © 2026 Neram Pancha Pakshi · Secure Access
+           © 2026 Sri Vinayaga Astro · Secure Access
         </div>
       </section>
     </div>

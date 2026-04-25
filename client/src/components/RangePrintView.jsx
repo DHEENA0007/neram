@@ -301,10 +301,7 @@ function SpecialPeriodsSection({ days, categories, lang, fromDate, toDate, locat
 
   return (
     <div style={{ marginBottom: 20 }}>
-      <PageHeader
-        title={tl ? 'சிறப்பு காலங்கள் அட்டவணை' : 'Special Periods Table'}
-        fromDate={fromDate} toDate={toDate} locationName={locationName} lang={lang}
-      />
+      {/* PageHeader removed as requested */}
       <Tbl>
         <thead>
           <tr>
@@ -350,10 +347,7 @@ function HoraiSection({ days, lang, fromDate, toDate, locationName }) {
   const tl = lang === 'ta';
   return (
     <div style={{ marginBottom: 20 }}>
-      <PageHeader
-        title={tl ? 'ஹோரை அட்டவணை' : 'Horai Schedule'}
-        fromDate={fromDate} toDate={toDate} locationName={locationName} lang={lang}
-      />
+      {/* PageHeader removed as requested */}
       {days.map((day, di) => (
         <div key={day.date} style={{ marginBottom: 16, pageBreakInside: 'avoid' }}>
           <div style={{ background: '#f8fafc', borderLeft: '3px solid #64748b', padding: '6px 12px', fontSize: 10, fontWeight: 900, color: '#334155', marginBottom: 8, ...baseFont }}>
@@ -426,10 +420,7 @@ function ScheduleSection({ days, lang, fromDate, toDate, locationName, showSubTa
 
   return (
     <div>
-      <PageHeader
-        title={tl ? 'பஞ்சபட்சி முழு அட்டவணை (தேதி வரிசை)' : 'Full Pancha Pakshi Schedule (Date Range)'}
-        fromDate={fromDate} toDate={toDate} locationName={locationName} lang={lang}
-      />
+      {/* PageHeader removed as requested */}
       {days.map((day, di) => (
         <div key={day.date} style={{ marginBottom: 24, pageBreakInside: 'avoid' }}>
           
@@ -463,7 +454,7 @@ function ScheduleSection({ days, lang, fromDate, toDate, locationName, showSubTa
 }
 
 /* ── Main Export ─────────────────────────────────────── */
-export function RangePrintView({ rangeData, categories, lang, locationName, fromDate, toDate, showSubTable = true }) {
+export function RangePrintView({ rangeData, categories, lang, locationName, fromDate, toDate, showSubTable = true, branding }) {
   if (!rangeData?.days?.length) return null;
 
   const tl = lang === 'ta';
@@ -482,6 +473,39 @@ export function RangePrintView({ rangeData, categories, lang, locationName, from
       fontSize: 8.5,
       lineHeight: 1.35,
     }}>
+      <style>{`
+        @media print {
+          @page { margin: 0; }
+          body { margin: 0; }
+          #range-print-view { padding: 1.5cm !important; }
+        }
+      `}</style>
+
+      {/* ── HEADER ── */}
+      {branding && (
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          paddingBottom: 20, 
+          marginBottom: 30, 
+          borderBottom: '2px solid #f1f5f9',
+          ...baseFont
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <img src="/logo.png" style={{ height: 45, width: 'auto' }} />
+            <div>
+               <div style={{ fontSize: 14, fontWeight: 900, color: '#0f172a' }}>{branding.astrologerName || 'Sri Vinayaga Astro'}</div>
+               <div style={{ fontSize: 10, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>{branding.companyName}</div>
+            </div>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: 9, fontStyle: 'italic', color: '#94a3b8', marginBottom: 2 }}>Exported Range: {fmtDateShort(fromDate)} - {fmtDateShort(toDate)}</div>
+            <div style={{ fontSize: 11, fontWeight: 800, color: '#0f172a' }}>{branding.mobile}</div>
+          </div>
+        </div>
+      )}
+
       {hasSpecial && (
         <SpecialPeriodsSection
           days={days} categories={categories}
@@ -507,6 +531,49 @@ export function RangePrintView({ rangeData, categories, lang, locationName, from
             fromDate={fromDate} toDate={toDate} locationName={locationName}
           />
         </>
+      )}
+
+      {/* ── FOOTER ── */}
+      {branding && (
+        <div style={{ 
+          marginTop: 40, 
+          paddingTop: 20, 
+          borderTop: '2px solid #f1f5f9',
+          pageBreakInside: 'avoid',
+          ...baseFont
+        }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+            <div>
+              <div style={{ fontSize: 8, fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', marginBottom: 4 }}>Contact Details</div>
+              <div style={{ fontSize: 9, fontWeight: 700, color: '#475569' }}>
+                {tl ? 'தொலைபேசி:' : 'Phone:'} {branding.mobile}
+              </div>
+              <div style={{ fontSize: 9, fontWeight: 700, color: '#475569' }}>
+                {tl ? 'வாட்ஸ்அப்:' : 'WhatsApp:'} {branding.whatsapp}
+              </div>
+              <div style={{ fontSize: 9, fontWeight: 700, color: '#475569' }}>
+                {tl ? 'இணையதளம்:' : 'Website:'} {branding.website}
+              </div>
+            </div>
+            
+            {branding.address && (
+              <div>
+                <div style={{ fontSize: 8, fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', marginBottom: 4 }}>Address</div>
+                <div style={{ fontSize: 9, fontWeight: 700, color: '#475569', maxWidth: 200 }}>{branding.address}</div>
+              </div>
+            )}
+          </div>
+
+          {branding.socialMedia?.length > 0 && (
+            <div style={{ marginTop: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              {branding.socialMedia.map((s, i) => (
+                <div key={i} style={{ fontSize: 8, fontWeight: 800, color: '#6366f1', background: '#f5f3ff', padding: '2px 6px', borderRadius: 4 }}>
+                  {s.platform}: {s.url}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

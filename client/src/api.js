@@ -124,3 +124,19 @@ export async function pullOllamaModel(name, onProgress) {
     }
   }
 }
+// ── Settings & Branding ──────────────────────────
+export function loadBrandingConfig() {
+  return apiFetch('/api/config/branding');
+}
+export function loadAdminSettings() {
+  return apiFetch('/api/admin/settings');
+}
+export function updateAdminSettings(payload) {
+  return apiFetch('/api/admin/settings', { method: 'POST', body: JSON.stringify(payload) });
+}
+export function requestBrandingAccess() {
+  return apiFetch('/api/user/branding-request', { method: 'POST' });
+}
+export function updateCustomBranding(payload) {
+  return apiFetch('/api/user/branding', { method: 'POST', body: JSON.stringify(payload) });
+}
