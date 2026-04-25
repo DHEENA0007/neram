@@ -3,14 +3,14 @@ import React, { useState, useMemo } from 'react';
 const L = {
   en: {
     yama: 'Yama', bird: 'Bird', activity: 'Activity',
-    time: 'Time', direction: 'Direction', palan: 'Palan',
+    time: 'Time', relation: 'Relation', direction: 'Direction', palan: 'Palan',
     strength: 'Strength',
     dayTable: 'Day Schedule', nightTable: 'Night Schedule',
     sookshima: 'Sookshima Breakdown',
   },
   ta: {
     yama: 'ஜாமம்', bird: 'பட்சி', activity: 'தொழில்',
-    time: 'நேரம்', direction: 'திசை', palan: 'பலன்',
+    time: 'நேரம்', relation: 'உறவு', direction: 'திசை', palan: 'பலன்',
     strength: 'பலம்',
     dayTable: 'பகல் அட்டவணை', nightTable: 'இரவு அட்டவணை',
     sookshima: 'அதி சூட்சும விவரம்',
@@ -30,6 +30,7 @@ function getSookshimaSlots(subRows, currentIndex, parentStart, parentEnd) {
     return {
       bird: row.bird,
       activity: row.activity,
+      relation: row.relation,
       start: new Date(s).toISOString(),
       end: new Date(e).toISOString(),
       startLabel: new Date(s).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
@@ -169,6 +170,7 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai, gowri 
             <col style={{ width: '160px' }} />
             <col style={{ width: '170px' }} />
             <col style={{ width: '150px' }} />
+            <col style={{ width: '120px' }} />
             <col style={{ width: '240px' }} />
             <col style={{ width: '130px' }} />
             <col />
@@ -180,6 +182,7 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai, gowri 
               <th className="px-5 py-5">{c.yama}</th>
               <th className="px-5 py-5">{c.bird}</th>
               <th className="px-5 py-5">{c.activity}</th>
+              <th className="px-5 py-5">{c.relation}</th>
               <th className="px-5 py-5">{c.time}</th>
               <th className="px-5 py-5">{c.direction}</th>
               <th className="px-5 py-5">{c.palan}</th>
@@ -198,7 +201,7 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai, gowri 
                 return (
                   <React.Fragment key={key}>
                     <tr className="hover:bg-slate-50/60 transition-colors duration-150">
-                      <td className="px-5 py-4 align-top">
+                      <td className="px-5 py-4 align-middle">
                         {i === 0 && (
                           <div className="flex flex-col gap-1">
                             <span className={`text-base font-black tabular-nums ${accentTxt}`}>{lang === 'ta' ? 'ஜாமம்' : 'Jamam'} {yama.index}</span>
@@ -207,9 +210,14 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai, gowri 
                           </div>
                         )}
                       </td>
-                      <td className="px-5 py-4 font-black text-slate-800 text-base align-top">{n(s.bird, lang)}</td>
-                      <td className="px-5 py-4"><ActivityBadge activity={s.activity} lang={lang} /></td>
-                      <td className="px-5 py-4">
+                      <td className="px-5 py-4 font-black text-slate-800 text-base align-middle">{n(s.bird, lang)}</td>
+                      <td className="px-5 py-4 align-middle"><ActivityBadge activity={s.activity} lang={lang} /></td>
+                      <td className="px-5 py-4 align-middle">
+                        {s.relation && (
+                          <span className="text-sm font-bold text-slate-800">{n(s.relation, lang)}</span>
+                        )}
+                      </td>
+                      <td className="px-5 py-4 align-middle">
                         <div className="flex flex-col gap-1">
                           <div className="flex items-center gap-2">
                             <span className="text-sm font-bold text-slate-600 tabular-nums whitespace-nowrap">{s.startLabel} – {s.endLabel}</span>
@@ -243,13 +251,13 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai, gowri 
                           )}
                         </div>
                       </td>
-                      <td className="px-5 py-4">
+                      <td className="px-5 py-4 align-middle">
                         {s.direction && (
                           <span className="text-sm font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg">{n(s.direction, lang)}</span>
                         )}
                       </td>
-                      <td className="px-5 py-4 text-sm text-slate-500 leading-relaxed">{s.palan || <span className="text-slate-300">—</span>}</td>
-                      <td className="px-5 py-4 text-right"><StrengthBadge strength={s.strength} /></td>
+                      <td className="px-5 py-4 text-sm text-slate-500 leading-relaxed align-middle">{s.palan || <span className="text-slate-300">—</span>}</td>
+                      <td className="px-5 py-4 text-right align-middle"><StrengthBadge strength={s.strength} /></td>
                     </tr>
                     {isExp && (
                       <tr className="bg-amber-50/40">
@@ -261,6 +269,7 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai, gowri 
                                 <tr className="text-[11px] font-black uppercase tracking-widest text-slate-400">
                                   <th className="py-1 pr-4 text-left font-black" style={{ width: '120px' }}>{c.bird}</th>
                                   <th className="py-1 pr-4 text-left font-black" style={{ width: '110px' }}>{c.activity}</th>
+                                  <th className="py-1 pr-4 text-left font-black" style={{ width: '100px' }}>{c.relation}</th>
                                   <th className="py-1 text-left font-black">{c.time}</th>
                                 </tr>
                               </thead>
@@ -273,6 +282,11 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai, gowri 
                                     <tr key={j} className="border-t border-amber-100/60">
                                       <td className="py-2.5 pr-4 font-bold text-slate-800 text-sm">{n(sk.bird, lang)}</td>
                                       <td className="py-2.5 pr-4"><ActivityBadge activity={sk.activity} lang={lang} /></td>
+                                      <td className="py-2.5 pr-4">
+                                        {sk.relation && (
+                                          <span className="text-xs font-bold text-slate-500 bg-slate-50 px-2 py-0.5 rounded">{n(sk.relation, lang)}</span>
+                                        )}
+                                      </td>
                                       <td className="py-2.5 text-sm font-bold text-slate-500 tabular-nums whitespace-nowrap">
                                         <div className="flex items-center gap-1.5 flex-wrap">
                                           <span>{sk.startLabel} – {sk.endLabel}</span>
@@ -374,6 +388,11 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai, gowri 
                       </div>
                       <div className="flex items-center gap-3 mb-2">
                          <ActivityBadge activity={s.activity} lang={lang} />
+                         {s.relation && (
+                           <span className="text-[11px] font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg">
+                             {c.relation}: {n(s.relation, lang)}
+                           </span>
+                         )}
                          {s.direction && (
                            <span className="text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-lg">{n(s.direction, lang)}</span>
                          )}
@@ -397,6 +416,11 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai, gowri 
                                         <span className="text-sm font-black text-slate-800">{n(sk.bird, lang)}</span>
                                         <div className="flex items-center gap-1 flex-wrap">
                                           <span className="text-[11px] font-bold text-slate-400 tabular-nums">{sk.startLabel} – {sk.endLabel}</span>
+                                          {sk.relation && (
+                                            <span className="text-[10px] font-bold text-slate-500 bg-slate-50 px-1.5 py-0.5 rounded italic">
+                                              {n(sk.relation, lang)}
+                                            </span>
+                                          )}
                                           {skHora && (
                                             <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded text-[11px] font-black uppercase tracking-wide bg-slate-100 text-slate-600">
                                               <span className={`w-2 h-2 rounded-full shrink-0 ${PLANET_DOT[skHora.planet.key] || 'bg-slate-400'}`} />
