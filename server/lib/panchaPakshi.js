@@ -683,7 +683,7 @@ export async function buildPanchaPakshiSchedule({
     throw new Error('Pancha Pakshi data was incomplete for the requested combination');
   }
 
-  const dayYamaDurationMs = (astronomy.sunset.toMillis() - astronomy.sunrise.toMillis()) / 5;
+  const dayYamaDurationMs = 145 * 60 * 1000; // Fixed 2 hours 25 minutes per jamam from sunrise
   const nightYamaDurationMs =
     (astronomy.nextSunrise.toMillis() - astronomy.sunset.toMillis()) / 5;
 
@@ -692,13 +692,10 @@ export async function buildPanchaPakshiSchedule({
       Math.round(astronomy.sunrise.toMillis() + dayYamaDurationMs * index),
       { zone: astronomy.timezone },
     );
-    const end =
-      index === 4
-        ? astronomy.sunset
-        : DateTime.fromMillis(
-            Math.round(astronomy.sunrise.toMillis() + dayYamaDurationMs * (index + 1)),
-            { zone: astronomy.timezone },
-          );
+    const end = DateTime.fromMillis(
+      Math.round(astronomy.sunrise.toMillis() + dayYamaDurationMs * (index + 1)),
+      { zone: astronomy.timezone },
+    );
     return buildYamaRows(rows, {
       startTime: start, endTime: end, timezone: astronomy.timezone,
       yamaIndex: index, birdId, palangalList,
