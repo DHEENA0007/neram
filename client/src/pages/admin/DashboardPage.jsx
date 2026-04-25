@@ -84,6 +84,12 @@ export function DashboardPage() {
             sub={language === 'en' ? 'Security & Profile' : 'சுயவிவரம்'} 
           />
           <QuickLink 
+            to="/admin/subscriptions" 
+            icon={IconCreditCard} 
+            label={language === 'en' ? 'Subscriptions' : 'சந்தா'} 
+            sub={language === 'en' ? 'Manage paid users' : 'கணக்கு மேலாண்மை'} 
+          />
+          <QuickLink 
             to="/user" 
             icon={IconSun} 
             label={language === 'en' ? 'User App' : 'பயனர் பக்கம்'} 

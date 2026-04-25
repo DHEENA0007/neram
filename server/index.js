@@ -132,6 +132,12 @@ function checkRestrictions(feature) {
       }
     } else if (user.userType === 'subscribed') {
       const { subscriptionConfig } = user;
+      
+      // Check subscription expiry
+      if (subscriptionConfig.endDate && new Date() > new Date(subscriptionConfig.endDate)) {
+        return res.status(403).json({ error: 'Your subscription has expired. Please renew to continue.' });
+      }
+
       if (!subscriptionConfig.features.includes(feature)) {
         return res.status(403).json({ error: `You do not have access to the ${feature === 'panchaPakshi' ? 'Pancha Pakshi' : feature} feature.` });
       }
