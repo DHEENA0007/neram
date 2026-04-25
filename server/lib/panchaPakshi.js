@@ -399,10 +399,11 @@ export async function searchPlaces(query) {
 export async function fetchAstronomy({ latitude, longitude, date, timezone }) {
   const responseZone = timezone || 'UTC';
   const day     = DateTime.fromISO(date, { zone: responseZone });
-  const nextDay = day.plus({ days: 1 });
+  const noon    = day.set({ hour: 12 });
+  const nextDay = day.plus({ days: 1 }).set({ hour: 12 });
 
   // Compute locally with SunCalc — no external API calls needed
-  const todayTimes    = SunCalc.getTimes(day.toJSDate(),     latitude, longitude);
+  const todayTimes    = SunCalc.getTimes(noon.toJSDate(),    latitude, longitude);
   const nextDayTimes  = SunCalc.getTimes(nextDay.toJSDate(), latitude, longitude);
 
   const sunrise    = DateTime.fromJSDate(todayTimes.sunrise,   { zone: 'utc' }).setZone(responseZone);
@@ -501,8 +502,8 @@ function mapRow(row) {
   };
 }
 
-function buildYamaRows(rows, { startTime, endTime, timezone, yamaIndex, birdId, palangalList = [], paksha, intrinsicStrength, direction }) {
-  const yamaDurationMs = endTime.toMillis() - startTime.toMillis();
+function buildYamaRows(rows, { startTime, yamaDurationMs, timezone, yamaIndex, birdId, palangalList = [], paksha, intrinsicStrength, direction }) {
+  const endTime = startTime.plus({ milliseconds: yamaDurationMs });
   const yamaDurationMinutes = yamaDurationMs / 60000;
   const mappedRows = rows.map(mapRow);
   const mainRow = mappedRows[0];
@@ -643,7 +644,9 @@ export async function buildPanchaPakshiSchedule({
   const dayPakshaIndex = dayPaksha === 'bright' ? 0 : 1;
   const nightPakshaIndex = nightPaksha === 'bright' ? 0 : 1;
 
-  const weekdayIndex = DateTime.fromISO(date, { zone: astronomy.timezone }).weekday % 7;
+  // Vedic weekday changes at sunrise. 
+  // For the day's schedule starting at sunrise, we use the calendar day's weekday.
+  const weekdayIndex = astronomy.sunrise.weekday % 7;
   const bird = getBirdById(birdId);
 
   const birdStrengthData = birdIntrinsicStrengths;
@@ -696,20 +699,16 @@ export async function buildPanchaPakshiSchedule({
     throw new Error('Pancha Pakshi data was incomplete for the requested combination');
   }
 
-  const dayYamaDurationMs   = 144 * 60 * 1000; // Fixed 2h 24m per jamam (day)
-  const nightYamaDurationMs = 144 * 60 * 1000; // Fixed 2h 24m per jamam (night)
+  const dayYamaDurationMs   = (astronomy.dayMinutes   / 5) * 60 * 1000;
+  const nightYamaDurationMs = (astronomy.nightMinutes / 5) * 60 * 1000;
 
   const dayYamas = groupIntoYamas(dayRows).map((rows, index) => {
     const start = DateTime.fromMillis(
       Math.round(astronomy.sunrise.toMillis() + dayYamaDurationMs * index),
       { zone: astronomy.timezone },
     );
-    const end = DateTime.fromMillis(
-      Math.round(astronomy.sunrise.toMillis() + dayYamaDurationMs * (index + 1)),
-      { zone: astronomy.timezone },
-    );
     return buildYamaRows(rows, {
-      startTime: start, endTime: end, timezone: astronomy.timezone,
+      startTime: start, yamaDurationMs: dayYamaDurationMs, timezone: astronomy.timezone,
       yamaIndex: index, birdId, palangalList,
       paksha: dayPaksha, intrinsicStrength: dayIntrinsic, direction: dayDirection,
     });
@@ -720,12 +719,8 @@ export async function buildPanchaPakshiSchedule({
       Math.round(astronomy.sunset.toMillis() + nightYamaDurationMs * index),
       { zone: astronomy.timezone },
     );
-    const end = DateTime.fromMillis(
-      Math.round(astronomy.sunset.toMillis() + nightYamaDurationMs * (index + 1)),
-      { zone: astronomy.timezone },
-    );
     return buildYamaRows(rows, {
-      startTime: start, endTime: end, timezone: astronomy.timezone,
+      startTime: start, yamaDurationMs: nightYamaDurationMs, timezone: astronomy.timezone,
       yamaIndex: index, birdId, palangalList,
       paksha: nightPaksha, intrinsicStrength: nightIntrinsic, direction: nightDirection,
     });

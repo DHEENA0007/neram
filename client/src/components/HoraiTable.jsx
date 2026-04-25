@@ -11,16 +11,17 @@ const PLANET_COLORS = {
   saturn:  'bg-slate-700',
 };
 
-function HoraCard({ hora, lang }) {
+function HoraCard({ hora, lang, isCurrent }) {
   const color = PLANET_COLORS[hora.planet.key] || 'bg-slate-400';
   return (
-    <div className="flex items-center gap-3 px-4 py-3 bg-white/70 hover:bg-white transition-colors duration-150">
-      <div className={`w-9 h-9 rounded-xl ${color} flex items-center justify-center text-white text-xs font-black shrink-0`}>
+    <div className={`flex items-center gap-3 px-4 py-3 bg-white/70 hover:bg-white transition-colors duration-150 ${isCurrent ? 'ring-2 ring-amber-500 ring-inset bg-amber-50/50' : ''}`}>
+      <div className={`w-9 h-9 rounded-xl ${color} flex items-center justify-center text-white text-xs font-black shrink-0 ${isCurrent ? 'animate-pulse' : ''}`}>
         {hora.index}
       </div>
       <div className="min-w-0">
-        <div className="text-sm font-black text-slate-800 truncate">
+        <div className="text-sm font-black text-slate-800 truncate flex items-center gap-1.5">
           {lang === 'ta' ? hora.planet.tamil : hora.planet.label}
+          {isCurrent && <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />}
         </div>
         <div className="text-[11px] font-bold text-slate-400 tabular-nums whitespace-nowrap">
           {hora.startLabel} – {hora.endLabel}
@@ -32,6 +33,8 @@ function HoraCard({ hora, lang }) {
 
 export function HoraiTable({ horai, lang }) {
   if (!horai || horai.length === 0) return null;
+
+  const nowMs = Date.now();
 
   const dayHoras   = horai.filter(h => h.period === 'day');
   const nightHoras = horai.filter(h => h.period === 'night');
@@ -58,7 +61,14 @@ export function HoraiTable({ horai, lang }) {
             <span className="text-[11px] font-bold text-amber-600/60 uppercase tracking-widest">12 Horas</span>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-px bg-amber-100/40">
-            {dayHoras.map(h => <HoraCard key={h.index} hora={h} lang={lang} />)}
+            {dayHoras.map(h => (
+              <HoraCard 
+                key={h.index} 
+                hora={h} 
+                lang={lang} 
+                isCurrent={nowMs >= new Date(h.start).getTime() && nowMs < new Date(h.end).getTime()} 
+              />
+            ))}
           </div>
         </div>
 
@@ -71,7 +81,14 @@ export function HoraiTable({ horai, lang }) {
             <span className="text-[11px] font-bold text-indigo-600/60 uppercase tracking-widest">12 Horas</span>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-px bg-indigo-100/40">
-            {nightHoras.map(h => <HoraCard key={h.index} hora={h} lang={lang} />)}
+            {nightHoras.map(h => (
+              <HoraCard 
+                key={h.index} 
+                hora={h} 
+                lang={lang} 
+                isCurrent={nowMs >= new Date(h.start).getTime() && nowMs < new Date(h.end).getTime()} 
+              />
+            ))}
           </div>
         </div>
       </div>

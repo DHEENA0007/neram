@@ -113,7 +113,12 @@ export function UserPortal() {
   const summary = useMemo(() => {
     if (!prediction || !prediction.astronomy) return null;
     const nowMs = Date.now();
+    
+    // We compare raw timestamps from browser (nowMs) against ISO strings from server (which contain offsets).
+    // This is the most reliable way to align wall-clock time.
     const isNight = nowMs >= new Date(prediction.astronomy.sunset).getTime() && nowMs < new Date(prediction.astronomy.nextSunrise).getTime();
+    
+    // Paksha is determined by the server for that specific day/night.
     const currentPaksha = isNight ? prediction.paksha?.night : prediction.paksha?.day;
 
     return {
@@ -127,26 +132,13 @@ export function UserPortal() {
       currentHorai: (() => {
         const horas = prediction.horai;
         if (!horas || !horas.length) return null;
-
-        const now = new Date();
-        const ref = new Date(prediction.date);
-        ref.setHours(now.getHours(), now.getMinutes(), now.getSeconds());
-        const refMs = ref.getTime();
-
-        return horas.find(h => refMs >= new Date(h.start).getTime() && refMs < new Date(h.end).getTime())
-          || horas.filter(h => new Date(h.start).getTime() <= refMs).at(-1);
+        // Search by timestamp — robust against local timezone shifts
+        return horas.find(h => nowMs >= new Date(h.start).getTime() && nowMs < new Date(h.end).getTime());
       })(),
       currentGowri: (() => {
         const gowris = prediction.gowri;
         if (!gowris || !gowris.length) return null;
-
-        const now = new Date();
-        const ref = new Date(prediction.date);
-        ref.setHours(now.getHours(), now.getMinutes(), now.getSeconds());
-        const refMs = ref.getTime();
-
-        return gowris.find(g => refMs >= new Date(g.start).getTime() && refMs < new Date(g.end).getTime())
-          || gowris.filter(g => new Date(g.start).getTime() <= refMs).at(-1);
+        return gowris.find(g => nowMs >= new Date(g.start).getTime() && nowMs < new Date(g.end).getTime());
       })()
     };
   }, [prediction]);
