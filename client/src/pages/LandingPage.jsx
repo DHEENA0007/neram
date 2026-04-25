@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Bird, Zap, Globe, ArrowRight, Shield, Clock, Users, Sparkles } from 'lucide-react';
+import { Bird, Zap, Globe, ArrowRight, Shield, Clock, Users, Sparkles, Send } from 'lucide-react';
+import { FaYoutube as Youtube, FaInstagram as Instagram } from 'react-icons/fa';
 
 const L = {
   en: {
@@ -196,11 +197,36 @@ export function LandingPage() {
         </section>
       </main>
 
-      <footer className="py-10 px-6 border-t border-slate-100 text-center bg-white">
-        <div className="text-2xl font-black font-serif text-yellow-600 mb-4">Sri Vinayaga Astro</div>
-        <p className="text-slate-400 text-sm font-bold uppercase tracking-widest">
-          © 2026 Sri Vinayaga Astro. All rights reserved.
-        </p>
+      <footer className="py-12 px-6 border-t border-slate-100 bg-white">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 items-center justify-center">
+          <div className="text-center md:text-left">
+            <div className="text-2xl font-black font-serif text-yellow-600 mb-2">Sri Vinayaga Astro</div>
+            <p className="text-slate-400 text-sm font-bold uppercase tracking-widest">
+              © 2026 Sri Vinayaga Astro.
+            </p>
+          </div>
+
+          <div className="flex justify-center gap-6">
+            <a href="https://www.youtube.com/channel/UC9SCqt01k0jr511hVijxZEA" target="_blank" rel="noopener noreferrer" className="w-12 h-12 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center hover:scale-110 hover:bg-rose-100 transition-all shadow-sm">
+              <Youtube size={24} />
+            </a>
+            <a href="https://www.instagram.com/svastro.in?igsh=MWc4OWtzbnc0eWQ3bg==" target="_blank" rel="noopener noreferrer" className="w-12 h-12 bg-pink-50 text-pink-600 rounded-full flex items-center justify-center hover:scale-110 hover:bg-pink-100 transition-all shadow-sm">
+              <Instagram size={24} />
+            </a>
+            <a href="https://t.me/marrigematching" target="_blank" rel="noopener noreferrer" className="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center hover:scale-110 hover:bg-blue-100 transition-all shadow-sm">
+              <Send size={24} />
+            </a>
+          </div>
+
+          <div className="text-center md:text-right">
+            <a href="https://svastro.in" className="text-lg font-black text-slate-900 hover:text-yellow-600 transition-colors">
+              svastro.in
+            </a>
+            <div className="text-[10px] font-black text-slate-400 uppercase tracking-tighter mt-1">
+              Ancient Wisdom · Modern Interface
+            </div>
+          </div>
+        </div>
       </footer>
     </div>
   );

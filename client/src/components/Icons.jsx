@@ -5,7 +5,9 @@ import {
   LucideBan, LucideCheckCircle, LucideCpu, LucideDownload, 
   LucideTrash2, LucideInfo, LucideBird, LucideSearch, LucideStar, LucideMoon,
   LucideSunrise, LucideSunset, LucideZap, LucideCreditCard, LucideActivity,
-  LucideLock, LucideClock, LucideHistory, LucideX, LucideUser, LucideChevronRight
+  LucideLock, LucideClock, LucideHistory, LucideX, LucideUser, LucideChevronRight,
+  BarChart as LucideBarChart, TrendingUp as LucideTrendingUp, 
+  ExternalLink as LucideExternalLink, Filter as LucideFilter, Plus as LucidePlus
 } from 'lucide-react';
 import { GiVulture, GiOwl, GiCrowDive, GiRooster, GiFeather } from "react-icons/gi";
 
@@ -49,3 +51,8 @@ export function IconCreditCard({ size = 16, className }) { return <LucideCreditC
 export function IconActivity({ size = 16, className }) { return <LucideActivity size={size} className={className} />; }
 export function IconLock({ size = 16, className }) { return <LucideLock size={size} className={className} />; }
 export function IconMapPin({ size = 16, className }) { return <LucideMapPin size={size} className={className} />; }
+export function IconChartBar({ size = 16, className }) { return <LucideBarChart size={size} className={className} />; }
+export function IconTrendingUp({ size = 16, className }) { return <LucideTrendingUp size={size} className={className} />; }
+export function IconExternalLink({ size = 16, className }) { return <LucideExternalLink size={size} className={className} />; }
+export function IconFilter({ size = 16, className }) { return <LucideFilter size={size} className={className} />; }
+export function IconPlus({ size = 16, className }) { return <LucidePlus size={size} className={className} />; }

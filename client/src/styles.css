@@ -99,7 +99,7 @@
   .sidebar-footer {
     padding: 1.5rem;
     border-top: 1px solid var(--color-slate-100);
-    background: var(--color-slate-50 / 50%);
+    @apply bg-slate-50/50;
   }
 
   .sidebar-user-badge {
