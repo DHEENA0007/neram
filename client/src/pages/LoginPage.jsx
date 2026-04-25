@@ -1,16 +1,24 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth.jsx';
-import { IconUser, IconLock, IconChevronRight, IconActivity } from '../components/Icons.jsx';
+import { IconUser, IconLock, IconChevronRight, IconActivity, IconPhone, IconWhatsApp } from '../components/Icons.jsx';
 
 export function LoginPage() {
-  const [username, setUsername] = useState('admin');
-  const [password, setPassword] = useState('admin123');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isContactView, setIsContactView] = useState(false);
   const language = 'ta'; // Default to Tamil for this portal
   const navigate = useNavigate();
   const { login } = useAuth();
+
+  const CONTACT_INFO = {
+    phone: '+91 98765 43210',
+    whatsapp: '919876543210',
+    appName: 'Sri Vinayaga Astro',
+    tagline: 'Ancient Wisdom · Modern Precision'
+  };
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -25,6 +33,77 @@ export function LoginPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  if (isContactView) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6 bg-[#fafafa] relative overflow-hidden">
+        <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-amber-200/20 blur-[120px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-amber-500/10 blur-[120px] rounded-full pointer-events-none" />
+
+        <section className="relative w-full max-w-[480px]">
+          <div className="text-center mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
+            <div className="mb-6">
+              <img src="/logo.png" alt="Logo" className="w-24 h-24 mx-auto object-contain drop-shadow-xl" />
+            </div>
+            <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-3">{CONTACT_INFO.appName}</h1>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">{CONTACT_INFO.tagline}</p>
+          </div>
+
+          <div className="bg-white/70 backdrop-blur-xl border border-white rounded-[3rem] p-10 md:p-12 shadow-2xl shadow-slate-200/50 animate-in fade-in slide-in-from-bottom-8 duration-700">
+            <h2 className="text-2xl font-black text-slate-900 mb-2">
+              {language === 'en' ? 'Get Started' : 'புதிய பதிவு'}
+            </h2>
+            <p className="text-slate-500 font-medium mb-10">
+              {language === 'en' ? 'Contact our system administrator to create your account and optimize your destiny.' : 'உங்கள் கணக்கை உருவாக்க மற்றும் உங்கள் விதியை மேம்படுத்த கணினி நிர்வாகியை அணுகவும்.'}
+            </p>
+
+            <div className="space-y-4">
+              <a 
+                href={`https://wa.me/${CONTACT_INFO.whatsapp}?text=${encodeURIComponent("I'm interested to buy Sri Vinayaga Astro software. Please help me with the registration.")}`} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center justify-between p-6 rounded-3xl bg-emerald-50 border border-emerald-100 hover:bg-emerald-100 transition-all group"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
+                    <IconWhatsApp size={24} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">WhatsApp</p>
+                    <p className="text-sm font-black text-slate-900">Send Message</p>
+                  </div>
+                </div>
+                <IconChevronRight size={20} className="text-emerald-300 group-hover:translate-x-1 transition-transform" />
+              </a>
+
+              <a 
+                href={`tel:${CONTACT_INFO.phone.replace(/\s+/g, '')}`}
+                className="flex items-center justify-between p-6 rounded-3xl bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 transition-all group"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-indigo-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
+                    <IconPhone size={24} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Phone Call</p>
+                    <p className="text-sm font-black text-slate-900">{CONTACT_INFO.phone}</p>
+                  </div>
+                </div>
+                <IconChevronRight size={20} className="text-indigo-300 group-hover:translate-x-1 transition-transform" />
+              </a>
+            </div>
+
+            <button 
+              onClick={() => setIsContactView(false)}
+              className="w-full mt-10 py-5 rounded-3xl border-2 border-slate-100 text-slate-400 text-sm font-black uppercase tracking-widest hover:bg-slate-50 hover:text-slate-900 transition-all"
+            >
+              {language === 'en' ? 'Back to Login' : 'மீண்டும் உள்நுழைக'}
+            </button>
+          </div>
+        </section>
+      </div>
+    );
   }
 
   return (
@@ -108,7 +187,13 @@ export function LoginPage() {
 
           <div className="mt-12 pt-8 border-t border-slate-100 text-center">
              <p className="text-sm font-bold text-slate-400">
-               {language === 'en' ? "Don't have an account?" : "கணக்கு இல்லையா?"} <span className="text-amber-600 hover:text-amber-700 cursor-pointer transition-colors ml-1 font-black">{language === 'en' ? 'Contact System Admin' : 'நிர்வாகியை அணுகவும்'}</span>
+               {language === 'en' ? "Don't have an account?" : "கணக்கு இல்லையா?"} 
+               <span 
+                onClick={() => setIsContactView(true)}
+                className="text-amber-600 hover:text-amber-700 cursor-pointer transition-colors ml-1 font-black"
+               >
+                 {language === 'en' ? 'Register Now' : 'இப்போதே பதிவு செய்யுங்கள்'}
+               </span>
              </p>
           </div>
         </div>

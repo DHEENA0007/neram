@@ -199,5 +199,25 @@
       "text": "மிகவும் அசுபமான நேரம். எந்த புதிய செயலும் தொடங்காதீர்கள். இறைவனை வேண்டிக்கொண்டு ஓய்வெடுக்கவும்.",
       "updatedAt": "2026-04-08T17:23:09.111Z"
     }
-  ]
+  ],
+  "settings": {
+    "branding": {
+      "astrologerName": "Sri Vinayaga Astro",
+      "companyName": "Astro Services",
+      "mobile": "+91 98765 43210",
+      "whatsapp": "+91 98765 43210",
+      "website": "www.srivinayagaastro.com",
+      "socialMedia": [
+        {
+          "platform": "Facebook",
+          "url": "#"
+        },
+        {
+          "platform": "Instagram",
+          "url": "#"
+        }
+      ],
+      "address": "123, Celestial Way, Tamil Nadu"
+    }
+  }
 }

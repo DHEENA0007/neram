@@ -49,50 +49,33 @@ export function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Navigation */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 border-b border-white/5 px-6 py-3 flex items-center justify-between">
-        <div className="text-xl font-black font-serif text-yellow-500 tracking-tight">Sri Vinayaga Astro</div>
-        <div className="flex items-center gap-4">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-xl border-b border-white/10 px-8 py-4 flex items-center justify-between shadow-2xl">
+        <Link to="/" className="flex items-center gap-4 text-2xl md:text-3xl font-black font-serif text-yellow-500 tracking-tighter drop-shadow-lg transition-transform hover:scale-105 active:scale-95">
+          <img src="/logo.png" alt="Sri Vinayaga Astro Logo" className="w-12 h-12 md:w-14 md:h-14 object-contain drop-shadow-md" />
+          <span>Sri Vinayaga Astro</span>
+        </Link>
+        <div className="flex items-center gap-6">
           <button 
-            className="text-xs font-bold text-white/60 hover:text-white px-3 py-1.5 rounded-full hover:bg-white/5 transition-all"
+            className="text-sm md:text-lg font-bold text-white/80 hover:text-white px-5 py-2.5 rounded-xl hover:bg-white/10 transition-all border border-white/5"
             onClick={() => setLang(l => l === 'ta' ? 'en' : 'ta')}
           >
             {t.langBtn}
           </button>
-          <Link to="/login" className="btn-primary py-1.5 px-5 shadow-none text-xs">
+          <Link to="/login" className="bg-gradient-to-r from-amber-500 to-yellow-500 text-amber-950 py-2.5 px-8 rounded-xl font-black text-sm md:text-lg shadow-xl shadow-amber-500/20 hover:scale-105 active:scale-95 transition-all">
             {t.signin}
           </Link>
         </div>
       </header>
 
       <main className="flex-grow">
-        {/* Hero Section with Image Background */}
-        <section className="relative pt-48 pb-20 px-6 text-center overflow-hidden min-h-[80vh] flex flex-col justify-center bg-slate-950">
-          {/* Background Image with Overlay */}
-          <div className="absolute inset-0 z-0">
-            <img 
-              src="/assets/hero-bg.png" 
-              alt="Cosmic Background" 
-              className="w-full h-full object-cover scale-105 animate-slow-zoom brightness-50"
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-slate-950/20 via-transparent to-slate-950"></div>
-          </div>
-
-          <div className="relative z-10 max-w-4xl mx-auto">
-            <h1 className="text-4xl md:text-6xl font-black text-white leading-tight mb-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
-              {t.heroTitle} <br />
-              <span className="text-yellow-400">{t.heroAccent}</span>
-            </h1>
-            <p className="text-lg md:text-xl text-slate-300 leading-relaxed mb-10 max-w-xl mx-auto font-medium animate-in fade-in slide-in-from-bottom-10 duration-1000">
-              {t.heroSub}
-            </p>
-            <div className="flex flex-wrap gap-4 justify-center animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-300">
-              <Link to="/login" className="btn-primary text-lg px-8 py-4 shadow-xl shadow-yellow-500/30">
-                {t.tryBtn}
-              </Link>
-              <a href="#features" className="btn-ghost text-lg px-8 py-4 bg-white/5 text-white border border-white/10 hover:bg-white/10 transition-all">
-                {t.howBtn}
-              </a>
-            </div>
+        {/* Ultra Premium Hero Banner */}
+        <section className="relative w-full overflow-hidden bg-white pt-24 select-none">
+          <div className="relative w-full max-w-[1920px] mx-auto overflow-hidden shadow-2xl">
+             <img 
+               src="/assets/main-banner.png" 
+               alt="Sri Vinayaga Astro" 
+               className="w-full h-auto object-contain"
+             />
           </div>
         </section>
 

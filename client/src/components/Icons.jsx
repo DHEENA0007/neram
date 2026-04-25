@@ -10,7 +10,10 @@ import {
   ExternalLink as LucideExternalLink, Filter as LucideFilter, Plus as LucidePlus
 } from 'lucide-react';
 import { GiVulture, GiOwl, GiCrowDive, GiRooster, GiFeather } from "react-icons/gi";
+import { FaPhone, FaWhatsapp } from "react-icons/fa";
 
+export function IconPhone({ size = 16, className }) { return <FaPhone size={size} className={className} />; }
+export function IconWhatsApp({ size = 16, className }) { return <FaWhatsapp size={size} className={className} />; }
 export function IconDashboard({ size = 16 }) { return <LucideLayoutDashboard size={size} />; }
 export function IconUsers({ size = 16 }) { return <LucideUsers size={size} />; }
 export function IconUser({ size = 16, className }) { return <LucideUser size={size} className={className} />; }
