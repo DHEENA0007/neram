@@ -76,6 +76,7 @@ export function UserPortal() {
   const [rangeData, setRangeData] = useState(null);
   const [rangeCategories, setRangeCategories] = useState([]);
   const [rangeDates, setRangeDates] = useState({ from: date, to: date });
+  const [printSubTable, setPrintSubTable] = useState(true);
 
   const t = L[lang];
 
@@ -168,9 +169,10 @@ export function UserPortal() {
     }
   }
 
-  async function handleRangePrint({ fromDate, toDate, categories }) {
+  async function handleRangePrint({ fromDate, toDate, categories, showSubTable }) {
     setPrintLoading(true);
     setRangeData(null);
+    setPrintSubTable(showSubTable);
     try {
       const data = await requestRangeSchedule({
         fromDate,
@@ -183,17 +185,15 @@ export function UserPortal() {
       setRangeCategories(categories);
       setRangeDates({ from: fromDate, to: toDate });
       setShowPrintModal(false);
-      // show range print view and print
+      
+      // We'll use a small delay to ensure React has rendered the data into the hidden div (RangePrintView) 
+      // even though it's display: none, before we grab its HTML.
       setTimeout(() => {
-        const el = document.getElementById('range-print-view');
-        if (el) el.style.display = 'block';
-        const daily = document.getElementById('print-view');
-        if (daily) daily.style.display = 'none';
-        window.print();
-        setTimeout(() => {
-          if (el) el.style.display = 'none';
-        }, 1000);
-      }, 100);
+        const printEl = document.getElementById('range-print-view');
+        if (printEl) {
+          executeIsolatedPrint(printEl.innerHTML, lang === 'ta' ? 'பஞ்சபட்சி அட்டவணை' : 'Pancha Pakshi Schedule');
+        }
+      }, 300);
     } catch (err) {
       alert(err.message || 'Failed to generate range schedule');
     } finally {
@@ -201,14 +201,58 @@ export function UserPortal() {
     }
   }
 
-  function handleSinglePrint() {
+  function handleSinglePrint({ showSubTable }) {
     setShowPrintModal(false);
-    const el = document.getElementById('range-print-view');
-    if (el) el.style.display = 'none';
-    const daily = document.getElementById('print-view');
-    if (daily) daily.style.display = 'block';
-    window.print();
-    setTimeout(() => { if (daily) daily.style.display = 'none'; }, 1000);
+    setPrintSubTable(showSubTable);
+    setTimeout(() => {
+      const printEl = document.getElementById('print-view');
+      if (printEl) {
+        executeIsolatedPrint(printEl.innerHTML, lang === 'ta' ? 'பஞ்சபட்சி அட்டவணை' : 'Pancha Pakshi Schedule');
+      }
+    }, 200);
+  }
+
+  function executeIsolatedPrint(htmlContent, title) {
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow.document;
+    doc.open();
+    doc.write(`
+      <html>
+        <head>
+          <title>${title}</title>
+          <link rel="preconnect" href="https://fonts.googleapis.com">
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+          <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&family=Noto+Sans+Tamil:wght@400;700;800;900&display=swap" rel="stylesheet">
+          <style>
+            body { margin: 0; padding: 0; }
+            @media print {
+              @page { margin: 1cm; size: auto; }
+              * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            }
+            /* Add basic resets for the template */
+            * { box-sizing: border-box; }
+          </style>
+        </head>
+        <body>
+          <div style="width: 100%;">${htmlContent}</div>
+          <script>
+            window.onload = () => {
+              window.print();
+              setTimeout(() => { window.frameElement.remove(); }, 1000);
+            };
+          </script>
+        </body>
+      </html>
+    `);
+    doc.close();
   }
 
   function formatTimeFromISO(iso) {
@@ -437,7 +481,7 @@ export function UserPortal() {
               </div>
 
               {/* PRINT VIEWS (hidden on screen) */}
-              <PrintView prediction={prediction} lang={lang} locationName={locationName} />
+              <PrintView prediction={prediction} lang={lang} locationName={locationName} showSubTable={printSubTable} />
               <RangePrintView
                 rangeData={rangeData}
                 categories={rangeCategories}

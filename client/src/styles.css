@@ -197,4 +197,37 @@
   .pp-table td {
     @apply px-4 py-4 border-b border-slate-50 text-sm;
   }
+
+  /* ── Print Styles ─────────────────────────────────── */
+  @media print {
+    body * {
+      visibility: hidden;
+    }
+    #print-view, #print-view *,
+    #range-print-view, #range-print-view * {
+      visibility: visible;
+    }
+    #print-view, #range-print-view {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      display: block !important;
+      visibility: visible !important;
+    }
+    .no-print {
+      display: none !important;
+    }
+    
+    /* Ensure colors are printed */
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    
+    @page {
+      margin: 0.5cm;
+      size: auto;
+    }
+  }
 }

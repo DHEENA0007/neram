@@ -24,6 +24,7 @@ export function PrintOptionsModal({ onClose, onPrintSingle, onPrintRange, curren
   const [fromDate, setFromDate]   = useState(currentDate);
   const [toDate, setToDate]       = useState(currentDate);
   const [categories, setCategories] = useState(['rahu', 'yama', 'kuli']);
+  const [showSubTable, setShowSubTable] = useState(true);
 
   const tl = lang === 'ta';
 
@@ -52,9 +53,9 @@ export function PrintOptionsModal({ onClose, onPrintSingle, onPrintRange, curren
   const overLimit = diffDays > maxLimit;
 
   function handlePrint() {
-    if (mode === 'single') { onPrintSingle(); return; }
+    if (mode === 'single') { onPrintSingle({ showSubTable }); return; }
     if (overLimit) return;
-    onPrintRange({ fromDate, toDate, categories });
+    onPrintRange({ fromDate, toDate, categories, showSubTable });
   }
 
   return (
@@ -176,6 +177,26 @@ export function PrintOptionsModal({ onClose, onPrintSingle, onPrintRange, curren
             </div>
           </>
         )}
+
+        {/* Sub-table option */}
+        <div className="space-y-2">
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+            {tl ? 'அட்டவணை விருப்பங்கள்' : 'Table Options'}
+          </p>
+          <button
+            onClick={() => setShowSubTable(!showSubTable)}
+            className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-[11px] font-black transition-all text-left w-full ${
+              showSubTable
+                ? 'bg-amber-50 border-amber-300 text-amber-800'
+                : 'bg-white border-slate-200 text-slate-400 hover:border-slate-300'
+            }`}
+          >
+            <span className={`w-3.5 h-3.5 rounded border-2 flex items-center justify-center shrink-0 text-[8px] ${showSubTable ? 'bg-amber-500 border-amber-500 text-white' : 'border-slate-300'}`}>
+              {showSubTable && '✓'}
+            </span>
+            {tl ? 'அதி சூட்சும அட்டவணை (Sub Table)' : 'Include Sookshima Sub-Table'}
+          </button>
+        </div>
 
         {/* Actions */}
         <div className="flex gap-3 pt-1">

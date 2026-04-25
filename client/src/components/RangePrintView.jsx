@@ -264,6 +264,7 @@ function ScheduleSection({ days, lang, fromDate, toDate, locationName }) {
                     <tr>
                       <Th style={{ width: 18 }}>#</Th>
                       <Th style={{ width: 55 }}>{tl ? 'நேரம்' : 'Time'}</Th>
+                      <Th style={{ width: 40 }}>{tl ? 'உறவு' : 'Rel'}</Th>
                       <Th>{tl ? 'பட்சி / தொழில்' : 'Bird / Activity'}</Th>
                     </tr>
                   </thead>
@@ -278,6 +279,9 @@ function ScheduleSection({ days, lang, fromDate, toDate, locationName }) {
                           ) : <Td />}
                           <Td style={{ fontSize: 7, whiteSpace: 'nowrap', color: '#64748b' }}>
                             {sub.startLabel} – {sub.endLabel}
+                          </Td>
+                          <Td style={{ fontSize: 6.5, fontWeight: 700 }}>
+                            {n(sub.relation, lang)}
                           </Td>
                           <Td style={{ fontSize: 7.5 }}>
                             <span style={{ fontWeight: 800 }}>{n(sub.bird, lang)}</span>

@@ -11,52 +11,52 @@
       "createdAt": "2026-04-08T10:06:33.222Z",
       "updatedAt": "2026-04-20T18:27:09.460Z",
       "usageStats": {
-        "generationsCount": 22,
+        "generationsCount": 32,
         "downloadsCount": 0,
-        "nallaNeramCount": 0,
+        "nallaNeramCount": 1,
         "lastLocations": [
           {
             "name": "Karur, Tamil Nadu, India",
-            "timestamp": "2026-04-25T08:16:59.361Z"
+            "timestamp": "2026-04-25T09:29:29.391Z"
           },
           {
             "name": "Karur, Tamil Nadu, India",
-            "timestamp": "2026-04-25T08:16:18.430Z"
+            "timestamp": "2026-04-25T09:17:22.562Z"
           },
           {
             "name": "Karur, Tamil Nadu, India",
-            "timestamp": "2026-04-25T08:13:48.849Z"
+            "timestamp": "2026-04-25T08:53:49.143Z"
           },
           {
             "name": "Karur, Tamil Nadu, India",
-            "timestamp": "2026-04-25T08:13:19.956Z"
+            "timestamp": "2026-04-25T08:49:11.304Z"
           },
           {
             "name": "Karur, Tamil Nadu, India",
-            "timestamp": "2026-04-25T08:13:05.358Z"
+            "timestamp": "2026-04-25T08:43:47.101Z"
           },
           {
             "name": "Karur, Tamil Nadu, India",
-            "timestamp": "2026-04-25T08:12:34.842Z"
+            "timestamp": "2026-04-25T08:43:30.244Z"
           },
           {
             "name": "Karur, Tamil Nadu, India",
-            "timestamp": "2026-04-25T08:11:35.496Z"
+            "timestamp": "2026-04-25T08:42:53.264Z"
           },
           {
             "name": "Karur, Tamil Nadu, India",
-            "timestamp": "2026-04-25T08:09:43.660Z"
+            "timestamp": "2026-04-25T08:32:38.328Z"
           },
           {
             "name": "Karur, Tamil Nadu, India",
-            "timestamp": "2026-04-25T08:02:23.605Z"
+            "timestamp": "2026-04-25T08:27:25.688Z"
           },
           {
             "name": "Karur, Tamil Nadu, India",
-            "timestamp": "2026-04-25T07:56:11.951Z"
+            "timestamp": "2026-04-25T08:26:14.978Z"
           }
         ],
-        "lastUsedAt": "2026-04-25T08:16:59.361Z"
+        "lastUsedAt": "2026-04-25T09:29:29.391Z"
       }
     },
     {
