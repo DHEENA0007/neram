@@ -4,7 +4,8 @@ import { loadAdminUsers } from '../../api.js';
 import { useAuth } from '../../auth.jsx';
 import { 
   IconUsers, IconList, IconSettings, IconSun, 
-  IconUserPlus, IconZap, IconCreditCard, IconActivity 
+  IconUserPlus, IconZap, IconCreditCard, IconActivity,
+  IconChartBar 
 } from '../../components/Icons.jsx';
 
 export function DashboardPage() {
@@ -60,49 +61,85 @@ export function DashboardPage() {
         ))}
       </div>
 
-      <div>
-        <h2 className="text-sm font-black uppercase tracking-[0.3em] text-slate-300 mb-8 flex items-center gap-4 after:h-px after:flex-1 after:bg-slate-200">
-          {language === 'en' ? 'System Navigation' : 'கணினி ஆய்வு'}
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <QuickLink 
-            to="/admin/users" 
-            icon={IconUserPlus} 
-            label={language === 'en' ? 'Users List' : 'பயனர்கள்'}
-            sub={language === 'en' ? 'Manage accounts & limits' : 'கணக்கு மேலாண்மை'} 
-          />
-          <QuickLink 
-            to="/admin/palangal" 
-            icon={IconList} 
-            label={language === 'en' ? 'Palangal' : 'பலன்கள்'} 
-            sub={language === 'en' ? 'Edit prediction texts' : 'பலன் மேலாண்மை'} 
-          />
-          <QuickLink 
-            to="/admin/settings" 
-            icon={IconSettings} 
-            label={language === 'en' ? 'My Account' : 'எனது கணக்கு'} 
-            sub={language === 'en' ? 'Security & Profile' : 'சுயவிவரம்'} 
-          />
-          <QuickLink 
-            to="/admin/subscriptions" 
-            icon={IconCreditCard} 
-            label={language === 'en' ? 'Subscriptions' : 'சந்தா'} 
-            sub={language === 'en' ? 'Manage paid users' : 'கணக்கு மேலாண்மை'} 
-          />
-          <QuickLink 
-            to="/user" 
-            icon={IconSun} 
-            label={language === 'en' ? 'User App' : 'பயனர் பக்கம்'} 
-            sub={language === 'en' ? 'Switch for testing' : 'சோதனை செய்ய'} 
-            amber 
-          />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div>
+          <h2 className="text-sm font-black uppercase tracking-[0.3em] text-slate-300 mb-8 flex items-center gap-4 after:h-px after:flex-1 after:bg-slate-200">
+            {language === 'en' ? 'System Navigation' : 'கணினி ஆய்வு'}
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <QuickLink 
+              to="/admin/users" 
+              icon={IconUserPlus} 
+              label={language === 'en' ? 'Users List' : 'பயனர்கள்'}
+              sub={language === 'en' ? 'Manage accounts & limits' : 'கணக்கு மேலாண்மை'} 
+            />
+            <QuickLink 
+              to="/admin/subscriptions" 
+              icon={IconCreditCard} 
+              label={language === 'en' ? 'Subscriptions' : 'சந்தா'} 
+              sub={language === 'en' ? 'Manage paid users' : 'கணக்கு மேலாண்மை'} 
+            />
+            <QuickLink 
+              to="/admin/reports" 
+              icon={IconChartBar} 
+              label={language === 'en' ? 'Reports' : 'அறிக்கைகள்'} 
+              sub={language === 'en' ? 'Data Intelligence' : 'புள்ளிவிவரங்கள்'} 
+            />
+            <QuickLink 
+              to="/admin/palangal" 
+              icon={IconList} 
+              label={language === 'en' ? 'Palangal' : 'பலன்கள்'} 
+              sub={language === 'en' ? 'Edit prediction texts' : 'பலன் மேலாண்மை'} 
+            />
+            <QuickLink 
+              to="/user" 
+              icon={IconSun} 
+              label={language === 'en' ? 'User App' : 'பயனர் பக்கம்'} 
+              sub={language === 'en' ? 'Switch for testing' : 'சோதனை செய்ய'} 
+              amber 
+            />
+          </div>
+        </div>
+
+        <div>
+          <h2 className="text-sm font-black uppercase tracking-[0.3em] text-slate-300 mb-8 flex items-center gap-4 after:h-px after:flex-1 after:bg-slate-200">
+            {language === 'en' ? 'Global Top Locations' : 'முக்கிய இடங்கள்'}
+          </h2>
+          <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 space-y-4 shadow-sm">
+            {(() => {
+              const globalFreq = {};
+              users.forEach(u => {
+                Object.entries(u.usageStats?.locationFrequency || {}).forEach(([loc, count]) => {
+                  globalFreq[loc] = (globalFreq[loc] || 0) + count;
+                });
+              });
+              const sorted = Object.entries(globalFreq).sort(([,a], [,b]) => b - a).slice(0, 5);
+              
+              if (sorted.length === 0) return <p className="text-center py-12 text-slate-300 font-bold uppercase tracking-widest text-xs italic">Gathering intelligence...</p>;
+
+              return sorted.map(([loc, count], idx) => (
+                <div key={loc} className="flex items-center justify-between p-4 bg-slate-50/50 rounded-2xl border border-transparent hover:border-amber-200 hover:bg-white transition-all group">
+                  <div className="flex items-center gap-4">
+                    <span className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-xs font-black text-slate-300 group-hover:text-amber-500 shadow-sm">{idx + 1}</span>
+                    <span className="font-black text-slate-900">{loc}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="h-1.5 w-24 bg-slate-100 rounded-full overflow-hidden">
+                       <div className="h-full bg-amber-500 rounded-full" style={{ width: `${(count / sorted[0][1]) * 100}%` }} />
+                    </div>
+                    <span className="text-[10px] font-black text-slate-400 uppercase">{count}</span>
+                  </div>
+                </div>
+              ));
+            })()}
+          </div>
         </div>
       </div>
       
       <div className="p-6 bg-slate-900 rounded-[2.5rem] flex items-center justify-between text-white shadow-xl shadow-slate-900/10">
          <div className="flex items-center gap-4">
             <div className="w-4 h-4 rounded-full bg-emerald-400" />
-            <p className="text-sm font-black uppercase tracking-widest text-slate-400">Security & Integrity Check: <span className="text-white">Passed</span></p>
+            <p className="text-sm font-black uppercase tracking-widest text-slate-400">Security & Intelligence Check: <span className="text-white">Passed</span></p>
          </div>
          <span className="text-sm font-bold text-slate-500 italic">Version 1.5.2 Build Stable</span>
       </div>

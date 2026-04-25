@@ -275,38 +275,101 @@ export function UsersPage() {
           </form>
         </div>
 
-        {/* Location History Modal */}
+        {/* Location History & Analytics Modal */}
         {viewingUsage && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm">
-            <div className="bg-white w-full max-w-md rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[80vh]">
-              <div className="p-8 border-b border-slate-50 flex items-center justify-between">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-md">
+            <div className="bg-white w-full max-w-2xl rounded-[3.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+              <div className="p-10 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
                 <div>
-                  <h3 className="text-3xl font-black text-slate-900">{viewingUsage.name}</h3>
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1.5">{language === 'en' ? 'Activity Timeline' : 'செயல்பாட்டு வரலாறு'}</p>
+                  <h3 className="text-4xl font-black text-slate-900 leading-tight">{viewingUsage.name}</h3>
+                  <p className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mt-2 flex items-center gap-2">
+                    <IconHistory size={12} className="text-amber-500" />
+                    {language === 'en' ? 'Usage Intelligence & History' : 'பயன்பாட்டு நுண்ணறிவு மற்றும் வரலாறு'}
+                  </p>
                 </div>
-                <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400 font-black text-xs">{viewingUsage.name[0]}</div>
+                <button onClick={() => setViewingUsage(null)} className="w-12 h-12 rounded-2xl bg-white text-slate-400 flex items-center justify-center hover:text-rose-500 hover:shadow-lg transition-all">
+                  <IconX size={24} />
+                </button>
               </div>
-              <div className="p-8 flex-1 overflow-y-auto space-y-6">
-                {(viewingUsage.locationHistory || []).length === 0 ? (
-                  <p className="text-center py-12 text-slate-300 font-black uppercase tracking-widest text-xs">{language === 'en' ? 'No history available' : 'வரலாறு இல்லை'}</p>
-                ) : (
-                  viewingUsage.locationHistory.map((h, i) => (
-                    <div key={i} className="flex gap-4">
-                      <div className="flex flex-col items-center">
-                        <div className="w-2 h-2 rounded-full bg-slate-200 mt-2" />
-                        <div className="w-px flex-1 bg-slate-100 min-h-[40px]" />
-                      </div>
-                      <div className="flex-1 pb-4">
-                        <div className="text-xs font-black text-slate-900 uppercase tracking-widest mb-1">{h.location}</div>
-                        <div className="text-xs font-bold text-slate-400">{new Date(h.timestamp).toLocaleString()}</div>
-                      </div>
+
+              <div className="flex-1 overflow-y-auto p-10 custom-scrollbar space-y-10">
+                
+                {/* Analytics Summary */}
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="p-8 bg-amber-50 rounded-[2.5rem] border border-amber-100/50">
+                    <p className="text-[10px] font-black text-amber-600/60 uppercase tracking-widest mb-2">{language === 'en' ? 'Engagement' : 'ஈடுபாடு'}</p>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-4xl font-black text-amber-700">{viewingUsage.usageStats?.generationsCount || 0}</span>
+                      <span className="text-xs font-bold text-amber-600/60">Total Hits</span>
                     </div>
-                  ))
-                )}
+                  </div>
+                  <div className="p-8 bg-slate-900 rounded-[2.5rem] text-white">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{language === 'en' ? 'Last Activity' : 'கடைசி செயல்பாடு'}</p>
+                    <p className="text-lg font-black">{viewingUsage.usageStats?.lastUsedAt ? new Date(viewingUsage.usageStats.lastUsedAt).toLocaleDateString() : 'Never'}</p>
+                  </div>
+                </div>
+
+                {/* Major Search Locations */}
+                <div>
+                  <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6 flex items-center gap-4">
+                    {language === 'en' ? 'Major Search Locations' : 'முக்கிய தேடல் இடங்கள்'}
+                    <div className="h-px flex-1 bg-slate-100" />
+                  </h4>
+                  <div className="grid grid-cols-1 gap-3">
+                    {Object.entries(viewingUsage.usageStats?.locationFrequency || {})
+                      .sort(([,a], [,b]) => b - a)
+                      .slice(0, 5)
+                      .map(([loc, count], idx) => (
+                        <div key={loc} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 group hover:bg-white hover:border-amber-200 transition-all">
+                          <div className="flex items-center gap-4">
+                            <span className="w-8 h-8 rounded-xl bg-white flex items-center justify-center text-xs font-black text-slate-400 group-hover:text-amber-500 shadow-sm">{idx + 1}</span>
+                            <span className="font-bold text-slate-900">{loc}</span>
+                          </div>
+                          <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-lg text-[10px] font-black uppercase">{count} {language === 'en' ? 'Searches' : 'தேடல்கள்'}</span>
+                        </div>
+                    ))}
+                    {(!viewingUsage.usageStats?.locationFrequency || Object.keys(viewingUsage.usageStats.locationFrequency).length === 0) && (
+                      <p className="text-center py-6 text-slate-300 italic text-sm">No location data available yet.</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Complete History Timeline */}
+                <div>
+                  <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6 flex items-center gap-4">
+                    {language === 'en' ? 'Activity Timeline' : 'செயல்பாட்டு காலவரிசை'}
+                    <div className="h-px flex-1 bg-slate-100" />
+                  </h4>
+                  <div className="space-y-6 pl-4 border-l-2 border-slate-50">
+                    {(viewingUsage.usageStats?.lastLocations || []).length === 0 ? (
+                      <p className="text-center py-8 text-slate-300 font-black uppercase tracking-widest text-[10px] italic">{language === 'en' ? 'No recent activity' : 'சமீபத்திய செயல்பாடு இல்லை'}</p>
+                    ) : (
+                      viewingUsage.usageStats.lastLocations.map((h, i) => (
+                        <div key={i} className="relative">
+                          <div className="absolute -left-[25px] top-1 w-4 h-4 rounded-full bg-white border-4 border-slate-100" />
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-3">
+                              <span className="text-sm font-black text-slate-900 truncate max-w-[200px]">{h.name}</span>
+                              <span className="px-2 py-0.5 bg-slate-100 text-slate-400 rounded text-[9px] font-black uppercase tracking-wider">{h.type || 'Search'}</span>
+                            </div>
+                            <span className="text-[10px] font-bold text-slate-400">
+                              {new Date(h.timestamp).toLocaleString(language === 'en' ? 'en-US' : 'ta-IN', {
+                                dateStyle: 'medium',
+                                timeStyle: 'short'
+                              })}
+                            </span>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
               </div>
-              <div className="p-8 pt-0">
-                <button onClick={() => setViewingUsage(null)} className="w-full py-5 bg-slate-900 text-white text-sm font-black uppercase rounded-2xl shadow-xl shadow-slate-900/10 active:scale-95 transition-all">
-                  {language === 'en' ? 'Close' : 'மூடவும்'}
+
+              <div className="p-10 bg-slate-50/50 border-t border-slate-50">
+                <button onClick={() => setViewingUsage(null)} className="w-full py-6 bg-slate-900 text-white text-sm font-black uppercase tracking-[0.2em] rounded-3xl shadow-xl shadow-slate-900/10 active:scale-95 transition-all">
+                  {language === 'en' ? 'Dismiss Intelligence' : 'வெளியேறு'}
                 </button>
               </div>
             </div>

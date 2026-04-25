@@ -5,6 +5,7 @@ import { AdminShell } from './pages/admin/AdminShell.jsx';
 import { DashboardPage } from './pages/admin/DashboardPage.jsx';
 import { UsersPage } from './pages/admin/UsersPage.jsx';
 import { SubscriptionsPage } from './pages/admin/SubscriptionsPage.jsx';
+import { ReportsPage } from './pages/admin/ReportsPage.jsx';
 import { PalangalPage } from './pages/admin/PalangalPage.jsx';
 import { SettingsPage } from './pages/admin/SettingsPage.jsx';
 import { UserPortal } from './pages/user/UserPortal.jsx';
@@ -60,6 +61,7 @@ export function App() {
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="users" element={<UsersPage />} />
             <Route path="subscriptions" element={<SubscriptionsPage />} />
+            <Route path="reports" element={<ReportsPage />} />
             <Route path="palangal" element={<PalangalPage />} />
             <Route path="settings" element={<SettingsPage />} />
           </Route>

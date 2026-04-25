@@ -218,6 +218,7 @@ export async function recordUsage(userId, { type, location }) {
       downloadsCount: 0,
       nallaNeramCount: 0,
       lastLocations: [],
+      locationFrequency: {}, // Added to track major search locations
       lastUsedAt: null,
     };
   }
@@ -227,14 +228,20 @@ export async function recordUsage(userId, { type, location }) {
   if (type === 'nallaNeram') user.usageStats.nallaNeramCount++;
 
   if (location) {
+    // 1. Maintain detailed history (Extended to 100)
     user.usageStats.lastLocations.unshift({
       name: location,
+      type, // Track which feature was used for this location
       timestamp: new Date().toISOString(),
     });
-    // Keep last 10 locations
-    if (user.usageStats.lastLocations.length > 10) {
+    if (user.usageStats.lastLocations.length > 100) {
       user.usageStats.lastLocations.pop();
     }
+
+    // 2. Track location frequency (Pro information about major searches)
+    if (!user.usageStats.locationFrequency) user.usageStats.locationFrequency = {};
+    const freq = user.usageStats.locationFrequency[location] || 0;
+    user.usageStats.locationFrequency[location] = freq + 1;
   }
 
   user.usageStats.lastUsedAt = new Date().toISOString();

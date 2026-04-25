@@ -2,7 +2,8 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth.jsx';
 import { 
   IconUsers, IconList, IconSettings, IconDashboard, 
-  IconLogout, IconArrowRight, IconZap, IconCreditCard 
+  IconLogout, IconArrowRight, IconZap, IconCreditCard,
+  IconChartBar 
 } from '../../components/Icons.jsx';
 
 export function AdminShell() {
@@ -34,6 +35,7 @@ export function AdminShell() {
           <NavItem to="/admin" icon={IconDashboard} label="Dashboard" sub="முகப்பு" end />
           <NavItem to="/admin/users" icon={IconUsers} label="Users" sub="பயனர்கள்" />
           <NavItem to="/admin/subscriptions" icon={IconCreditCard} label="Subscriptions" sub="சந்தா" />
+          <NavItem to="/admin/reports" icon={IconChartBar} label="Reports" sub="அறிக்கைகள்" />
           <NavItem to="/admin/palangal" icon={IconList} label="Palangal" sub="பலன்கள்" />
           <NavItem to="/admin/settings" icon={IconSettings} label="Settings" sub="அமைப்புகள்" />
         </nav>
