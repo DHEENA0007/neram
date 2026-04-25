@@ -11,10 +11,14 @@
       "createdAt": "2026-04-08T10:06:33.222Z",
       "updatedAt": "2026-04-20T18:27:09.460Z",
       "usageStats": {
-        "generationsCount": 12,
+        "generationsCount": 13,
         "downloadsCount": 0,
         "nallaNeramCount": 0,
         "lastLocations": [
+          {
+            "name": "Karur, Tamil Nadu, India",
+            "timestamp": "2026-04-25T07:56:11.951Z"
+          },
           {
             "name": "Karur, Tamil Nadu, India",
             "timestamp": "2026-04-25T07:43:18.806Z"
@@ -50,13 +54,9 @@
           {
             "name": "Karur, Tamil Nadu, India",
             "timestamp": "2026-04-25T06:03:11.629Z"
-          },
-          {
-            "name": "Karur, Tamil Nadu, India",
-            "timestamp": "2026-04-25T06:00:36.800Z"
           }
         ],
-        "lastUsedAt": "2026-04-25T07:43:18.806Z"
+        "lastUsedAt": "2026-04-25T07:56:11.951Z"
       }
     },
     {
