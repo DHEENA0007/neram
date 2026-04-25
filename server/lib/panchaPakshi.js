@@ -215,25 +215,38 @@ function calculateSpecialPeriods({ sunrise, sunset, weekdayIndex, timezone }) {
   };
 }
 
-const GOWRI_TYPES = [
-  { key: 'amritham', label: 'Amritham', tamil: 'அமிர்தம்', nature: 'good' },
-  { key: 'siddham', label: 'Siddham', tamil: 'சித்தம்', nature: 'good' },
-  { key: 'rogam', label: 'Rogam', tamil: 'ரோகம்', nature: 'bad' },
-  { key: 'labham', label: 'Labham', tamil: 'லாபம்', nature: 'good' },
-  { key: 'sugam', label: 'Sugam', tamil: 'சுகம்', nature: 'good' },
-  { key: 'soram', label: 'Soram', tamil: 'சோரம்', nature: 'bad' },
-  { key: 'dhanam', label: 'Dhanam', tamil: 'தனம்', nature: 'good' },
-  { key: 'visham', label: 'Visham', tamil: 'விஷம்', nature: 'bad' },
+// Day Gowri cycle: உத்தி→அமிர்→ரோகம்→லாபம்→தனம்→சுகம்→விஷம்→சோரம்
+const GOWRI_DAY_TYPES = [
+  { key: 'uthi',     label: 'Uthi',     tamil: 'உத்தி',    nature: 'good' }, // 0
+  { key: 'amritham', label: 'Amritham', tamil: 'அமிர்தம்', nature: 'good' }, // 1
+  { key: 'rogam',    label: 'Rogam',    tamil: 'ரோகம்',    nature: 'bad'  }, // 2
+  { key: 'labham',   label: 'Labham',   tamil: 'லாபம்',    nature: 'good' }, // 3
+  { key: 'dhanam',   label: 'Dhanam',   tamil: 'தனம்',     nature: 'good' }, // 4
+  { key: 'sugam',    label: 'Sugam',    tamil: 'சுகம்',    nature: 'good' }, // 5
+  { key: 'visham',   label: 'Visham',   tamil: 'விஷம்',    nature: 'bad'  }, // 6
+  { key: 'soram',    label: 'Soram',    tamil: 'சோரம்',    nature: 'bad'  }, // 7
+];
+
+// Night Gowri cycle: சோரம் and விஷம் are swapped compared to day
+const GOWRI_NIGHT_TYPES = [
+  { key: 'uthi',     label: 'Uthi',     tamil: 'உத்தி',    nature: 'good' }, // 0
+  { key: 'amritham', label: 'Amritham', tamil: 'அமிர்தம்', nature: 'good' }, // 1
+  { key: 'rogam',    label: 'Rogam',    tamil: 'ரோகம்',    nature: 'bad'  }, // 2
+  { key: 'labham',   label: 'Labham',   tamil: 'லாபம்',    nature: 'good' }, // 3
+  { key: 'dhanam',   label: 'Dhanam',   tamil: 'தனம்',     nature: 'good' }, // 4
+  { key: 'sugam',    label: 'Sugam',    tamil: 'சுகம்',    nature: 'good' }, // 5
+  { key: 'soram',    label: 'Soram',    tamil: 'சோரம்',    nature: 'bad'  }, // 6 ← swapped
+  { key: 'visham',   label: 'Visham',   tamil: 'விஷம்',    nature: 'bad'  }, // 7 ← swapped
 ];
 
 const WEEKDAY_GOWRI_START_INDEX = {
-  0: 6, // Sunday -> Dhanam
-  1: 0, // Monday -> Amritham
-  2: 1, // Tuesday -> Siddham
-  3: 2, // Wednesday -> Rogam
-  4: 3, // Thursday -> Labham
-  5: 4, // Friday -> Sugam
-  6: 5, // Saturday -> Soram
+  0: 0, // Sunday    -> உத்தி
+  1: 1, // Monday    -> அமிர்தம்
+  2: 2, // Tuesday   -> ரோகம்
+  3: 3, // Wednesday -> லாபம்
+  4: 4, // Thursday  -> தனம்
+  5: 5, // Friday    -> சுகம்
+  6: 7, // Saturday  -> சோரம் (index 7; விஷம்/6 is never a weekday start in traditional Gowri)
 };
 
 function calculateGowriSchedule({ sunrise, sunset, nextSunrise, weekdayIndex, timezone }) {
@@ -254,7 +267,7 @@ function calculateGowriSchedule({ sunrise, sunset, nextSunrise, weekdayIndex, ti
       end:   end.toISO({ suppressMilliseconds: true }),
       startLabel: start.toFormat('hh:mm:ss a'),
       endLabel:   end.toFormat('hh:mm:ss a'),
-      type: GOWRI_TYPES[(startIndex + i) % 8],
+      type: GOWRI_DAY_TYPES[(startIndex + i) % 8],
     });
   }
   // 8 night sections — proportional to actual night length
@@ -267,7 +280,7 @@ function calculateGowriSchedule({ sunrise, sunset, nextSunrise, weekdayIndex, ti
       end:   end.toISO({ suppressMilliseconds: true }),
       startLabel: start.toFormat('hh:mm:ss a'),
       endLabel:   end.toFormat('hh:mm:ss a'),
-      type: GOWRI_TYPES[(startIndex + 8 + i) % 8],
+      type: GOWRI_NIGHT_TYPES[(startIndex + 4 + i) % 8], // night starts 4 positions ahead; uses swapped cycle
     });
   }
   return gowri;
