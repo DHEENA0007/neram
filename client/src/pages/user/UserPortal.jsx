@@ -392,25 +392,25 @@ export function UserPortal() {
 
           <div className={`${isSidebar ? '' : 'md:col-span-4'} flex flex-col gap-2.5`}>
             <label className="text-xs font-black text-slate-700 uppercase tracking-widest ml-1">{t.paksha_type}</label>
-            <div className="flex gap-1 p-1.5 bg-slate-100/50 rounded-2xl border border-slate-100 flex-1">
+            <div className="flex gap-1 p-1.5 bg-slate-100/50 rounded-2xl border border-slate-100 flex-1 min-h-[48px]">
               <button 
                 type="button"
                 onClick={() => { setPaksha('bright'); setAutoPaksha(false); }}
-                className={`flex-1 flex items-center justify-center rounded-xl text-xs font-black uppercase tracking-widest transition-all ${paksha === 'bright' && !autoPaksha ? 'bg-white text-emerald-600 shadow-md ring-1 ring-emerald-500/10' : 'text-slate-400 hover:text-slate-600'}`}
+                className={`flex-1 py-3 flex items-center justify-center rounded-xl text-xs font-black uppercase tracking-widest transition-all ${paksha === 'bright' && !autoPaksha ? 'bg-amber-400 text-amber-950 shadow-md ring-1 ring-amber-500/10' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}`}
               >
                 {lang === 'ta' ? 'வளர்பிறை' : 'Bright'}
               </button>
               <button 
                 type="button"
                 onClick={() => { setPaksha('dark'); setAutoPaksha(false); }}
-                className={`flex-1 flex items-center justify-center rounded-xl text-xs font-black uppercase tracking-widest transition-all ${paksha === 'dark' && !autoPaksha ? 'bg-white text-indigo-600 shadow-md ring-1 ring-indigo-500/10' : 'text-slate-400 hover:text-slate-600'}`}
+                className={`flex-1 py-3 flex items-center justify-center rounded-xl text-xs font-black uppercase tracking-widest transition-all ${paksha === 'dark' && !autoPaksha ? 'bg-amber-400 text-amber-950 shadow-md ring-1 ring-amber-500/10' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}`}
               >
                 {lang === 'ta' ? 'தேயிறை' : 'Dark'}
               </button>
               <button 
                 type="button"
                 onClick={() => setAutoPaksha(true)}
-                className={`flex-1 flex items-center justify-center rounded-xl text-xs font-black uppercase tracking-widest transition-all ${autoPaksha ? 'bg-amber-400 text-amber-950 shadow-md ring-1 ring-amber-500/10' : 'text-slate-400 hover:text-slate-600'}`}
+                className={`flex-1 py-3 flex items-center justify-center rounded-xl text-xs font-black uppercase tracking-widest transition-all ${autoPaksha ? 'bg-amber-400 text-amber-950 shadow-md ring-1 ring-amber-500/10' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}`}
               >
                 {t.auto}
               </button>
