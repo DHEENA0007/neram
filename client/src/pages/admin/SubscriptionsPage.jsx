@@ -19,16 +19,19 @@ function Field({ label, children }) {
 export function SubscriptionsPage() {
   const { language } = useAuth();
   const [users, setUsers] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [addSearch, setAddSearch] = useState('');
   const [editingUser, setEditingUser] = useState(null);
+  const [showAddModal, setShowAddModal] = useState(false);
   const [saving, setSaving] = useState(false);
 
   async function fetchUsers() {
     setLoading(true);
     try {
       const data = await loadAdminUsers();
-      // Filter only subscribed users
+      setAllUsers(data.users || []);
       setUsers((data.users || []).filter(u => u.userType === 'subscribed'));
     } catch (err) {
       console.error(err);
@@ -40,11 +43,29 @@ export function SubscriptionsPage() {
   useEffect(() => { fetchUsers(); }, []);
 
   async function handleSave(e) {
-    e.preventDefault();
+    if (e) e.preventDefault();
     setSaving(true);
     try {
       await updateAdminUser(editingUser.id, {
+        userType: editingUser.userType || 'subscribed',
         subscriptionConfig: editingUser.subscriptionConfig
+      });
+      setEditingUser(null);
+      fetchUsers();
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDeleteSubscription() {
+    if (!window.confirm(language === 'en' ? 'Are you sure you want to remove this subscription?' : 'இந்த சந்தாவை நீக்க விரும்புகிறீர்களா?')) return;
+    setSaving(true);
+    try {
+      await updateAdminUser(editingUser.id, {
+        userType: 'demo',
+        subscriptionConfig: null
       });
       setEditingUser(null);
       fetchUsers();
@@ -59,6 +80,11 @@ export function SubscriptionsPage() {
     u.name.toLowerCase().includes(search.toLowerCase()) || 
     u.username.toLowerCase().includes(search.toLowerCase())
   );
+
+  const potentialSubscribers = allUsers.filter(u => u.userType !== 'subscribed' && (
+     u.name.toLowerCase().includes(addSearch.toLowerCase()) || 
+     u.username.toLowerCase().includes(addSearch.toLowerCase())
+  ));
 
   const stats = {
     total: users.length,
@@ -80,10 +106,17 @@ export function SubscriptionsPage() {
           <p className="text-slate-400 font-medium mt-2 text-lg">{T_SUBTITLE}</p>
         </div>
 
-        <div className="flex gap-4">
+        <div className="flex flex-wrap items-end gap-4">
           <StatCard label="Active" value={stats.active} color="emerald" language={language} />
           <StatCard label="Expired" value={stats.expired} color="rose" language={language} />
           <StatCard label="Total" value={stats.total} color="slate" language={language} />
+          <button 
+            onClick={() => setShowAddModal(true)}
+            className="h-16 px-8 bg-slate-900 text-white rounded-[2rem] font-black uppercase tracking-widest text-xs flex items-center gap-3 hover:bg-black transition-all shadow-xl shadow-slate-900/10"
+          >
+            <IconPlus size={20} />
+            {language === 'en' ? 'Add Subscriber' : 'சந்தாதாரரைச் சேர்'}
+          </button>
         </div>
       </div>
 
@@ -170,6 +203,63 @@ export function SubscriptionsPage() {
           </div>
         )}
       </div>
+
+      {/* Add Subscription Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-md">
+           <div className="bg-[#f8fafc] w-full max-w-2xl rounded-[3.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+              <div className="p-10 bg-white border-b border-slate-100 flex items-center justify-between">
+                <div>
+                   <h3 className="text-4xl font-black text-slate-900">{language === 'en' ? 'New Subscription' : 'புதிய சந்தாதாரர்'}</h3>
+                   <p className="text-xs font-black text-slate-400 uppercase tracking-widest mt-1.5">{language === 'en' ? 'Search and promote a user' : 'பயனரைத் தேடி சந்தாதாரராக உயர்த்தவும்'}</p>
+                </div>
+                <button onClick={() => setShowAddModal(false)} className="w-12 h-12 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center hover:bg-rose-50 hover:text-rose-500 transition-all">
+                  <IconX size={24} />
+                </button>
+              </div>
+
+              <div className="p-8">
+                <div className="relative mb-8">
+                  <IconSearch className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300" size={20} />
+                  <input 
+                    type="text" 
+                    placeholder="Search by name or username..."
+                    className="w-full bg-white border border-slate-100 outline-none pl-16 pr-6 py-4 rounded-2xl text-sm font-bold text-slate-900 shadow-sm transition-all focus:ring-2 focus:ring-amber-500/10"
+                    value={addSearch}
+                    onChange={e => setAddSearch(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-3 overflow-y-auto max-h-[40vh] pr-2 custom-scrollbar">
+                   {potentialSubscribers.map(u => (
+                     <button 
+                      key={u.id}
+                      onClick={() => {
+                        setEditingUser({ ...u, userType: 'subscribed', subscriptionConfig: { plan: 'pro', features: ['panchaPakshi', 'nallaNeram', 'download'] } });
+                        setShowAddModal(false);
+                      }}
+                      className="w-full flex items-center justify-between p-6 bg-white rounded-[2rem] border border-slate-100 hover:border-amber-400 hover:shadow-xl hover:shadow-amber-500/5 transition-all group"
+                     >
+                       <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center font-black text-slate-400 group-hover:bg-amber-50 group-hover:text-amber-500 transition-all">{u.name[0]}</div>
+                          <div className="text-left">
+                             <p className="font-black text-slate-900 leading-none mb-1">{u.name}</p>
+                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">@{u.username}</p>
+                          </div>
+                       </div>
+                       <div className="text-amber-500 opacity-0 group-hover:opacity-100 transition-all">
+                          <IconPlus size={24} />
+                       </div>
+                     </button>
+                   ))}
+                   {potentialSubscribers.length === 0 && (
+                     <div className="py-12 text-center text-slate-400 font-bold italic">No eligible users found.</div>
+                   )}
+                </div>
+              </div>
+           </div>
+        </div>
+      )}
 
       {/* Edit Subscription Modal */}
       {editingUser && (
@@ -260,12 +350,21 @@ export function SubscriptionsPage() {
 
               </form>
 
-              <div className="p-10 bg-slate-50/50 border-t border-slate-50">
+              <div className="p-10 bg-slate-50/50 border-t border-slate-50 flex items-center gap-4">
+                <button 
+                  type="button"
+                  onClick={handleDeleteSubscription}
+                  disabled={saving}
+                  className="px-8 py-6 bg-rose-50 text-rose-600 text-xs font-black uppercase tracking-widest rounded-3xl hover:bg-rose-100 transition-all flex items-center gap-2"
+                >
+                  <IconX size={18} />
+                  {language === 'en' ? 'Delete' : 'நீக்கு'}
+                </button>
                 <button 
                   type="submit"
                   disabled={saving}
                   onClick={handleSave}
-                  className="w-full py-6 bg-slate-900 text-white text-sm font-black uppercase tracking-[0.2em] rounded-3xl shadow-2xl shadow-slate-900/20 active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+                  className="flex-1 py-6 bg-slate-900 text-white text-sm font-black uppercase tracking-[0.2em] rounded-3xl shadow-2xl shadow-slate-900/20 active:scale-[0.98] transition-all flex items-center justify-center gap-3"
                 >
                   {saving ? (
                     <span className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
