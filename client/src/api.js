@@ -1,8 +1,11 @@
 async function apiFetch(path, options = {}) {
+  const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+  if (headers['Content-Type'] === undefined) delete headers['Content-Type'];
+
   const response = await fetch(path, {
     credentials: 'include',
-    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
     ...options,
+    headers
   });
 
   const contentType = response.headers.get('content-type') || '';
@@ -133,6 +136,15 @@ export function loadAdminSettings() {
 }
 export function updateAdminSettings(payload) {
   return apiFetch('/api/admin/settings', { method: 'POST', body: JSON.stringify(payload) });
+}
+export function uploadBrandingLogo(file) {
+  const formData = new FormData();
+  formData.append('logo', file);
+  return apiFetch('/api/admin/branding/logo', { 
+    method: 'POST', 
+    body: formData,
+    headers: { 'Content-Type': undefined } // Let the browser set it with boundary
+  });
 }
 export function requestBrandingAccess() {
   return apiFetch('/api/user/branding-request', { method: 'POST' });

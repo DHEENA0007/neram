@@ -5,6 +5,36 @@ import jwt from 'jsonwebtoken';
 import dns from 'node:dns';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import multer from 'multer';
+import fs from 'node:fs';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const rootDir = path.join(__dirname, '..');
+const publicDir = path.join(rootDir, 'server', 'public');
+const uploadsDir = path.join(publicDir, 'uploads');
+const brandingDir = path.join(uploadsDir, 'branding');
+const distDir = path.join(rootDir, 'dist');
+
+// Ensure upload directory exists
+if (!fs.existsSync(brandingDir)) {
+  fs.mkdirSync(brandingDir, { recursive: true });
+}
+
+// Multer storage config
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, brandingDir);
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname);
+    cb(null, `logo-${Date.now()}${ext}`);
+  }
+});
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 2 * 1024 * 1024 } // 2MB limit
+});
+
 import {
   authenticateUser,
   createUser,
@@ -24,9 +54,6 @@ import {
 import { buildPanchaPakshiSchedule, ensurePanchaPakshiDataLoaded, searchPlaces, getBirdIdFromName } from './lib/panchaPakshi.js';
 import { birdOptions } from '../shared/constants.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const rootDir = path.join(__dirname, '..');
-const distDir = path.join(rootDir, 'dist');
 const PORT = Number(process.env.PORT || 5000);
 const JWT_SECRET = process.env.JWT_SECRET || 'neram-dev-secret';
 const COOKIE_NAME = 'neram_token';
@@ -43,6 +70,9 @@ app.use(
 );
 app.use(express.json({ limit: '1mb' }));
 app.use(cookieParser());
+
+// Serve uploaded files
+app.use('/uploads', express.static(uploadsDir));
 
 function signToken(user) {
   return jwt.sign(
@@ -573,6 +603,21 @@ app.delete(
     } catch (err) {
       return res.status(500).json({ error: err.message });
     }
+  }),
+);
+
+app.post(
+  '/api/admin/branding/logo',
+  requireUser,
+  requireRole('admin'),
+  upload.single('logo'),
+  asyncRoute(async (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+    // Return relative URL to the file
+    const logoUrl = `/uploads/branding/${req.file.filename}`;
+    return res.json({ logoUrl });
   }),
 );
 

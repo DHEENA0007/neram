@@ -1,4 +1,4 @@
-import { updateAdminProfile, loadAdminSettings, updateAdminSettings } from '../../api.js';
+import { updateAdminProfile, loadAdminSettings, updateAdminSettings, uploadBrandingLogo } from '../../api.js';
 import { useAuth } from '../../auth.jsx';
 import { IconShield, IconCheckCircle, IconZap, IconLock, IconSettings, IconExternalLink, IconPlus, IconTrash } from '../../components/Icons.jsx';
 import { useEffect, useState } from 'react';
@@ -209,10 +209,38 @@ export function SettingsPage() {
               </div>
 
               <div className="flex flex-col gap-1.5 focus-within:ring-2 ring-amber-500/20 rounded-xl transition-all">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{language === 'en' ? 'Report Logo URL' : 'அறிக்கை லோகோ URL'}</label>
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{language === 'en' ? 'Report Logo' : 'அறிக்கை லோகோ'}</label>
                 <div className="flex gap-4 items-center">
-                  <img src={branding.logoUrl} alt="Logo Preview" className="w-12 h-12 object-contain bg-slate-50 rounded-lg border border-slate-100" onError={(e) => { e.target.src = '/logo.png' }} />
-                  <input className="text-input flex-1" value={branding.logoUrl} onChange={e => setBranding({...branding, logoUrl: e.target.value})} placeholder="/logo.png or https://..." />
+                  <div className="relative group/logo">
+                    <img src={branding.logoUrl} alt="Logo Preview" className="w-16 h-16 object-contain bg-slate-50 rounded-xl border-2 border-slate-100 group-hover/logo:border-amber-300 transition-all" onError={(e) => { e.target.src = '/logo.png' }} />
+                    <label className="absolute inset-0 flex items-center justify-center bg-black/40 text-white opacity-0 group-hover/logo:opacity-100 rounded-xl cursor-pointer transition-all">
+                      <span className="text-[8px] font-black uppercase tracking-widest">{language === 'en' ? 'Upload' : 'பதிவேற்று'}</span>
+                      <input 
+                        type="file" 
+                        className="hidden" 
+                        accept="image/*" 
+                        onChange={async (e) => {
+                          const file = e.target.files[0];
+                          if (!file) return;
+                          try {
+                            setSaving(true);
+                            const { logoUrl } = await uploadBrandingLogo(file);
+                            setBranding({ ...branding, logoUrl });
+                          } catch (err) {
+                            alert(err.message);
+                          } finally {
+                            setSaving(false);
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <input className="text-input w-full text-[11px]" value={branding.logoUrl} onChange={e => setBranding({...branding, logoUrl: e.target.value})} placeholder="/logo.png or https://..." />
+                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
+                      {language === 'en' ? 'Click on preview to upload from local machine' : 'லோகோவை மாற்ற அதன் மீது கிளிக் செய்யவும்'}
+                    </p>
+                  </div>
                 </div>
               </div>
 
