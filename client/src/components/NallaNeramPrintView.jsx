@@ -42,10 +42,14 @@ export function NallaNeramPrintView({ nallaSlots, avoidPeriods, lang, date, bran
       {branding && (
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 20, marginBottom: 30, borderBottom: '2px solid #f1f5f9' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <img src="/logo.png" style={{ height: 45, width: 'auto' }} />
+            <img src={branding.logoUrl || '/logo.png'} style={{ height: 45, width: 'auto' }} />
             <div>
-               <div style={{ fontSize: 14, fontWeight: 900, color: '#0f172a' }}>{branding.astrologerName || 'Sri Vinayaga Astro'}</div>
-               <div style={{ fontSize: 10, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>{branding.companyName}</div>
+               <div style={{ fontSize: 14, fontWeight: 900, color: '#0f172a' }}>
+                 {t ? (branding.astrologerNameTa || branding.astrologerNameEn || branding.astrologerName) : (branding.astrologerNameEn || branding.astrologerName)}
+               </div>
+               <div style={{ fontSize: 10, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
+                 {t ? (branding.companyNameTa || branding.companyNameEn || branding.companyName) : (branding.companyNameEn || branding.companyName)}
+               </div>
             </div>
           </div>
           <div style={{ textAlign: 'right' }}>
@@ -123,10 +127,14 @@ export function NallaNeramPrintView({ nallaSlots, avoidPeriods, lang, date, bran
               <div style={{ fontSize: 9, fontWeight: 700, color: '#475569' }}>{t ? 'வாட்ஸ்அப்:' : 'WhatsApp:'} {branding.whatsapp}</div>
               <div style={{ fontSize: 9, fontWeight: 700, color: '#475569' }}>{t ? 'இணையதளம்:' : 'Website:'} {branding.website}</div>
             </div>
-            {branding.address && (
+            {branding.addressEn && (
               <div>
-                <div style={{ fontSize: 8, fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', marginBottom: 4 }}>Address</div>
-                <div style={{ fontSize: 9, fontWeight: 700, color: '#475569' }}>{branding.address}</div>
+                <div style={{ fontSize: 8, fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', marginBottom: 4 }}>
+                  {t ? 'முகவரி' : 'Address'}
+                </div>
+                <div style={{ fontSize: 9, fontWeight: 700, color: '#475569' }}>
+                   {t ? (branding.addressTa || branding.addressEn || branding.address) : (branding.addressEn || branding.address)}
+                </div>
               </div>
             )}
           </div>

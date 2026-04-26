@@ -493,10 +493,14 @@ export function RangePrintView({ rangeData, categories, lang, locationName, from
           ...baseFont
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <img src="/logo.png" style={{ height: 45, width: 'auto' }} />
+            <img src={branding.logoUrl || '/logo.png'} style={{ height: 45, width: 'auto' }} />
             <div>
-               <div style={{ fontSize: 14, fontWeight: 900, color: '#0f172a' }}>{branding.astrologerName || 'Sri Vinayaga Astro'}</div>
-               <div style={{ fontSize: 10, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>{branding.companyName}</div>
+               <div style={{ fontSize: 14, fontWeight: 900, color: '#0f172a' }}>
+                 {tl ? (branding.astrologerNameTa || branding.astrologerNameEn || branding.astrologerName) : (branding.astrologerNameEn || branding.astrologerName)}
+               </div>
+               <div style={{ fontSize: 10, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
+                 {tl ? (branding.companyNameTa || branding.companyNameEn || branding.companyName) : (branding.companyNameEn || branding.companyName)}
+               </div>
             </div>
           </div>
           <div style={{ textAlign: 'right' }}>
@@ -556,10 +560,14 @@ export function RangePrintView({ rangeData, categories, lang, locationName, from
               </div>
             </div>
             
-            {branding.address && (
+            {branding.addressEn && (
               <div>
-                <div style={{ fontSize: 8, fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', marginBottom: 4 }}>Address</div>
-                <div style={{ fontSize: 9, fontWeight: 700, color: '#475569', maxWidth: 200 }}>{branding.address}</div>
+                <div style={{ fontSize: 8, fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', marginBottom: 4 }}>
+                  {tl ? 'முகவரி' : 'Address'}
+                </div>
+                <div style={{ fontSize: 9, fontWeight: 700, color: '#475569', maxWidth: 200 }}>
+                  {tl ? (branding.addressTa || branding.addressEn || branding.address) : (branding.addressEn || branding.address)}
+                </div>
               </div>
             )}
           </div>

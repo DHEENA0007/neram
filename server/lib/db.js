@@ -84,8 +84,11 @@ export async function loadDb() {
   // Seed default global branding
   if (!db.settings.branding) {
     db.settings.branding = {
-      astrologerName: 'Sri Vinayaga Astro',
-      companyName: 'Astro Services',
+      logoUrl: '/logo.png',
+      astrologerNameEn: 'Sri Vinayaga Astro',
+      astrologerNameTa: 'ஸ்ரீ விநாயகா ஆஸ்ட்ரோ',
+      companyNameEn: 'Astro Services',
+      companyNameTa: 'ஆஸ்ட்ரோ சர்வீசஸ்',
       mobile: '+91 98765 43210',
       whatsapp: '+91 98765 43210',
       website: 'www.srivinayagaastro.com',
@@ -93,7 +96,8 @@ export async function loadDb() {
         { platform: 'Facebook', url: '#' },
         { platform: 'Instagram', url: '#' }
       ],
-      address: '123, Celestial Way, Tamil Nadu',
+      addressEn: '123, Celestial Way, Tamil Nadu',
+      addressTa: '123, வானியல் வழி, தமிழ்நாடு',
     };
   }
 

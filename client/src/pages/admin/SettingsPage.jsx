@@ -14,18 +14,36 @@ export function SettingsPage() {
 
   // Branding State
   const [branding, setBranding] = useState({
-    astrologerName: '',
-    companyName: '',
+    logoUrl: '/logo.png',
+    astrologerNameEn: '',
+    astrologerNameTa: '',
+    companyNameEn: '',
+    companyNameTa: '',
     mobile: '',
     whatsapp: '',
     website: '',
     socialMedia: [],
-    address: '',
+    addressEn: '',
+    addressTa: '',
   });
 
   useEffect(() => {
     loadAdminSettings().then(s => {
-      if (s.branding) setBranding(s.branding);
+      if (s.branding) {
+        // Migration/Compatibility handle
+        const b = s.branding;
+        setBranding({
+          ...branding,
+          ...b,
+          astrologerNameEn: b.astrologerNameEn || b.astrologerName || '',
+          astrologerNameTa: b.astrologerNameTa || '',
+          companyNameEn: b.companyNameEn || b.companyName || '',
+          companyNameTa: b.companyNameTa || '',
+          addressEn: b.addressEn || b.address || '',
+          addressTa: b.addressTa || '',
+          logoUrl: b.logoUrl || '/logo.png'
+        });
+      }
     }).catch(console.error);
   }, []);
 
@@ -190,14 +208,33 @@ export function SettingsPage() {
                 <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-1">{language === 'en' ? 'Configure default header/footer for generated reports' : 'அறிக்கைகளுக்கான இயல்புநிலை தலைப்பு/அடிக்குறிப்பை உள்ளமைக்கவும்'}</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-6">
-                <div className="flex flex-col gap-1.5 focus-within:ring-2 ring-amber-500/20 rounded-xl transition-all">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{language === 'en' ? 'Astrologer Name' : 'ஜோதிடர் பெயர்'}</label>
-                  <input className="text-input" value={branding.astrologerName} onChange={e => setBranding({...branding, astrologerName: e.target.value})} placeholder="e.g. Sri Vinayaga Astro" />
+              <div className="flex flex-col gap-1.5 focus-within:ring-2 ring-amber-500/20 rounded-xl transition-all">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{language === 'en' ? 'Report Logo URL' : 'அறிக்கை லோகோ URL'}</label>
+                <div className="flex gap-4 items-center">
+                  <img src={branding.logoUrl} alt="Logo Preview" className="w-12 h-12 object-contain bg-slate-50 rounded-lg border border-slate-100" onError={(e) => { e.target.src = '/logo.png' }} />
+                  <input className="text-input flex-1" value={branding.logoUrl} onChange={e => setBranding({...branding, logoUrl: e.target.value})} placeholder="/logo.png or https://..." />
                 </div>
-                <div className="flex flex-col gap-1.5 focus-within:ring-2 ring-amber-500/20 rounded-xl transition-all">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{language === 'en' ? 'Company Name' : 'நிறுவனத்தின் பெயர்'}</label>
-                  <input className="text-input" value={branding.companyName} onChange={e => setBranding({...branding, companyName: e.target.value})} placeholder="e.g. Astro Services" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Astrologer Name (English)</label>
+                  <input className="text-input" value={branding.astrologerNameEn} onChange={e => setBranding({...branding, astrologerNameEn: e.target.value})} placeholder="e.g. Sri Vinayaga Astro" />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">ஜோதிடர் பெயர் (Tamil)</label>
+                  <input className="text-input" value={branding.astrologerNameTa} onChange={e => setBranding({...branding, astrologerNameTa: e.target.value})} placeholder="எ.கா. ஸ்ரீ விநாயகா ஆஸ்ட்ரோ" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Company Name (English)</label>
+                  <input className="text-input" value={branding.companyNameEn} onChange={e => setBranding({...branding, companyNameEn: e.target.value})} placeholder="e.g. Astro Services" />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">நிறுவனத்தின் பெயர் (Tamil)</label>
+                  <input className="text-input" value={branding.companyNameTa} onChange={e => setBranding({...branding, companyNameTa: e.target.value})} placeholder="எ.கா. ஆஸ்ட்ரோ சர்வீசஸ்" />
                 </div>
               </div>
 
@@ -217,9 +254,15 @@ export function SettingsPage() {
                 <input className="text-input" value={branding.website} onChange={e => setBranding({...branding, website: e.target.value})} placeholder="www.example.com" />
               </div>
 
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{language === 'en' ? 'Office Address' : 'அலுவலக முகவரி'}</label>
-                <textarea className="text-input min-h-[80px] py-3" value={branding.address} onChange={e => setBranding({...branding, address: e.target.value})} placeholder="Full address..." />
+              <div className="grid grid-cols-2 gap-6">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Office Address (English)</label>
+                  <textarea className="text-input min-h-[80px] py-3" value={branding.addressEn} onChange={e => setBranding({...branding, addressEn: e.target.value})} placeholder="Full address in English..." />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">அலுவலக முகவரி (Tamil)</label>
+                  <textarea className="text-input min-h-[80px] py-3" value={branding.addressTa} onChange={e => setBranding({...branding, addressTa: e.target.value})} placeholder="முழு முகவரி தமிழில்..." />
+                </div>
               </div>
 
               {/* Social Media */}
