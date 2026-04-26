@@ -30,33 +30,33 @@ export function DashboardPage() {
 
   return (
     <div className="space-y-12">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
-          <p className="text-sm font-black uppercase tracking-[0.25em] text-amber-500 mb-2">
+          <p className="text-xs sm:text-sm font-black uppercase tracking-[0.2em] sm:tracking-[0.25em] text-amber-500 mb-1 sm:mb-2">
             {language === 'en' ? 'நிர்வாகம் · Portal Dashboard' : 'நிர்வாகம் · போர்டல் டாஷ்போர்டு'}
           </p>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
             {language === 'en' ? 'Overview' : 'கண்ணோட்டம்'}
           </h1>
         </div>
-        <div className="text-right">
-            <p className="text-lg font-black text-slate-900">
+        <div className="sm:text-right">
+            <p className="text-sm sm:text-lg font-black text-slate-900">
                {language === 'en' ? 'Welcome' : 'வரவேற்கிறோம்'}, {user?.name || user?.username}
             </p>
-            <span className="text-sm text-emerald-600 font-bold flex items-center justify-end gap-1.5 mt-1">
-                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" /> {language === 'en' ? 'System Active' : 'கணினி செயல்படுகிறது'}
+            <span className="text-xs sm:text-sm text-emerald-600 font-bold flex items-center sm:justify-end gap-1.5 mt-1">
+                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-500 animate-pulse" /> {language === 'en' ? 'System Active' : 'கணினி செயல்படுகிறது'}
             </span>
         </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map(s => (
-          <div key={s.label} className={`border p-6 rounded-[2rem] shadow-sm transition-all hover:scale-[1.02] ${s.theme}`}>
-             <div className="flex items-center justify-between mb-4">
-                <span className="text-sm font-black uppercase tracking-widest opacity-70">{language === 'en' ? s.label : s.tamil}</span>
-                <s.icon size={24} className=" opacity-50" />
+          <div key={s.label} className={`border p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] shadow-sm transition-all hover:scale-[1.02] ${s.theme}`}>
+             <div className="flex items-center justify-between mb-2 sm:mb-4">
+                <span className="text-xs sm:text-sm font-black uppercase tracking-wider sm:tracking-widest opacity-70">{language === 'en' ? s.label : s.tamil}</span>
+                <s.icon size={20} className="opacity-50" />
              </div>
-             <div className="text-4xl font-black mb-1">{s.val}</div>
+             <div className="text-2xl sm:text-4xl font-black mb-1">{s.val}</div>
           </div>
         ))}
       </div>
@@ -105,7 +105,7 @@ export function DashboardPage() {
           <h2 className="text-sm font-black uppercase tracking-[0.3em] text-slate-300 mb-8 flex items-center gap-4 after:h-px after:flex-1 after:bg-slate-200">
             {language === 'en' ? 'Global Top Locations' : 'முக்கிய இடங்கள்'}
           </h2>
-          <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 space-y-4 shadow-sm">
+          <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-[2.5rem] p-4 sm:p-8 space-y-3 sm:space-y-4 shadow-sm">
             {(() => {
               const globalFreq = {};
               users.forEach(u => {
@@ -118,13 +118,13 @@ export function DashboardPage() {
               if (sorted.length === 0) return <p className="text-center py-12 text-slate-300 font-bold uppercase tracking-widest text-xs italic">Gathering intelligence...</p>;
 
               return sorted.map(([loc, count], idx) => (
-                <div key={loc} className="flex items-center justify-between p-4 bg-slate-50/50 rounded-2xl border border-transparent hover:border-amber-200 hover:bg-white transition-all group">
-                  <div className="flex items-center gap-4">
-                    <span className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-xs font-black text-slate-300 group-hover:text-amber-500 shadow-sm">{idx + 1}</span>
-                    <span className="font-black text-slate-900">{loc}</span>
+                <div key={loc} className="flex items-center justify-between p-3 sm:p-4 bg-slate-50/50 rounded-xl sm:rounded-2xl border border-transparent hover:border-amber-200 hover:bg-white transition-all group gap-2">
+                  <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+                    <span className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-white flex items-center justify-center text-xs font-black text-slate-300 group-hover:text-amber-500 shadow-sm shrink-0">{idx + 1}</span>
+                    <span className="font-black text-slate-900 text-sm sm:text-base truncate">{loc}</span>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="h-1.5 w-24 bg-slate-100 rounded-full overflow-hidden">
+                  <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                    <div className="h-1.5 w-12 sm:w-24 bg-slate-100 rounded-full overflow-hidden">
                        <div className="h-full bg-amber-500 rounded-full" style={{ width: `${(count / sorted[0][1]) * 100}%` }} />
                     </div>
                     <span className="text-[10px] font-black text-slate-400 uppercase">{count}</span>
@@ -136,12 +136,12 @@ export function DashboardPage() {
         </div>
       </div>
       
-      <div className="p-6 bg-slate-900 rounded-[2.5rem] flex items-center justify-between text-white shadow-xl shadow-slate-900/10">
-         <div className="flex items-center gap-4">
-            <div className="w-4 h-4 rounded-full bg-emerald-400" />
-            <p className="text-sm font-black uppercase tracking-widest text-slate-400">Security & Intelligence Check: <span className="text-white">Passed</span></p>
+      <div className="p-4 sm:p-6 bg-slate-900 rounded-2xl sm:rounded-[2.5rem] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 text-white shadow-xl shadow-slate-900/10">
+         <div className="flex items-center gap-3 sm:gap-4">
+            <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-emerald-400 shrink-0" />
+            <p className="text-xs sm:text-sm font-black uppercase tracking-wider sm:tracking-widest text-slate-400">Security Check: <span className="text-white">Passed</span></p>
          </div>
-         <span className="text-sm font-bold text-slate-500 italic">Version 1.5.2 Build Stable</span>
+         <span className="text-xs sm:text-sm font-bold text-slate-500 italic ml-6 sm:ml-0">v1.5.2 Stable</span>
       </div>
     </div>
   );
@@ -149,12 +149,12 @@ export function DashboardPage() {
 
 function QuickLink({ to, icon: Icon, label, sub, amber }) {
   return (
-    <Link to={to} className={`p-8 bg-white border border-slate-100 rounded-[2.5rem] group hover:bg-slate-900 transition-all shadow-sm hover:shadow-2xl hover:-translate-y-1`}>
-      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 transition-all group-hover:bg-white/10 group-hover:text-white ${amber ? 'bg-amber-100 text-amber-600' : 'bg-slate-50 text-slate-400'}`}>
-        <Icon size={24} />
+    <Link to={to} className={`p-5 sm:p-8 bg-white border border-slate-100 rounded-2xl sm:rounded-[2.5rem] group hover:bg-slate-900 transition-all shadow-sm hover:shadow-2xl hover:-translate-y-1`}>
+      <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center mb-3 sm:mb-6 transition-all group-hover:bg-white/10 group-hover:text-white ${amber ? 'bg-amber-100 text-amber-600' : 'bg-slate-50 text-slate-400'}`}>
+        <Icon size={20} />
       </div>
-      <strong className="block text-xl font-black text-slate-900 group-hover:text-white mb-1 transition-colors">{label}</strong>
-      <span className="text-sm text-slate-400 block font-bold group-hover:text-white/40 transition-colors">{sub}</span>
+      <strong className="block text-base sm:text-xl font-black text-slate-900 group-hover:text-white mb-1 transition-colors">{label}</strong>
+      <span className="text-xs sm:text-sm text-slate-400 block font-bold group-hover:text-white/40 transition-colors">{sub}</span>
     </Link>
   );
 }

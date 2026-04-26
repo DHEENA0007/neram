@@ -132,30 +132,28 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai, gowri 
   return (
     <section className="glass-card overflow-hidden p-0 border-none shadow-premium animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header */}
-      <div className={`px-6 md:px-8 py-5 flex items-center justify-between border-b ${accentBg}`}>
-        <div className="flex items-center gap-4">
-          <h2 className={`text-xl md:text-2xl font-black uppercase tracking-tight ${accentTxt}`}>
-            {isDay ? c.dayTable : c.nightTable}
-          </h2>
-        </div>
+      <div className={`px-4 sm:px-6 md:px-8 py-3 sm:py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 border-b ${accentBg}`}>
+        <h2 className={`text-base sm:text-xl md:text-2xl font-black uppercase tracking-tight ${accentTxt}`}>
+          {isDay ? c.dayTable : c.nightTable}
+        </h2>
         
-        <div className="flex items-center gap-6 no-print">
+        <div className="flex items-center gap-3 sm:gap-6 no-print flex-wrap">
           {yamas[0]?.paduBird && (
-            <div className="flex flex-col items-end">
-              <span className="text-[11px] font-black uppercase tracking-widest text-slate-800">
+            <div className="flex flex-col sm:items-end">
+              <span className="text-[9px] sm:text-[11px] font-black uppercase tracking-widest text-slate-800">
                 {lang === 'ta' ? 'படுபட்சி' : 'Padu Pakshi'}
               </span>
-              <span className="text-sm font-black text-rose-600">
+              <span className="text-xs sm:text-sm font-black text-rose-600">
                 {lang === 'ta' ? yamas[0].paduBird.tamil : yamas[0].paduBird.label}
               </span>
             </div>
           )}
           {yamas[0]?.bharanaBird && (
-             <div className="flex flex-col items-end">
-              <span className="text-[11px] font-black uppercase tracking-widest text-slate-800">
+             <div className="flex flex-col sm:items-end">
+              <span className="text-[9px] sm:text-[11px] font-black uppercase tracking-widest text-slate-800">
                 {lang === 'ta' ? 'அதிகார பட்சி' : 'Adhikara Pakshi'}
               </span>
-              <span className="text-sm font-black text-indigo-700">
+              <span className="text-xs sm:text-sm font-black text-indigo-700">
                 {lang === 'ta' ? yamas[0].bharanaBird.tamil : yamas[0].bharanaBird.label}
               </span>
             </div>
@@ -331,9 +329,9 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai, gowri 
         {yamas.map((yama) => (
           <div key={yama.index} className="space-y-px bg-slate-50/30">
             {/* Yama Header */}
-            <div className="px-6 py-3 bg-white border-b border-slate-100 flex justify-between items-center">
+            <div className="px-4 sm:px-6 py-2.5 sm:py-3 bg-white border-b border-slate-100 flex justify-between items-center gap-2">
                <div className="flex flex-col">
-                  <span className={`text-lg font-black uppercase tracking-tight ${accentTxt}`}>{lang === 'ta' ? 'ஜாமம்' : 'Jamam'} {yama.index}</span>
+                  <span className={`text-base sm:text-lg font-black uppercase tracking-tight ${accentTxt}`}>{lang === 'ta' ? 'ஜாமம்' : 'Jamam'} {yama.index}</span>
                   <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{yama.startLabel} – {yama.endLabel}</span>
                   {yama.mainActivity && <span className="text-[11px] font-bold text-slate-500">{n(yama.mainActivity, lang)}</span>}
                </div>
@@ -351,7 +349,7 @@ export function ScheduleTable({ tone, yamas, lang, specialPeriods, horai, gowri 
                  const mobHora = getHorai(s.start, s.end, horai);
                  const mobGowri = getGowri(s.start, s.end, gowri);
                  return (
-                   <div key={key} className="p-4 bg-white/60">
+                   <div key={key} className="p-3 sm:p-4 bg-white/60">
                       <div className="flex justify-between items-start mb-2">
                          <div className="flex flex-col gap-1">
                             <span className="text-base font-black text-slate-800">{n(s.bird, lang)}</span>

@@ -270,8 +270,8 @@ export function UserPortal() {
   }
 
   const renderConfig = (isSidebar = false) => (
-    <section className={`glass-card shadow-card-sm border-none ring-1 ring-slate-100/80 bg-white/80 ${isSidebar ? 'p-6' : 'p-8'}`}>
-      <div className="flex items-center gap-3 mb-8">
+    <section className={`glass-card shadow-card-sm border-none ring-1 ring-slate-100/80 bg-white/80 ${isSidebar ? 'p-4 sm:p-6' : 'p-4 sm:p-6 md:p-8'}`}>
+      <div className="flex items-center gap-3 mb-4 sm:mb-6 md:mb-8">
         <div className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
         <h3 className="text-base font-black uppercase tracking-[0.25em] text-slate-900">
           {lang === 'ta' ? 'அமைப்பு' : 'Configuration'}
@@ -279,7 +279,7 @@ export function UserPortal() {
       </div>
       
       <form onSubmit={handleSubmit}>
-        <div className={`grid grid-cols-1 ${isSidebar ? 'gap-6' : 'md:grid-cols-12 gap-x-10 gap-y-8'}`}>
+        <div className={`grid grid-cols-1 ${isSidebar ? 'gap-4 sm:gap-6' : 'md:grid-cols-12 gap-x-6 sm:gap-x-10 gap-y-5 sm:gap-y-8'}`}>
           
           {/* ROW 1: DATE & LOCATION */}
           <div className={`${isSidebar ? '' : 'md:col-span-4'} flex flex-col gap-2.5`}>
@@ -371,13 +371,13 @@ export function UserPortal() {
           {/* ROW 2: BIRD, PAKSHA & BUTTON */}
           <div className={`${isSidebar ? '' : 'md:col-span-5'} flex flex-col gap-2.5`}>
             <label className="text-xs font-black text-slate-700 uppercase tracking-widest ml-1">{t.bird_label}</label>
-            <div className="grid grid-cols-5 gap-3">
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3">
               {birdOptions.map((bird) => (
                 <button
                   key={bird.id}
                   type="button"
                   onClick={() => setBirdId(String(bird.id))}
-                  className={`aspect-square rounded-2xl flex flex-col items-center justify-center gap-2 transition-all border-2 ${
+                  className={`aspect-square rounded-xl sm:rounded-2xl flex flex-col items-center justify-center gap-1 sm:gap-2 transition-all border-2 ${
                     String(birdId) === String(bird.id)
                       ? 'bg-amber-500 border-amber-500 text-white shadow-xl shadow-amber-500/30 scale-105 z-10'
                       : 'bg-white border-slate-50 text-slate-300 hover:border-amber-200 hover:bg-amber-50/30'
@@ -388,7 +388,7 @@ export function UserPortal() {
                       const Icon = BIRD_ICONS[bird.key];
                       return <Icon size={24} className={String(birdId) === String(bird.id) ? 'scale-110' : ''} />;
                   })()}
-                  <span className="text-[11px] font-black uppercase tracking-widest text-slate-700 opacity-80">
+                  <span className="text-[9px] sm:text-[11px] font-black uppercase tracking-wider sm:tracking-widest text-slate-700 opacity-80">
                     {lang === 'ta' ? bird.tamil : bird.key}
                   </span>
                 </button>
@@ -513,7 +513,7 @@ export function UserPortal() {
               <div className="no-print space-y-8">
                 <SpecialPeriods periods={prediction.specialPeriods} lang={lang} />
                 
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
                   {[
                     { label: t.date_label, value: formatDateDisplay(summary.date) },
                     { label: t.weekday, value: lang === 'ta' ? summary.weekday.tamil : summary.weekday.label, highlight: 'text-amber-600' },
@@ -547,8 +547,8 @@ export function UserPortal() {
                       ) : <span className="text-slate-300">—</span>
                     }
                   ].map((item, idx) => (
-                    <div key={idx} className={`glass-card shadow-card-sm p-5 border-none ring-1 ring-slate-100/50 flex flex-col justify-center gap-2 hover:scale-[1.02] transition-all ${item.span || ''}`}>
-                        <span className="text-base font-black uppercase tracking-widest text-slate-800">{item.label}</span>
+                    <div key={idx} className={`glass-card shadow-card-sm p-3 sm:p-5 border-none ring-1 ring-slate-100/50 flex flex-col justify-center gap-1.5 sm:gap-2 hover:scale-[1.02] transition-all ${item.span || ''}`}>
+                        <span className="text-xs sm:text-base font-black uppercase tracking-wider sm:tracking-widest text-slate-800">{item.label}</span>
                         {item.node ? item.node : (
                           <span className={`text-base font-black ${item.highlight || 'text-slate-800'} ${item.mono ? 'font-mono text-sm' : ''}`}>
                              {item.badge ? (
@@ -574,16 +574,17 @@ export function UserPortal() {
 
             </div>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center min-h-[600px] py-10">
+            <div className="flex-1 flex flex-col items-center justify-center min-h-[400px] sm:min-h-[600px] py-6 sm:py-10">
               <div className="max-w-5xl w-full animate-in zoom-in-95 duration-700">
-                <div className="text-center mb-10">
-                  <div className="w-24 h-24 rounded-[2.5rem] bg-amber-500/10 flex items-center justify-center text-amber-500 mx-auto mb-6 shadow-sm ring-1 ring-amber-500/10 animate-slow-bounce">
-                    <IconCalendar size={48} />
+                <div className="text-center mb-6 sm:mb-10">
+                  <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-2xl sm:rounded-[2.5rem] bg-amber-500/10 flex items-center justify-center text-amber-500 mx-auto mb-4 sm:mb-6 shadow-sm ring-1 ring-amber-500/10 animate-slow-bounce">
+                    <IconCalendar size={32} className="sm:hidden" />
+                    <IconCalendar size={48} className="hidden sm:block" />
                   </div>
-                  <h2 className="text-4xl font-black text-slate-900 mb-2 tracking-tight">
+                  <h2 className="text-2xl sm:text-4xl font-black text-slate-900 mb-2 tracking-tight">
                     {lang === 'ta' ? 'ஜாதகக் கணிப்பு' : 'Schedule Generator'}
                   </h2>
-                  <p className="text-slate-800 font-bold uppercase tracking-widest text-xs leading-loose">
+                  <p className="text-slate-800 font-bold uppercase tracking-wider sm:tracking-widest text-[10px] sm:text-xs leading-loose px-4 sm:px-0">
                     {lang === 'ta' ? 'தேதி மற்றும் இடத்தைத் தேர்வுசெய்து உங்கள் அட்டவணையைப் பெறுங்கள்' : 'Select date and location to generate your astrological schedule.'}
                   </p>
                 </div>

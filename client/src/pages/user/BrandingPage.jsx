@@ -88,12 +88,12 @@ export function BrandingPage() {
       <div className="max-w-4xl mx-auto space-y-8">
         
         {/* Status Card */}
-        <div className={`p-8 rounded-[2.5rem] border flex flex-col md:flex-row items-center gap-8 ${isEnabled ? 'bg-emerald-50 border-emerald-100' : isPending ? 'bg-amber-50 border-amber-100' : 'bg-slate-50 border-slate-100'}`}>
+        <div className={`p-5 sm:p-8 rounded-2xl sm:rounded-[2.5rem] border flex flex-col md:flex-row items-center gap-4 sm:gap-8 ${isEnabled ? 'bg-emerald-50 border-emerald-100' : isPending ? 'bg-amber-50 border-amber-100' : 'bg-slate-50 border-slate-100'}`}>
           <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 ${isEnabled ? 'bg-emerald-500 text-white' : isPending ? 'bg-amber-500 text-white' : 'bg-slate-200 text-slate-400'}`}>
             {isEnabled ? <IconCheckCircle size={32} /> : isPending ? <IconClock size={32} /> : <IconLock size={32} />}
           </div>
           <div className="flex-1 text-center md:text-left">
-            <h2 className="text-2xl font-black text-slate-900 mb-2">
+            <h2 className="text-lg sm:text-2xl font-black text-slate-900 mb-1 sm:mb-2">
               {isEnabled ? (lang === 'ta' ? 'தனிப்பயன் பிராண்டிங் இயக்கப்பட்டது' : 'Custom Branding Enabled') : 
                isPending ? (lang === 'ta' ? 'அனுமதிக்காக காத்திருக்கிறது' : 'Waiting for Approval') :
                (lang === 'ta' ? 'தனிப்பயன் பிராண்டிங் முடக்கப்பட்டுள்ளது' : 'Custom Branding Locked')}
@@ -105,17 +105,17 @@ export function BrandingPage() {
             </p>
           </div>
           {!isEnabled && !isPending && (
-            <button onClick={handleRequestAccess} disabled={loading} className="px-8 py-4 bg-slate-900 text-white text-xs font-black uppercase tracking-widest rounded-2xl shadow-xl hover:bg-black transition-all disabled:opacity-50 min-w-[200px]">
+            <button onClick={handleRequestAccess} disabled={loading} className="px-6 sm:px-8 py-3 sm:py-4 bg-slate-900 text-white text-xs font-black uppercase tracking-widest rounded-2xl shadow-xl hover:bg-black transition-all disabled:opacity-50 w-full sm:w-auto sm:min-w-[200px]">
               {loading ? '...' : (lang === 'ta' ? 'அனுமதி கோரு' : 'Request Access')}
             </button>
           )}
         </div>
 
         {/* Edit Form */}
-        <div className={`ap-card p-10 bg-white border border-slate-100 space-y-10 transition-all ${!isEnabled ? 'opacity-50 pointer-events-none' : ''}`}>
-          <div className="flex items-center justify-between">
+        <div className={`ap-card p-5 sm:p-10 bg-white border border-slate-100 space-y-6 sm:space-y-10 transition-all ${!isEnabled ? 'opacity-50 pointer-events-none' : ''}`}>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div>
-              <h3 className="text-2xl font-black text-slate-900">{lang === 'ta' ? 'தலைப்பு மற்றும் அடிக்குறிப்பு' : 'Header & Footer Branding'}</h3>
+              <h3 className="text-lg sm:text-2xl font-black text-slate-900">{lang === 'ta' ? 'தலைப்பு மற்றும் அடிக்குறிப்பு' : 'Header & Footer Branding'}</h3>
               <p className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 mt-1">{lang === 'ta' ? 'அறிக்கைகளில் தோன்றும் விவரங்கள்' : 'Details that appear on your PDF reports'}</p>
             </div>
             {isEnabled && <span className="px-4 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-black uppercase flex items-center gap-2"><IconZap size={12} /> Live</span>}
@@ -165,12 +165,14 @@ export function BrandingPage() {
               
               <div className="grid grid-cols-1 gap-4">
                 {form.socialMedia.map((s, idx) => (
-                  <div key={idx} className="flex gap-3 items-center">
-                    <input className="text-input h-10 text-xs w-32" value={s.platform} onChange={e => handleSocialChange(idx, 'platform', e.target.value)} placeholder="e.g. YouTube" />
+                  <div key={idx} className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:items-center">
+                    <input className="text-input h-10 text-xs w-full sm:w-32" value={s.platform} onChange={e => handleSocialChange(idx, 'platform', e.target.value)} placeholder="e.g. YouTube" />
+                    <div className="flex items-center gap-2 flex-1">
                     <input className="text-input h-10 text-xs flex-1" value={s.url} onChange={e => handleSocialChange(idx, 'url', e.target.value)} placeholder="URL..." />
                     <button type="button" onClick={() => removeSocial(idx)} className="w-10 h-10 flex items-center justify-center text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all">
                       <IconTrash size={18} />
                     </button>
+                    </div>
                   </div>
                 ))}
                 {form.socialMedia.length === 0 && <p className="text-[11px] text-slate-400 italic">No social profiles added yet.</p>}
@@ -178,7 +180,7 @@ export function BrandingPage() {
             </div>
 
             <div className="flex justify-end pt-8">
-              <button disabled={saving} className="px-10 py-5 bg-amber-500 text-white text-sm font-black uppercase tracking-widest rounded-3xl shadow-xl shadow-amber-500/20 hover:bg-amber-600 transition-all active:scale-95 disabled:opacity-50">
+              <button disabled={saving} className="w-full sm:w-auto px-8 sm:px-10 py-4 sm:py-5 bg-amber-500 text-white text-sm font-black uppercase tracking-widest rounded-3xl shadow-xl shadow-amber-500/20 hover:bg-amber-600 transition-all active:scale-95 disabled:opacity-50">
                 {saving ? '...' : (lang === 'ta' ? 'மாற்றங்களைச் சேமி' : 'Save Branding')}
               </button>
             </div>
