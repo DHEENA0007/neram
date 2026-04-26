@@ -411,7 +411,7 @@ export function UserPortal() {
                 onClick={() => { setPaksha('dark'); setAutoPaksha(false); }}
                 className={`flex-1 py-3 flex items-center justify-center rounded-xl text-xs font-black uppercase tracking-widest transition-all ${paksha === 'dark' && !autoPaksha ? 'bg-amber-400 text-amber-950 shadow-md ring-1 ring-amber-500/10' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}`}
               >
-                {lang === 'ta' ? 'தேயிறை' : 'Dark'}
+                {lang === 'ta' ? 'தேய்பிறை' : 'Dark'}
               </button>
               <button 
                 type="button"
