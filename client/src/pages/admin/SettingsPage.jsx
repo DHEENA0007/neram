@@ -1,7 +1,7 @@
 import { updateAdminProfile, loadAdminSettings, updateAdminSettings } from '../../api.js';
 import { useAuth } from '../../auth.jsx';
 import { IconShield, IconCheckCircle, IconZap, IconLock, IconSettings, IconExternalLink, IconPlus, IconTrash } from '../../components/Icons.jsx';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export function SettingsPage() {
   const { user, refresh, language, setLanguage } = useAuth();
@@ -10,6 +10,7 @@ export function SettingsPage() {
   const [pwd2, setPwd2]   = useState('');
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState('');
+  const [error, setError] = useState('');
 
   // Branding State
   const [branding, setBranding] = useState({
