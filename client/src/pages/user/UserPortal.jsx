@@ -9,7 +9,7 @@ import { HoraiTable } from '../../components/HoraiTable.jsx';
 import { SpecialPeriods } from '../../components/SpecialPeriods.jsx';
 import { GowriTable } from '../../components/GowriTable.jsx';
 import { BirdHelper } from '../../components/BirdHelper.jsx';
-import { IconArrowRight, IconVulture, IconOwl, IconCrow, IconHen, IconPeacock, IconCheck, IconCalendar, IconLocation, IconSun, IconSearch, IconDownload, IconSunrise, IconSunset } from '../../components/Icons.jsx';
+import { IconArrowRight, IconVulture, IconOwl, IconCrow, IconHen, IconPeacock, IconCheck, IconCalendar, IconLocation, IconSun, IconSearch, IconDownload, IconSunrise, IconSunset, IconLock, IconClock } from '../../components/Icons.jsx';
 import { PrintView } from '../../components/PrintView.jsx';
 import { PrintOptionsModal } from '../../components/PrintOptionsModal.jsx';
 import { RangePrintView } from '../../components/RangePrintView.jsx';
