@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "node server/index.js",
-    "start": "NODE_ENV=production node server/index.js"
+    "start": "NODE_ENV=production node server/index.js",
+    "build": "cd client && npm install && npm run build && cd .. && rm -rf dist && mv client/dist ./dist"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

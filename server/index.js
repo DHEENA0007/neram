@@ -654,6 +654,7 @@ app.listen(PORT, () => {
   console.log(`Neram server listening on http://localhost:${PORT}`);
 });
 
+/*
 // Self-ping to keep the Render instance alive (every 4 minutes)
 const SELF_PING_URL = 'https://neram.onrender.com/api/health';
 const PING_INTERVAL_MS = 4 * 60 * 1000;
@@ -666,3 +667,4 @@ setInterval(async () => {
     console.warn(`[health-ping] failed: ${err.message}`);
   }
 }, PING_INTERVAL_MS);
+*/
