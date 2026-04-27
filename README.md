@@ -43,5 +43,6 @@ The app starts with a seeded admin account:
 ## Notes
 
 - The backend expects `curl` to be available for the external astronomy and geocoding API calls.
-- Default server port is `3001`, and the Vite dev server runs on `5174`.
-- `npm run dev` starts the server only.
+- Default server port is `5000` (Node.js), and the Vite dev server runs on `5174`.
+- For production, use Nginx to reverse proxy to the Node.js server.
+- Hosted on Hostinger: `srv1623048.hstgr.cloud`

@@ -655,8 +655,8 @@ app.listen(PORT, () => {
 });
 
 /*
-// Self-ping to keep the Render instance alive (every 4 minutes)
-const SELF_PING_URL = 'https://neram.onrender.com/api/health';
+// Self-ping to keep the instance alive (every 4 minutes)
+const SELF_PING_URL = 'http://srv1623048.hstgr.cloud/api/health';
 const PING_INTERVAL_MS = 4 * 60 * 1000;
 
 setInterval(async () => {

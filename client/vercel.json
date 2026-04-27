@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://neram.onrender.com/api/:path*"
+      "destination": "http://srv1623048.hstgr.cloud/api/:path*"
     },
     {
       "source": "/(.*)",
