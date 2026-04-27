@@ -6,6 +6,7 @@ import {
   LucideTrash2, LucideInfo, LucideBird, LucideSearch, LucideStar, LucideMoon,
   LucideSunrise, LucideSunset, LucideZap, LucideCreditCard, LucideActivity,
   LucideLock, LucideClock, LucideHistory, LucideX, LucideUser, LucideChevronRight,
+  LucidePalette, LucideEye, LayoutTemplate as LucideLayoutTemplate,
   BarChart as LucideBarChart, TrendingUp as LucideTrendingUp, 
   ExternalLink as LucideExternalLink, Filter as LucideFilter, Plus as LucidePlus
 } from 'lucide-react';
@@ -59,3 +60,6 @@ export function IconTrendingUp({ size = 16, className }) { return <LucideTrendin
 export function IconExternalLink({ size = 16, className }) { return <LucideExternalLink size={size} className={className} />; }
 export function IconFilter({ size = 16, className }) { return <LucideFilter size={size} className={className} />; }
 export function IconPlus({ size = 16, className }) { return <LucidePlus size={size} className={className} />; }
+export function IconPalette({ size = 16, className }) { return <LucidePalette size={size} className={className} />; }
+export function IconEye({ size = 16, className }) { return <LucideEye size={size} className={className} />; }
+export function IconLayout({ size = 16, className }) { return <LucideLayoutTemplate size={size} className={className} />; }
