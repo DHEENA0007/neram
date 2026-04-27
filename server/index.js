@@ -216,6 +216,18 @@ app.get(
   }),
 );
 
+app.get(
+  '/api/public/contact',
+  asyncRoute(async (req, res) => {
+    const settings = await getSettings();
+    const branding = settings?.branding || {};
+    res.json({
+      phone: branding.mobile || '+91 98765 43210',
+      whatsapp: (branding.whatsapp || '919876543210').replace(/\D/g, ''),
+    });
+  }),
+);
+
 app.post(
   '/api/auth/login',
   asyncRoute(async (req, res) => {
