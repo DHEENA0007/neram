@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { useAuth } from '../../auth.jsx';
 import { birdOptions, getBirdById, pakshaOptions } from '../../shared/constants.js';
 import { requestPrediction, requestRangeSchedule } from '../../api.js';
 import { PortalShell } from '../../components/PortalShell.jsx';
