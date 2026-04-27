@@ -28,6 +28,9 @@ async function apiFetch(path, options = {}) {
 export function login(username, password) {
   return apiFetch('/api/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) });
 }
+export function loadPublicContact() {
+  return apiFetch('/api/public/contact');
+}
 export function logout() {
   return apiFetch('/api/auth/logout', { method: 'POST' });
 }

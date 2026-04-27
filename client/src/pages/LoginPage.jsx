@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth.jsx';
+import { loadPublicContact } from '../api.js';
 import { IconUser, IconLock, IconChevronRight, IconActivity, IconPhone, IconWhatsApp } from '../components/Icons.jsx';
 
 export function LoginPage() {
@@ -13,12 +14,18 @@ export function LoginPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const CONTACT_INFO = {
+  const [contactInfo, setContactInfo] = useState({
     phone: '+91 98765 43210',
     whatsapp: '919876543210',
     appName: 'Sri Vinayaga Astro',
     tagline: 'Ancient Wisdom · Modern Precision'
-  };
+  });
+
+  useEffect(() => {
+    loadPublicContact().then(data => {
+      setContactInfo(prev => ({ ...prev, ...data }));
+    }).catch(console.error);
+  }, []);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -46,8 +53,8 @@ export function LoginPage() {
             <div className="mb-6">
               <img src="/logo.png" alt="Logo" className="w-24 h-24 mx-auto object-contain drop-shadow-xl" />
             </div>
-            <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-3">{CONTACT_INFO.appName}</h1>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">{CONTACT_INFO.tagline}</p>
+            <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-3">{contactInfo.appName}</h1>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">{contactInfo.tagline}</p>
           </div>
 
           <div className="bg-white/70 backdrop-blur-xl border border-white rounded-[3rem] p-10 md:p-12 shadow-2xl shadow-slate-200/50 animate-in fade-in slide-in-from-bottom-8 duration-700">
@@ -60,7 +67,7 @@ export function LoginPage() {
 
             <div className="space-y-4">
               <a 
-                href={`https://wa.me/${CONTACT_INFO.whatsapp}?text=${encodeURIComponent("I'm interested to buy Sri Vinayaga Astro software. Please help me with the registration.")}`} 
+                href={`https://wa.me/${contactInfo.whatsapp}?text=${encodeURIComponent("I'm interested to buy Sri Vinayaga Astro software. Please help me with the registration.")}`} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="flex items-center justify-between p-6 rounded-3xl bg-emerald-50 border border-emerald-100 hover:bg-emerald-100 transition-all group"
@@ -78,7 +85,7 @@ export function LoginPage() {
               </a>
 
               <a 
-                href={`tel:${CONTACT_INFO.phone.replace(/\s+/g, '')}`}
+                href={`tel:${contactInfo.phone.replace(/\s+/g, '')}`}
                 className="flex items-center justify-between p-6 rounded-3xl bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 transition-all group"
               >
                 <div className="flex items-center gap-4">
@@ -87,7 +94,7 @@ export function LoginPage() {
                   </div>
                   <div>
                     <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Phone Call</p>
-                    <p className="text-sm font-black text-slate-900">{CONTACT_INFO.phone}</p>
+                    <p className="text-sm font-black text-slate-900">{contactInfo.phone}</p>
                   </div>
                 </div>
                 <IconChevronRight size={20} className="text-indigo-300 group-hover:translate-x-1 transition-transform" />
