@@ -27,7 +27,7 @@ export function AdminShell() {
       {/* Sidebar */}
       <aside className={`
         fixed lg:sticky top-0 left-0 h-screen z-50
-        w-64 sm:w-72 bg-white border-r border-slate-200 flex flex-col
+        w-72 sm:w-80 bg-white border-r border-slate-200 flex flex-col
         transform transition-transform duration-300 ease-in-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
@@ -40,17 +40,17 @@ export function AdminShell() {
         </button>
 
         {/* Branding */}
-        <div className="p-5 sm:p-8 pb-6 sm:pb-10 flex items-center gap-3">
-          <img src="/logo.png" alt="Sri Vinayaga Astro Logo" className="w-10 h-10 sm:w-12 sm:h-12 object-contain" />
+        <div className="p-8 sm:p-10 pb-8 sm:pb-12 flex items-center gap-4">
+          <img src="/logo.png" alt="Sri Vinayaga Astro Logo" className="w-14 h-14 sm:w-16 sm:h-16 object-contain" />
           <div>
-            <h1 className="text-sm sm:text-base font-black text-slate-900 leading-none tracking-tight">Sri Vinayaga Astro</h1>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Admin Portal</p>
+            <h1 className="text-base sm:text-lg font-black text-slate-900 leading-none tracking-tight">Sri Vinayaga Astro</h1>
+            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-1.5">Admin Portal</p>
           </div>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-3 sm:px-4 space-y-1 overflow-y-auto">
-          <p className="px-4 text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mb-4">Main Menu</p>
+        <nav className="flex-1 px-4 sm:px-6 space-y-2 overflow-y-auto">
+          <p className="px-5 text-[11px] font-black text-slate-300 uppercase tracking-[0.2em] mb-6">Main Menu</p>
           
           <NavItem to="/admin" icon={IconDashboard} label="Dashboard" sub="முகப்பு" end onNavigate={() => setSidebarOpen(false)} />
           <NavItem to="/admin/users" icon={IconUsers} label="Users" sub="பயனர்கள்" onNavigate={() => setSidebarOpen(false)} />
@@ -61,29 +61,29 @@ export function AdminShell() {
         </nav>
 
         {/* Footer */}
-        <div className="p-3 sm:p-4 border-t border-slate-100 bg-slate-50/50">
+        <div className="p-6 sm:p-8 border-t border-slate-100 bg-slate-50/50">
           {/* User Badge */}
-          <div className="flex items-center gap-3 px-2 mb-3 sm:mb-4">
-            <div className="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center text-slate-600 font-black text-xs shrink-0">
+          <div className="flex items-center gap-4 px-2 mb-5 sm:mb-6">
+            <div className="w-10 h-10 rounded-xl bg-slate-200 flex items-center justify-center text-slate-600 font-black text-sm shrink-0">
               {user?.name ? user.name[0] : 'A'}
             </div>
             <div className="flex flex-col min-w-0">
-              <span className="text-[11px] font-black text-slate-900 truncate">{user?.name || 'Administrator'}</span>
-              <span className="text-[9px] font-bold text-slate-400 uppercase">System Admin</span>
+              <span className="text-sm font-black text-slate-900 truncate">{user?.name || 'Administrator'}</span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase">System Admin</span>
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="space-y-1.5">
-            <NavLink to="/user" className="flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-50 text-amber-700 text-[10px] font-black uppercase tracking-wider hover:bg-amber-100 transition-all" onClick={() => setSidebarOpen(false)}>
-              <IconArrowRight size={14} />
+          <div className="space-y-2">
+            <NavLink to="/user" className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-amber-50 text-amber-700 text-xs font-black uppercase tracking-wider hover:bg-amber-100 transition-all" onClick={() => setSidebarOpen(false)}>
+              <IconArrowRight size={16} />
               <span>User Portal</span>
             </NavLink>
             <button 
               onClick={handleLogout} 
-              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-rose-50 text-rose-700 text-[10px] font-black uppercase tracking-wider hover:bg-rose-100 transition-all w-full"
+              className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-rose-50 text-rose-700 text-xs font-black uppercase tracking-wider hover:bg-rose-100 transition-all w-full"
             >
-              <IconLogout size={14} />
+              <IconLogout size={16} />
               <span>Sign Out</span>
             </button>
           </div>
@@ -108,7 +108,7 @@ export function AdminShell() {
           </div>
         </div>
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 xl:p-12 overflow-y-auto">
+        <main className="flex-1 p-8 sm:p-10 lg:p-12 xl:p-16 overflow-y-auto">
           <Outlet />
         </main>
       </div>
@@ -124,19 +124,19 @@ function NavItem({ to, icon: Icon, label, sub, end, onNavigate }) {
       end={end}
       onClick={onNavigate}
       className={({ isActive }) => `
-        flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl transition-all duration-300
+        flex items-center gap-4 px-4 sm:px-6 py-4 sm:py-4.5 rounded-2xl sm:rounded-[2rem] transition-all duration-300
         ${isActive 
-          ? 'bg-slate-900 text-white shadow-xl shadow-slate-900/10' 
+          ? 'bg-slate-900 text-white shadow-2xl shadow-slate-900/20' 
           : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'}
       `}
     >
       {({ isActive }) => (
         <>
           <div className={isActive ? 'text-amber-400' : ''}>
-             <Icon size={18} />
+             <Icon size={22} />
           </div>
           <div className="flex flex-col leading-tight">
-            <span className="text-xs sm:text-sm font-black tracking-tight">{language === 'en' ? label : sub}</span>
+            <span className="text-sm sm:text-base font-black tracking-tight">{language === 'en' ? label : sub}</span>
           </div>
         </>
       )}

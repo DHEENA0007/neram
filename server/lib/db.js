@@ -192,6 +192,10 @@ export async function createUser({
       socialMedia: [],
       address: '',
     },
+    downloadPermissions: {
+      neram: { allowed: false, limit: 0, used: 0, requestStatus: 'none' },
+      nalaneram: { allowed: false, limit: 0, used: 0, requestStatus: 'none' },
+    },
     usageStats: {
       generationsCount: 0,
       downloadsCount: 0,
@@ -230,6 +234,7 @@ export async function updateUser(id, patch) {
   if (patch.demoConfig) user.demoConfig = { ...(user.demoConfig || {}), ...patch.demoConfig };
   if (patch.subscriptionConfig) user.subscriptionConfig = { ...(user.subscriptionConfig || {}), ...patch.subscriptionConfig };
   if (patch.branding) user.branding = { ...(user.branding || {}), ...patch.branding };
+  if (patch.downloadPermissions) user.downloadPermissions = { ...(user.downloadPermissions || {}), ...patch.downloadPermissions };
   
   if (typeof patch.password === 'string' && patch.password.length > 0) {
     user.passwordHash = bcrypt.hashSync(patch.password, 10);
@@ -238,6 +243,15 @@ export async function updateUser(id, patch) {
   user.updatedAt = new Date().toISOString();
   await persist(db);
   return sanitizeUser(user);
+}
+
+export async function deleteUser(id) {
+  const db = await loadDb();
+  const index = db.users.findIndex((u) => u.id === id);
+  if (index === -1) return false;
+  db.users.splice(index, 1);
+  await persist(db);
+  return true;
 }
 
 export async function recordUsage(userId, { type, location }) {

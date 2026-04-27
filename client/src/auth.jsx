@@ -46,7 +46,17 @@ export function AuthProvider({ children }) {
         logout,
         refresh,
         language,
-        setLanguage
+        setLanguage,
+        requestDownloadAccess: async (service) => {
+          const { requestDownloadAccess } = await import('./api.js');
+          await requestDownloadAccess(service);
+          await refresh();
+        },
+        recordDownload: async (service) => {
+          const { recordDownload } = await import('./api.js');
+          await recordDownload(service);
+          await refresh();
+        }
       }}
     >
       {children}

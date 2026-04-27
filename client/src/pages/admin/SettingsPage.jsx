@@ -6,8 +6,9 @@ import { useEffect, useState } from 'react';
 export function SettingsPage() {
   const { user, refresh, language, setLanguage } = useAuth();
   const [name, setName]   = useState(user?.name || '');
-  const [pwd,  setPwd]    = useState('');
-  const [pwd2, setPwd2]   = useState('');
+  const [currentPwd, setCurrentPwd] = useState('');
+  const [newPwd, setNewPwd] = useState('');
+  const [confirmPwd, setConfirmPwd] = useState('');
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
@@ -51,7 +52,7 @@ export function SettingsPage() {
     e.preventDefault();
     setError(''); setSuccess('');
 
-    if (pwd && pwd !== pwd2) {
+    if (newPwd && newPwd !== confirmPwd) {
       setError(language === 'en' ? 'Passwords do not match.' : 'கடவுச்சொற்கள் பொருந்தவில்லை.');
       return;
     }
@@ -59,14 +60,17 @@ export function SettingsPage() {
     setSaving(true);
     try {
       const payload = { name };
-      if (pwd) payload.password = pwd;
+      if (newPwd) {
+        payload.currentPassword = currentPwd;
+        payload.newPassword = newPwd;
+      }
       await updateAdminProfile(payload);
       
       // Save branding too
       await updateAdminSettings({ branding });
       
       await refresh();
-      setPwd(''); setPwd2('');
+      setCurrentPwd(''); setNewPwd(''); setConfirmPwd('');
       setSuccess(language === 'en' ? 'Settings updated successfully.' : 'அமைப்புகள் புதுப்பிக்கப்பட்டன.');
     } catch (err) {
       setError(err.message || 'Failed to update settings');
@@ -98,46 +102,47 @@ export function SettingsPage() {
 
   return (
     <div className="admin-page">
-      <div className="admin-page-header mb-8">
+      <div className="admin-page-header mb-12">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-500 mb-1">{T_HEAD}</p>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight">{T_TITLE}</h1>
+          <p className="text-sm font-black uppercase tracking-[0.3em] text-amber-500 mb-2">{T_HEAD}</p>
+          <h1 className="text-6xl font-black text-slate-900 tracking-tighter leading-tight">{T_TITLE}</h1>
         </div>
       </div>
 
-      <div className="flex flex-row gap-8 items-start">
+      <div className="flex flex-row gap-12 items-start">
         {/* Profile info card */}
-        <div className="w-80 shrink-0 space-y-6">
-          <div className="ap-card text-center p-8 bg-white border border-slate-100">
-            <div className="w-20 h-20 bg-amber-500 rounded-[2rem] flex items-center justify-center text-3xl font-black text-white mx-auto mb-4 shadow-lg shadow-amber-500/20">
+        <div className="w-[400px] shrink-0 space-y-8">
+          <div className="ap-card text-center p-12 bg-white border border-slate-100">
+            <div className="w-24 h-24 bg-amber-500 rounded-[2.5rem] flex items-center justify-center text-4xl font-black text-white mx-auto mb-6 shadow-xl shadow-amber-500/20">
               {(user?.name || 'A')[0].toUpperCase()}
             </div>
-            <div className="flex flex-col mb-6">
-              <strong className="text-lg font-black text-slate-950">{user?.name || user?.username}</strong>
-              <span className="text-xs font-bold text-slate-400">@{user?.username}</span>
+            <div className="flex flex-col mb-8">
+              <strong className="text-2xl font-black text-slate-950">{user?.name || user?.username}</strong>
+              <span className="text-base font-bold text-slate-400">@{user?.username}</span>
             </div>
             
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-900 text-white rounded-xl text-[11px] font-black uppercase tracking-widest">
-              <IconShield size={10} className="text-amber-400" />
+            <div className="inline-flex items-center gap-3 px-5 py-2 bg-slate-900 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em]">
+              <IconShield size={14} className="text-amber-400" />
               {language === 'en' ? 'System Admin' : 'கணினி நிர்வாகி'}
             </div>
-
-            <div className="mt-8 pt-8 border-t border-slate-50 space-y-3">
-              <div className="flex justify-between items-center text-[11px] font-black uppercase tracking-wider text-slate-400">
+ 
+            <div className="mt-12 pt-10 border-t border-slate-50 space-y-4">
+              <div className="flex justify-between items-center text-xs font-black uppercase tracking-[0.2em] text-slate-400">
                 <span>{language === 'en' ? 'Access Level' : 'அனுமதி நிலை'}</span>
                 <span className="text-slate-900">Root</span>
               </div>
-              <div className="flex justify-between items-center text-[11px] font-black uppercase tracking-wider text-slate-400">
+              <div className="flex justify-between items-center text-xs font-black uppercase tracking-[0.2em] text-slate-400">
                 <span>{language === 'en' ? 'Account Status' : 'கணக்கு நிலை'}</span>
-                <span className="text-emerald-500 flex items-center gap-1"><IconCheckCircle size={10} /> {language === 'en' ? 'Active' : 'இயக்கத்தில்'}</span>
+                <span className="text-emerald-500 flex items-center gap-2"><IconCheckCircle size={14} /> {language === 'en' ? 'Active' : 'இயக்கத்தில்'}</span>
               </div>
             </div>
           </div>
-
-          <div className="p-5 bg-amber-50 rounded-3xl border border-amber-100/50 flex gap-3 shadow-sm">
-             <IconLock size={20} className="text-amber-500 shrink-0" />
-             <p className="text-[11px] font-bold text-amber-900/60 leading-relaxed text-xs">
-               <strong>{language === 'en' ? 'Security Note:' : 'பாதுகாப்பு குறிப்பு:'}</strong> {language === 'en' ? 'Changing your login credentials will take immediate effect on all active sessions.' : 'உங்கள் உள்நுழைவு விவரங்களை மாற்றுவது அனைத்து அமர்வுகளையும் பாதிக்கும்.'}
+ 
+          <div className="p-8 bg-amber-50 rounded-[2.5rem] border border-amber-100/50 flex gap-4 shadow-sm">
+             <IconLock size={24} className="text-amber-500 shrink-0" />
+             <p className="text-xs font-bold text-amber-900/60 leading-relaxed">
+               <strong className="text-amber-700">{language === 'en' ? 'Security Note:' : 'பாதுகாப்பு குறிப்பு:'}</strong><br/>
+               {language === 'en' ? 'Changing your login credentials will take immediate effect on all active sessions.' : 'உங்கள் உள்நுழைவு விவரங்களை மாற்றுவது அனைத்து அமர்வுகளையும் பாதிக்கும்.'}
              </p>
           </div>
         </div>
@@ -149,11 +154,11 @@ export function SettingsPage() {
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-1">{language === 'en' ? 'Manage your administrative access' : 'நிர்வாக அணுகலை நிர்வகிக்கவும்'}</p>
           </div>
 
-          <form className="space-y-6" onSubmit={handleSave}>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">{T_NAME}</label>
+          <form className="space-y-8" onSubmit={handleSave}>
+            <div className="flex flex-col gap-2.5">
+              <label className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 ml-1">{T_NAME}</label>
               <input
-                className="text-input h-10 px-4"
+                className="text-input h-14 px-6 text-base"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder={language === 'en' ? "Full Name" : "முழு பெயர்"}
@@ -173,28 +178,49 @@ export function SettingsPage() {
               </div>
             </div>
 
-            {/* Credentials */}
-            <div className="pt-6 border-t border-slate-50 space-y-6">
-              <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-300">{T_CRED}</p>
+            {/* Credentials / Security */}
+            <div className="pt-10 border-t border-slate-100 space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center">
+                  <IconLock size={20} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-slate-900">{language === 'en' ? 'Security & Credentials' : 'பாதுகாப்பு மற்றும் கடவுச்சொல்'}</h3>
+                  <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-none mt-1">Update your administrative password</p>
+                </div>
+              </div>
               
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1.5">
-                    <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">{language === 'en' ? 'New Password' : 'புதிய கடவுச்சொல்'}</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-slate-50/50 p-8 rounded-[2.5rem] border border-slate-100">
+                <div className="flex flex-col gap-2.5 md:col-span-2">
+                    <label className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 ml-1">{language === 'en' ? 'Current Password' : 'தற்போதைய கடவுச்சொல்'}</label>
                     <input
-                        className="text-input h-10 px-4"
+                        className="text-input h-14 px-6 bg-white text-base"
                         type="password"
-                        value={pwd}
-                        onChange={(e) => setPwd(e.target.value)}
+                        value={currentPwd}
+                        onChange={(e) => setCurrentPwd(e.target.value)}
+                        placeholder="••••••••"
+                        required={!!newPwd}
+                    />
+                    <p className="text-[10px] font-bold text-slate-400 uppercase ml-1 italic">{language === 'en' ? 'Verify your identity to authorize changes' : 'மாற்றங்களைச் செய்ய உங்கள் அடையாளத்தைச் சரிபார்க்கவும்'}</p>
+                </div>
+                
+                <div className="flex flex-col gap-2.5">
+                    <label className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 ml-1">{language === 'en' ? 'New Password' : 'புதிய கடவுச்சொல்'}</label>
+                    <input
+                        className="text-input h-14 px-6 bg-white text-base"
+                        type="password"
+                        value={newPwd}
+                        onChange={(e) => setNewPwd(e.target.value)}
                         placeholder="••••••••"
                     />
                 </div>
-                <div className="flex flex-col gap-1.5">
-                    <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">{language === 'en' ? 'Confirm Update' : 'உறுதிப்படுத்தவும்'}</label>
+                <div className="flex flex-col gap-2.5">
+                    <label className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 ml-1">{language === 'en' ? 'Confirm New Password' : 'புதிய கடவுச்சொல்லை உறுதிப்படுத்துக'}</label>
                     <input
-                        className="text-input h-10 px-4"
+                        className="text-input h-14 px-6 bg-white text-base"
                         type="password"
-                        value={pwd2}
-                        onChange={(e) => setPwd2(e.target.value)}
+                        value={confirmPwd}
+                        onChange={(e) => setConfirmPwd(e.target.value)}
                         placeholder="••••••••"
                     />
                 </div>

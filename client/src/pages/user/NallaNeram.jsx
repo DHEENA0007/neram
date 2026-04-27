@@ -2,7 +2,8 @@ import React, { useState, useMemo } from 'react';
 import { birdOptions } from '../../shared/constants.js';
 import { requestPrediction } from '../../api.js';
 import { PortalShell } from '../../components/PortalShell.jsx';
-import { IconVulture, IconOwl, IconCrow, IconHen, IconPeacock, IconDownload } from '../../components/Icons.jsx';
+import { useAuth } from '../../auth.jsx';
+import { IconVulture, IconOwl, IconCrow, IconHen, IconPeacock, IconDownload, IconLock, IconClock, IconX } from '../../components/Icons.jsx';
 import { NallaNeramPrintView } from '../../components/NallaNeramPrintView.jsx';
 import { loadBrandingConfig } from '../../api.js';
 
@@ -53,6 +54,7 @@ const ACTIVITY_STYLE = {
 };
 
 export function NallaNeram() {
+  const { user, requestDownloadAccess, recordDownload } = useAuth();
   const [lang, setLang] = useState('ta');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [birdId, setBirdId] = useState(null);
@@ -156,7 +158,32 @@ export function NallaNeram() {
 
   const bird = birdId ? birdOptions.find(b => b.id === birdId) : null;
 
-  function handlePrint() {
+  const [showRequestModal, setShowRequestModal] = useState(false);
+  const [requesting, setRequesting] = useState(false);
+
+  async function handleRequestAccess() {
+    setRequesting(true);
+    try {
+      await requestDownloadAccess('nalaneram');
+      setShowRequestModal(false);
+      alert(lang === 'ta' ? 'விண்ணப்பம் அனுப்பப்பட்டது!' : 'Request sent successfully!');
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setRequesting(false);
+    }
+  }
+
+  async function handlePrintAction() {
+    const dp = user?.downloadPermissions?.nalaneram || { allowed: false, requestStatus: 'none' };
+    if (dp.allowed) {
+      handlePrint();
+    } else {
+      setShowRequestModal(true);
+    }
+  }
+
+  async function handlePrint() {
     const printEl = document.getElementById('nalla-neram-print-view');
     if (!printEl) return;
     
@@ -192,6 +219,7 @@ export function NallaNeram() {
       </html>
     `);
     doc.close();
+    try { await recordDownload('nalaneram'); } catch (e) { console.error(e); }
   }
 
   return (
@@ -300,9 +328,19 @@ export function NallaNeram() {
               </div>
               
               <div className="flex justify-end">
-                <button onClick={handlePrint} className="flex items-center gap-2 px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg active:scale-95 transition-all">
-                  <IconDownload size={18} />
-                  {lang === 'ta' ? 'PDF பதிவிறக்கம்' : 'Download PDF'}
+                <button
+                  onClick={handlePrintAction}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg active:scale-95 transition-all ${
+                    (user?.downloadPermissions?.nalaneram?.allowed)
+                      ? 'bg-slate-800 hover:bg-slate-900 text-white shadow-slate-800/20'
+                      : 'bg-white border border-slate-200 text-slate-400 hover:border-amber-500 hover:text-amber-500 shadow-slate-200/50'
+                  }`}
+                >
+                   {(user?.downloadPermissions?.nalaneram?.allowed) ? <IconDownload size={18} /> : <IconLock size={18} />}
+                   {lang === 'ta' ? 'PDF பதிவிறக்கம்' : 'Download PDF'}
+                   {!(user?.downloadPermissions?.nalaneram?.allowed) && (
+                     <span className="ml-1 px-1.5 py-0.5 bg-amber-500 text-white rounded-[4px] text-[8px]">LOCKED</span>
+                   )}
                 </button>
               </div>
 
@@ -375,6 +413,41 @@ export function NallaNeram() {
           </div>
         )}
       </div>
+
+      {showRequestModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-md">
+          <div className="bg-white w-full max-w-md rounded-[3rem] shadow-2xl p-10 text-center animate-in zoom-in-95 duration-200">
+             <div className="w-20 h-20 bg-amber-100 text-amber-600 rounded-[2rem] flex items-center justify-center mx-auto mb-6">
+                <IconLock size={40} />
+             </div>
+             <h3 className="text-3xl font-black text-slate-900 mb-2">
+               {lang === 'ta' ? 'அனுமதி தேவை' : 'Access Restricted'}
+             </h3>
+             <p className="text-slate-500 font-bold text-sm mb-8 leading-relaxed">
+               {lang === 'ta' 
+                 ? 'இந்த அறிக்கையை பதிவிறக்கம் செய்ய உங்களுக்கு அனுமதி இல்லை. பதிவிறக்க வசதியை பெற நிர்வாகியிடம் அனுமதி கோரவும்.' 
+                 : 'You do not have permission to download this report. Please send a request to the administrator to enable this feature for your account.'}
+             </p>
+
+             <div className="space-y-3">
+               {user?.downloadPermissions?.nalaneram?.requestStatus === 'pending' ? (
+                  <div className="w-full py-5 bg-slate-100 text-slate-400 text-xs font-black uppercase rounded-2xl flex items-center justify-center gap-2 border border-slate-200">
+                     <IconClock size={16} />
+                     {lang === 'ta' ? 'விண்ணப்பம் நிலுவையில் உள்ளது' : 'Request Pending Approval'}
+                  </div>
+               ) : (
+                  <button onClick={handleRequestAccess} disabled={requesting} className="w-full py-5 bg-amber-500 text-white text-xs font-black uppercase rounded-2xl shadow-lg shadow-amber-500/20 active:scale-95 transition-all flex items-center justify-center gap-2">
+                     {requesting ? '...' : (lang === 'ta' ? 'நிர்வாகியிடம் அனுமதி கோரவும்' : 'Send Request to Admin')}
+                  </button>
+               )}
+               
+               <button onClick={() => setShowRequestModal(false)} className="w-full py-3 text-slate-400 text-[10px] font-black uppercase tracking-widest hover:text-slate-900 transition-colors">
+                 {lang === 'ta' ? 'பிறகு செய்' : 'Maybe Later'}
+               </button>
+             </div>
+          </div>
+        </div>
+      )}
     </PortalShell>
   );
 }

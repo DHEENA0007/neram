@@ -93,19 +93,36 @@ function SectionBreak() {
   return <div style={{ pageBreakBefore: 'always', marginTop: 0 }} />;
 }
 
-function PageHeader({ title, fromDate, toDate, locationName, lang }) {
+function PageHeader({ title, fromDate, toDate, locationName, lang, branding }) {
   const tl = lang === 'ta';
   return (
-    <div style={{ borderBottom: '3px solid #f59e0b', paddingBottom: 10, marginBottom: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', ...baseFont }}>
-      <div>
-        <div style={{ fontSize: 16, fontWeight: 900, color: '#b45309', letterSpacing: '-0.02em' }}>{title}</div>
-        <div style={{ fontSize: 10, color: '#64748b', marginTop: 2 }}>
-          {fmtDate(fromDate, lang)} — {fmtDate(toDate, lang)}
+    <div style={{ 
+      display: 'flex', 
+      justifyContent: 'space-between', 
+      alignItems: 'flex-start', 
+      paddingBottom: 25, 
+      marginBottom: 20, 
+      borderBottom: '3px solid #0f172a',
+      ...baseFont
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <img src={branding?.logoUrl || '/logo.png'} style={{ height: 60, width: 'auto', objectFit: 'contain' }} />
+        <div>
+           <h1 style={{ fontSize: 24, fontWeight: 900, color: '#0f172a', margin: 0, lineHeight: 1 }}>
+             {tl ? (branding?.astrologerNameTa || branding?.astrologerNameEn || branding?.astrologerName) : (branding?.astrologerNameEn || branding?.astrologerName)}
+           </h1>
+           <h2 style={{ fontSize: 14, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '4px 0 0 0' }}>
+             {tl ? (branding?.companyNameTa || branding?.companyNameEn || branding?.companyName) : (branding?.companyNameEn || branding?.companyName)}
+           </h2>
         </div>
       </div>
-      <div style={{ textAlign: 'right', fontSize: 9, color: '#94a3b8' }}>
-        <div style={{ fontWeight: 700, color: '#64748b' }}>{locationName}</div>
-        <div style={{ marginTop: 2 }}>{new Date().toLocaleString()}</div>
+      <div style={{ textAlign: 'right' }}>
+        <div style={{ fontSize: 8, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>
+           Exported Location: <span style={{ color: '#64748b', fontWeight: 800 }}>{locationName}</span>
+        </div>
+        <div style={{ fontSize: 20, fontWeight: 900, color: '#0f172a', letterSpacing: '-0.02em' }}>
+           {branding?.mobile}
+        </div>
       </div>
     </div>
   );
@@ -127,11 +144,11 @@ function DetailedScheduleBlock({ title, yamas, lang, labels, horai, gowri, speci
   const t = lang === 'ta';
 
   const thStyle = {
-    padding: '5px 6px', fontSize: 7.5, fontWeight: 900, textTransform: 'uppercase',
-    letterSpacing: '0.08em', color: '#64748b', background: '#f8fafc',
-    borderBottom: '2px solid #e2e8f0', textAlign: 'left',
+    padding: '8px 8px', fontSize: 8.5, fontWeight: 900, textTransform: 'uppercase',
+    letterSpacing: '0.08em', color: '#1e293b', background: '#f8fafc',
+    borderBottom: '2px solid #0f172a', borderRight: '1px solid #e2e8f0', textAlign: 'left',
   };
-  const tdStyle = { padding: '4px 6px', borderBottom: '1px solid #f1f5f9', verticalAlign: 'middle', fontSize: 8.5 };
+  const tdStyle = { padding: '6px 8px', borderBottom: '1px solid #f1f5f9', borderRight: '1px solid #f1f5f9', verticalAlign: 'top', fontSize: 9 };
 
   return (
     <div style={{ marginBottom: 16, pageBreakInside: 'avoid' }}>
@@ -149,9 +166,9 @@ function DetailedScheduleBlock({ title, yamas, lang, labels, horai, gowri, speci
             <th style={{ ...thStyle, width: 40, textAlign: 'right' }}>{labels.strength}</th>
           </tr>
         </thead>
-        <tbody>
-          {yamas.map((yama) =>
-            yama.subRows.map((s, i) => {
+        {yamas.map((yama) => (
+          <tbody key={yama.index} style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
+            {yama.subRows.map((s, i) => {
               const hora = getHorai(s.start, s.end, horai);
               const gowriSlot = getGowri(s.start, s.end, gowri);
               const warnings = getSpecialWarnings(s.start, s.end, specialPeriods);
@@ -161,81 +178,81 @@ function DetailedScheduleBlock({ title, yamas, lang, labels, horai, gowri, speci
 
               return (
                 <React.Fragment key={`${yama.index}-${i}`}>
-                  <tr style={{ background: i % 2 === 0 ? '#fff' : '#fafafa', borderTop: isFirst ? '2px solid #e2e8f0' : undefined }}>
-                    <td style={tdStyle}>
+                  <tr style={{ background: i % 2 === 0 ? '#fff' : '#fafafa', borderTop: isFirst ? '2px solid #0f172a' : undefined }}>
+                    <td style={{ ...tdStyle, borderLeft: '1px solid #f1f5f9' }}>
                       {isFirst && (
-                        <div>
-                          <div style={{ fontWeight: 900, fontSize: 10, color: titleColor }}>
+                        <div style={{ minWidth: 80 }}>
+                          <div style={{ fontWeight: 900, fontSize: 13, color: titleColor, lineHeight: 1 }}>
                             {t ? 'ஜாமம்' : 'Jamam'} {yama.index}
                           </div>
-                          <div style={{ fontSize: 7, color: '#94a3b8', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                          <div style={{ fontSize: 8, color: '#94a3b8', fontWeight: 800, whiteSpace: 'nowrap', marginTop: 4 }}>
                             {yama.startLabel} – {yama.endLabel}
                           </div>
                           {yama.mainActivity && (
-                            <div style={{ fontSize: 7, color: '#64748b', fontWeight: 700 }}>{n(yama.mainActivity, lang)}</div>
+                            <div style={{ fontSize: 8, color: '#1e293b', fontWeight: 900, marginTop: 4, textTransform: 'uppercase' }}>{n(yama.mainActivity, lang)}</div>
                           )}
                         </div>
                       )}
                     </td>
-                    <td style={{ ...tdStyle, fontWeight: 800, color: '#1e293b' }}>{n(s.bird, lang)}</td>
+                    <td style={{ ...tdStyle, fontWeight: 900, color: '#0f172a', fontSize: 10 }}>{n(s.bird, lang)}</td>
                     <td style={tdStyle}>
                       {s.activity && (() => {
                         const ac = ACTIVITY_COLORS[s.activity.key] || { bg: '#f1f5f9', text: '#334155' };
                         return (
-                          <span style={{ padding: '2px 6px', borderRadius: 4, fontSize: 7.5, fontWeight: 800, background: ac.bg, color: ac.text, whiteSpace: 'nowrap' }}>
+                          <span style={{ padding: '3px 8px', borderRadius: 6, fontSize: 9, fontWeight: 900, background: ac.bg, color: ac.text, whiteSpace: 'nowrap', display: 'inline-block' }}>
                             {n(s.activity, lang)}
                           </span>
                         );
                       })()}
                     </td>
-                    <td style={{ ...tdStyle, fontWeight: 700, color: '#334155', fontSize: 8 }}>{n(s.relation, lang)}</td>
+                    <td style={{ ...tdStyle, fontWeight: 800, color: '#334155', fontSize: 9.5 }}>{n(s.relation, lang)}</td>
                     <td style={tdStyle}>
-                      <div style={{ fontWeight: 700, color: '#334155', whiteSpace: 'nowrap', fontSize: 8 }}>
+                      <div style={{ fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap', fontSize: 9.5 }}>
                         {s.startLabel} – {s.endLabel}
                       </div>
                       {(hora || gowriSlot || warnings.length > 0) && (
-                        <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap', marginTop: 2 }}>
+                        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 4 }}>
                           {hora && (
-                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, padding: '1px 4px', borderRadius: 3, fontSize: 7, fontWeight: 800, background: '#f1f5f9', color: '#475569' }}>
-                              <span style={{ width: 5, height: 5, borderRadius: '50%', background: PLANET_DOTS[hora.planet?.key] || '#94a3b8' }} />
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 6px', borderRadius: 4, fontSize: 8, fontWeight: 900, background: '#f1f5f9', color: '#1e293b' }}>
+                              <span style={{ width: 6, height: 6, borderRadius: '50%', background: PLANET_DOTS[hora.planet?.key] || '#94a3b8' }} />
                               {t ? hora.planet?.tamil : hora.planet?.label}
                             </span>
                           )}
                           {gowriSlot && (
-                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, padding: '1px 4px', borderRadius: 3, fontSize: 7, fontWeight: 800, color: GOWRI_COLORS[gowriSlot.type?.nature]?.text || '#475569', background: '#f8fafc' }}>
-                              <span style={{ width: 5, height: 5, borderRadius: '50%', background: GOWRI_COLORS[gowriSlot.type?.nature]?.dot || '#94a3b8' }} />
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 6px', borderRadius: 4, fontSize: 8, fontWeight: 900, color: GOWRI_COLORS[gowriSlot.type?.nature]?.text || '#475569', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                              <span style={{ width: 6, height: 6, borderRadius: '50%', background: GOWRI_COLORS[gowriSlot.type?.nature]?.dot || '#94a3b8' }} />
                               {t ? gowriSlot.type?.tamil : gowriSlot.type?.label}
                             </span>
                           )}
                           {warnings.map(w => {
                             const sl = SPECIAL_LABELS[w];
-                            return sl ? <span key={w} style={{ padding: '1px 4px', borderRadius: 3, fontSize: 6.5, fontWeight: 800, color: sl.color, background: sl.bg }}>{t ? sl.ta : sl.en}</span> : null;
+                            return sl ? <span key={w} style={{ padding: '2px 6px', borderRadius: 4, fontSize: 7.5, fontWeight: 900, color: sl.color, background: sl.bg }}>{t ? sl.ta : sl.en}</span> : null;
                           })}
                         </div>
                       )}
                     </td>
                     <td style={tdStyle}>
-                      {s.direction && <span style={{ padding: '2px 6px', borderRadius: 4, fontSize: 7.5, fontWeight: 700, background: '#eef2ff', color: '#4f46e5' }}>{n(s.direction, lang)}</span>}
+                      {s.direction && <span style={{ padding: '3px 8px', borderRadius: 6, fontSize: 9, fontWeight: 900, background: '#eef2ff', color: '#4f46e5', display: 'inline-block' }}>{n(s.direction, lang)}</span>}
                     </td>
-                    <td style={{ ...tdStyle, fontSize: 7.5, color: '#475569', lineHeight: 1.4 }}>{s.palan || '—'}</td>
-                    <td style={{ ...tdStyle, textAlign: 'right', fontWeight: 900, fontSize: 9, color: strengthColor }}>{s.strength}%</td>
+                    <td style={{ ...tdStyle, fontSize: 9, color: '#334155', lineHeight: 1.5, fontWeight: 500 }}>{s.palan || '—'}</td>
+                    <td style={{ ...tdStyle, textAlign: 'right', fontWeight: 900, fontSize: 11, color: strengthColor }}>{s.strength}%</td>
                   </tr>
-
+ 
                   {/* Sookshima */}
                   {showSubTable && (
-                    <tr style={{ background: '#fffbeb' }}>
-                      <td colSpan={8} style={{ padding: '0 6px 0 24px', borderBottom: '1px solid #f1f5f9' }}>
-                        <div style={{ borderLeft: '2px solid #fbbf24', paddingLeft: 10, margin: '4px 0' }}>
-                          <div style={{ fontSize: 7, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#d97706', marginBottom: 3 }}>
+                    <tr style={{ background: '#fffcf0' }}>
+                      <td colSpan={8} style={{ padding: '0 8px 0 32px', borderBottom: '1px solid #e2e8f0', borderRight: '1px solid #f1f5f9', borderLeft: '1px solid #f1f5f9' }}>
+                        <div style={{ borderLeft: '3px solid #fbbf24', paddingLeft: 12, margin: '8px 0' }}>
+                          <div style={{ fontSize: 8, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#b45309', marginBottom: 6 }}>
                             {labels.sookshima}
                           </div>
                           <table style={{ width: '100%', borderCollapse: 'collapse', ...baseFont }}>
                             <thead>
-                              <tr style={{ fontSize: 7, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#94a3b8' }}>
-                                <th style={{ padding: '2px 6px', width: 65, textAlign: 'left' }}>{labels.bird}</th>
-                                <th style={{ padding: '2px 6px', width: 55, textAlign: 'left' }}>{labels.activity}</th>
-                                <th style={{ padding: '2px 6px', width: 45, textAlign: 'left' }}>{labels.relation}</th>
-                                <th style={{ padding: '2px 6px', textAlign: 'left' }}>{labels.time}</th>
+                              <tr style={{ fontSize: 8, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#94a3b8' }}>
+                                <th style={{ padding: '4px 8px', width: 80, textAlign: 'left', borderBottom: '1px solid #fdf2f2' }}>{labels.bird}</th>
+                                <th style={{ padding: '4px 8px', width: 70, textAlign: 'left', borderBottom: '1px solid #fdf2f2' }}>{labels.activity}</th>
+                                <th style={{ padding: '4px 8px', width: 60, textAlign: 'left', borderBottom: '1px solid #fdf2f2' }}>{labels.relation}</th>
+                                <th style={{ padding: '4px 8px', textAlign: 'left', borderBottom: '1px solid #fdf2f2' }}>{labels.time}</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -245,31 +262,27 @@ function DetailedScheduleBlock({ title, yamas, lang, labels, horai, gowri, speci
                                 const skWarnings = getSpecialWarnings(sk.start, sk.end, specialPeriods);
                                 return (
                                   <tr key={j} style={{ borderTop: '1px solid #fef3c7' }}>
-                                    <td style={{ padding: '3px 6px', fontWeight: 800, color: '#1e293b', fontSize: 8 }}>{n(sk.bird, lang)}</td>
-                                    <td style={{ padding: '3px 6px' }}>
+                                    <td style={{ padding: '5px 8px', fontWeight: 900, color: '#0f172a', fontSize: 9 }}>{n(sk.bird, lang)}</td>
+                                    <td style={{ padding: '5px 8px' }}>
                                       {sk.activity && (() => {
                                         const ac = ACTIVITY_COLORS[sk.activity.key] || { bg: '#f1f5f9', text: '#334155' };
-                                        return <span style={{ padding: '1px 5px', borderRadius: 3, fontSize: 7, fontWeight: 800, background: ac.bg, color: ac.text }}>{n(sk.activity, lang)}</span>;
+                                        return <span style={{ padding: '2px 6px', borderRadius: 4, fontSize: 8, fontWeight: 900, background: ac.bg, color: ac.text }}>{n(sk.activity, lang)}</span>;
                                       })()}
                                     </td>
-                                    <td style={{ padding: '3px 6px', fontSize: 7.5, fontWeight: 700, color: '#475569' }}>{n(sk.relation, lang)}</td>
-                                    <td style={{ padding: '3px 6px' }}>
-                                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
-                                        <span style={{ fontSize: 7.5, fontWeight: 700, color: '#64748b', whiteSpace: 'nowrap' }}>{sk.startLabel} – {sk.endLabel}</span>
+                                    <td style={{ padding: '5px 8px', fontSize: 8.5, fontWeight: 800, color: '#475569' }}>{n(sk.relation, lang)}</td>
+                                    <td style={{ padding: '5px 8px' }}>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                                        <span style={{ fontSize: 9, fontWeight: 800, color: '#64748b', whiteSpace: 'nowrap' }}>{sk.startLabel} – {sk.endLabel}</span>
                                         {skHora && (
-                                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2, padding: '1px 3px', borderRadius: 2, fontSize: 6.5, fontWeight: 800, background: '#f1f5f9', color: '#475569' }}>
-                                            <span style={{ width: 4, height: 4, borderRadius: '50%', background: PLANET_DOTS[skHora.planet?.key] || '#94a3b8' }} />{t ? skHora.planet?.tamil : skHora.planet?.label}
+                                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, padding: '1px 5px', borderRadius: 4, fontSize: 7.5, fontWeight: 900, background: '#f1f5f9', color: '#1e293b' }}>
+                                            <span style={{ width: 5, height: 5, borderRadius: '50%', background: PLANET_DOTS[skHora.planet?.key] || '#94a3b8' }} />{t ? skHora.planet?.tamil : skHora.planet?.label}
                                           </span>
                                         )}
                                         {skGowri && (
-                                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2, padding: '1px 3px', borderRadius: 2, fontSize: 6.5, fontWeight: 800, color: GOWRI_COLORS[skGowri.type?.nature]?.text || '#475569' }}>
-                                            <span style={{ width: 4, height: 4, borderRadius: '50%', background: GOWRI_COLORS[skGowri.type?.nature]?.dot || '#94a3b8' }} />{t ? skGowri.type?.tamil : skGowri.type?.label}
+                                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, padding: '1px 5px', borderRadius: 4, fontSize: 7.5, fontWeight: 900, color: GOWRI_COLORS[skGowri.type?.nature]?.text || '#475569' }}>
+                                            <span style={{ width: 5, height: 5, borderRadius: '50%', background: GOWRI_COLORS[skGowri.type?.nature]?.dot || '#94a3b8' }} />{t ? skGowri.type?.tamil : skGowri.type?.label}
                                           </span>
                                         )}
-                                        {skWarnings.map(w => {
-                                          const sl = SPECIAL_LABELS[w];
-                                          return sl ? <span key={w} style={{ padding: '1px 3px', borderRadius: 2, fontSize: 6, fontWeight: 800, color: sl.color, background: sl.bg }}>{t ? sl.ta : sl.en}</span> : null;
-                                        })}
                                       </div>
                                     </td>
                                   </tr>
@@ -283,9 +296,9 @@ function DetailedScheduleBlock({ title, yamas, lang, labels, horai, gowri, speci
                   )}
                 </React.Fragment>
               );
-            })
-          )}
-        </tbody>
+            })}
+          </tbody>
+        ))}
       </table>
     </div>
   );
@@ -425,12 +438,12 @@ function ScheduleSection({ days, lang, fromDate, toDate, locationName, showSubTa
         <div key={day.date} style={{ marginBottom: 24, pageBreakInside: 'avoid' }}>
           
           {/* Day Header */}
-          <div style={{ background: '#1e293b', color: '#fff', padding: '6px 12px', fontSize: 11, fontWeight: 900, marginBottom: 12, borderRadius: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center', ...baseFont }}>
+          <div style={{ background: '#0f172a', color: '#fff', padding: '10px 16px', fontSize: 12, fontWeight: 900, marginBottom: 12, borderRadius: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center', ...baseFont }}>
             <div>
               {fmtDate(day.date, lang)} — {n(day.weekday, lang)}
             </div>
-            <div style={{ fontWeight: 700, fontSize: 8, color: '#fefce8', background: '#b45309', padding: '2px 8px', borderRadius: 4 }}>
-              {tl ? 'பகல் பிறை:' : 'Day:'} {n(day.paksha?.day, lang)} <span style={{ margin: '0 4px', opacity: 0.5 }}>|</span> {tl ? 'இரவு பிறை:' : 'Night:'} {n(day.paksha?.night, lang)}
+            <div style={{ fontWeight: 700, fontSize: 8, color: '#fefce8', background: '#b45309', padding: '3px 10px', borderRadius: 4 }}>
+              {tl ? 'பகல் பிறை:' : 'Day:'} {n(day.paksha?.day, lang)} <span style={{ margin: '0 6px', opacity: 0.5 }}>|</span> {tl ? 'இரவு பிறை:' : 'Night:'} {n(day.paksha?.night, lang)}
             </div>
           </div>
 
@@ -475,9 +488,9 @@ export function RangePrintView({ rangeData, categories, lang, locationName, from
     }}>
       <style>{`
         @media print {
-          @page { margin: 0; }
+          @page { margin: 0; size: A4; }
           body { margin: 0; }
-          #range-print-view { padding: 1.5cm !important; }
+          #range-print-view { padding: 1.5cm !important; width: 100%; box-sizing: border-box; }
         }
       `}</style>
 
@@ -486,26 +499,30 @@ export function RangePrintView({ rangeData, categories, lang, locationName, from
         <div style={{ 
           display: 'flex', 
           justifyContent: 'space-between', 
-          alignItems: 'center', 
-          paddingBottom: 20, 
-          marginBottom: 30, 
-          borderBottom: '2px solid #f1f5f9',
+          alignItems: 'flex-start', 
+          paddingBottom: 25, 
+          marginBottom: 20, 
+          borderBottom: '3px solid #0f172a',
           ...baseFont
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <img src={branding.logoUrl || '/logo.png'} style={{ height: 45, width: 'auto' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <img src={branding.logoUrl || '/logo.png'} style={{ height: 60, width: 'auto', objectFit: 'contain' }} />
             <div>
-               <div style={{ fontSize: 14, fontWeight: 900, color: '#0f172a' }}>
+               <h1 style={{ fontSize: 24, fontWeight: 900, color: '#0f172a', margin: 0, lineHeight: 1 }}>
                  {tl ? (branding.astrologerNameTa || branding.astrologerNameEn || branding.astrologerName) : (branding.astrologerNameEn || branding.astrologerName)}
-               </div>
-               <div style={{ fontSize: 10, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
+               </h1>
+               <h2 style={{ fontSize: 14, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '4px 0 0 0' }}>
                  {tl ? (branding.companyNameTa || branding.companyNameEn || branding.companyName) : (branding.companyNameEn || branding.companyName)}
-               </div>
+               </h2>
             </div>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 9, fontStyle: 'italic', color: '#94a3b8', marginBottom: 2 }}>Exported Range: {fmtDateShort(fromDate)} - {fmtDateShort(toDate)}</div>
-            <div style={{ fontSize: 11, fontWeight: 800, color: '#0f172a' }}>{branding.mobile}</div>
+            <div style={{ fontSize: 8, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>
+               Exported Range: <span style={{ color: '#64748b', fontWeight: 800 }}>{fmtDateShort(fromDate)} - {fmtDateShort(toDate)}</span>
+            </div>
+            <div style={{ fontSize: 20, fontWeight: 900, color: '#0f172a', letterSpacing: '-0.02em' }}>
+               {branding.mobile}
+            </div>
           </div>
         </div>
       )}

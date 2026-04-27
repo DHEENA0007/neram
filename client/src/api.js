@@ -68,6 +68,9 @@ export function createAdminUser(payload) {
 export function updateAdminUser(id, payload) {
   return apiFetch(`/api/admin/users/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
 }
+export function deleteAdminUser(id) {
+  return apiFetch(`/api/admin/users/${id}`, { method: 'DELETE' });
+}
 
 // ── Admin: Palangal ───────────────────────────────
 export async function loadPalangal() {
@@ -151,4 +154,13 @@ export function requestBrandingAccess() {
 }
 export function updateCustomBranding(payload) {
   return apiFetch('/api/user/branding', { method: 'POST', body: JSON.stringify(payload) });
+}
+
+// ── Downloads ──────────────────────────────────────
+export function requestDownloadAccess(service) {
+  return apiFetch('/api/users/request-download', { method: 'POST', body: JSON.stringify({ service }) });
+}
+
+export function recordDownload(service) {
+  return apiFetch('/api/users/record-download', { method: 'POST', body: JSON.stringify({ service }) });
 }

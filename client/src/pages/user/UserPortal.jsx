@@ -58,6 +58,7 @@ const L = {
 };
 
 export function UserPortal() {
+  const { user, requestDownloadAccess, recordDownload } = useAuth();
   const [lang, setLang] = useState('ta');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [birdId, setBirdId] = useState('1');
@@ -207,13 +208,39 @@ export function UserPortal() {
     }
   }
 
+  async function handlePrintAction() {
+    const dp = user?.downloadPermissions?.neram || { allowed: false, requestStatus: 'none' };
+    if (dp.allowed) {
+      setShowPrintModal(true);
+    } else {
+      setShowRequestModal(true);
+    }
+  }
+
+  const [showRequestModal, setShowRequestModal] = useState(false);
+  const [requesting, setRequesting] = useState(false);
+
+  async function handleRequestAccess() {
+    setRequesting(true);
+    try {
+      await requestDownloadAccess('neram');
+      setShowRequestModal(false);
+      alert(lang === 'ta' ? 'விண்ணப்பம் அனுப்பப்பட்டது!' : 'Request sent successfully!');
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setRequesting(false);
+    }
+  }
+
   function handleSinglePrint({ showSubTable }) {
     setShowPrintModal(false);
     setPrintSubTable(showSubTable);
-    setTimeout(() => {
+    setTimeout(async () => {
       const printEl = document.getElementById('print-view');
       if (printEl) {
         executeIsolatedPrint(printEl.innerHTML, lang === 'ta' ? 'பஞ்சபட்சி அட்டவணை' : 'Pancha Pakshi Schedule');
+        try { await recordDownload('neram'); } catch (e) { console.error(e); }
       }
     }, 200);
   }
@@ -501,11 +528,18 @@ export function UserPortal() {
               {/* PRINT BUTTON */}
               <div className="no-print flex justify-end">
                 <button
-                  onClick={() => setShowPrintModal(true)}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-slate-800/20 active:scale-95 transition-all"
+                  onClick={handlePrintAction}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg active:scale-95 transition-all ${
+                    (user?.downloadPermissions?.neram?.allowed)
+                      ? 'bg-slate-800 hover:bg-slate-900 text-white shadow-slate-800/20'
+                      : 'bg-white border border-slate-200 text-slate-400 hover:border-amber-500 hover:text-amber-500 shadow-slate-200/50'
+                  }`}
                 >
-                   <IconDownload size={18} />
-                  {lang === 'ta' ? 'PDF பதிவிறக்கம்' : 'Download PDF'}
+                   {(user?.downloadPermissions?.neram?.allowed) ? <IconDownload size={18} /> : <IconLock size={18} />}
+                   {lang === 'ta' ? 'PDF பதிவிறக்கம்' : 'Download PDF'}
+                   {!(user?.downloadPermissions?.neram?.allowed) && (
+                     <span className="ml-1 px-1.5 py-0.5 bg-amber-500 text-white rounded-[4px] text-[8px]">LOCKED</span>
+                   )}
                 </button>
               </div>
 
@@ -605,6 +639,41 @@ export function UserPortal() {
         onPrintSingle={handleSinglePrint}
         onPrintRange={handleRangePrint}
       />
+    )}
+
+    {showRequestModal && (
+      <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-md">
+        <div className="bg-white w-full max-w-md rounded-[3rem] shadow-2xl p-10 text-center animate-in zoom-in-95 duration-200">
+           <div className="w-20 h-20 bg-amber-100 text-amber-600 rounded-[2rem] flex items-center justify-center mx-auto mb-6">
+              <IconLock size={40} />
+           </div>
+           <h3 className="text-3xl font-black text-slate-900 mb-2">
+             {lang === 'ta' ? 'அனுமதி தேவை' : 'Access Restricted'}
+           </h3>
+           <p className="text-slate-500 font-bold text-sm mb-8 leading-relaxed">
+             {lang === 'ta' 
+               ? 'PDF பதிவிறக்கம் செய்ய உங்களுக்கு அனுமதி இல்லை. பதிவிறக்க வசதியை பெற நிர்வாகியிடம் விண்ணப்பம் அனுப்பவும்.' 
+               : 'You do not have permission to download reports. Please send a request to the administrator to enable this feature for your account.'}
+           </p>
+
+           <div className="space-y-3">
+             {user?.downloadPermissions?.neram?.requestStatus === 'pending' ? (
+                <div className="w-full py-5 bg-slate-100 text-slate-400 text-xs font-black uppercase rounded-2xl flex items-center justify-center gap-2 border border-slate-200">
+                   <IconClock size={16} />
+                   {lang === 'ta' ? 'விண்ணப்பம் நிலுவையில் உள்ளது' : 'Request Pending Approval'}
+                </div>
+             ) : (
+                <button onClick={handleRequestAccess} disabled={requesting} className="w-full py-5 bg-amber-500 text-white text-xs font-black uppercase rounded-2xl shadow-lg shadow-amber-500/20 active:scale-95 transition-all flex items-center justify-center gap-2">
+                   {requesting ? '...' : (lang === 'ta' ? 'நிர்வாகியிடம் அனுமதி கோரவும்' : 'Send Request to Admin')}
+                </button>
+             )}
+             
+             <button onClick={() => setShowRequestModal(false)} className="w-full py-3 text-slate-400 text-[10px] font-black uppercase tracking-widest hover:text-slate-900 transition-colors">
+               {lang === 'ta' ? 'பிறகு செய்' : 'Maybe Later'}
+             </button>
+           </div>
+        </div>
+      </div>
     )}
     </>
   );

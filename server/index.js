@@ -138,40 +138,44 @@ function checkRestrictions(feature) {
     if (!user) return res.status(401).json({ error: 'Not authenticated' });
     if (user.role === 'admin') return next();
 
+    // 1. Download Check (Applies to all non-admin)
+    if (feature === 'download') {
+      const serviceKey = req.body.service || req.query.service || 'neram';
+      const dp = user.downloadPermissions?.[serviceKey];
+      if (!dp || !dp.allowed) {
+        return res.status(403).json({ 
+          error: 'Download access is locked for this service.',
+          requestStatus: dp?.requestStatus || 'none',
+          service: serviceKey
+        });
+      }
+      if (dp.limit > 0 && dp.used >= dp.limit) {
+        return res.status(403).json({ error: `You have reached your download limit (${dp.limit}) for ${serviceKey}.` });
+      }
+    }
+
     if (user.userType === 'demo') {
       const { demoConfig, usageStats } = user;
-      
-      // Check trial period
       if (demoConfig.trialEndDate && new Date() > new Date(demoConfig.trialEndDate)) {
         return res.status(403).json({ error: 'Trial period has expired. Please subscribe to continue.' });
       }
-
-      // Check feature-specific limits
-      if (feature === 'panchaPakshi' || feature === 'generation') {
-        if (usageStats.generationsCount >= demoConfig.maxGenerations) {
-          return res.status(403).json({ error: 'Generation limit reached for demo account.' });
-        }
+      if ((feature === 'panchaPakshi' || feature === 'generation') && usageStats.generationsCount >= demoConfig.maxGenerations) {
+        return res.status(403).json({ error: 'Generation limit reached for demo account.' });
       }
-      if (feature === 'nallaNeram') {
-        if (usageStats.nallaNeramCount >= demoConfig.maxNallaNeram) {
-          return res.status(403).json({ error: 'Nalla Neram limit reached for demo account.' });
-        }
-      }
-      if (feature === 'download') {
-        if (usageStats.downloadsCount >= demoConfig.maxDownloads) {
-          return res.status(403).json({ error: 'Download limit reached for demo account.' });
-        }
+      if (feature === 'nallaNeram' && usageStats.nallaNeramCount >= demoConfig.maxNallaNeram) {
+        return res.status(403).json({ error: 'Nalla Neram limit reached for demo account.' });
       }
     } else if (user.userType === 'subscribed') {
       const { subscriptionConfig } = user;
-      
-      // Check subscription expiry
       if (subscriptionConfig.endDate && new Date() > new Date(subscriptionConfig.endDate)) {
         return res.status(403).json({ error: 'Your subscription has expired. Please renew to continue.' });
       }
-
-      if (!subscriptionConfig.features.includes(feature)) {
-        return res.status(403).json({ error: `You do not have access to the ${feature === 'panchaPakshi' ? 'Pancha Pakshi' : feature} feature.` });
+      // Features check (excluding download which is handled separately now)
+      if (feature !== 'download') {
+        const features = subscriptionConfig.features || [];
+        if (!features.includes(feature) && !(feature === 'generation' && features.includes('panchaPakshi'))) {
+           return res.status(403).json({ error: `You do not have access to the ${feature} feature.` });
+        }
       }
     }
 
@@ -437,6 +441,20 @@ app.put(
   }),
 );
 
+app.delete(
+  '/api/admin/users/:id',
+  requireUser,
+  requireRole('admin'),
+  asyncRoute(async (req, res) => {
+    const { deleteUser } = await import('./lib/db.js');
+    const success = await deleteUser(req.params.id);
+    if (!success) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json({ success: true });
+  }),
+);
+
 // ── Settings ─────────────────────────────────────
 app.get('/api/admin/settings', requireUser, requireRole('admin'), asyncRoute(async (req, res) => {
   const settings = await getSettings();
@@ -627,11 +645,80 @@ app.put(
   requireUser,
   requireRole('admin'),
   asyncRoute(async (req, res) => {
-    const { name, password } = req.body || {};
-    const updated = await updateUser(req.currentUser.id, { name, password });
+    const { name, currentPassword, newPassword } = req.body || {};
+    
+    // If trying to change password, verify current password
+    if (newPassword) {
+      if (!currentPassword) {
+        return res.status(400).json({ error: 'Current password is required to change password' });
+      }
+      const user = await findUserById(req.currentUser.id);
+      const matches = bcrypt.compareSync(currentPassword, user.passwordHash);
+      if (!matches) {
+        return res.status(401).json({ error: 'Incorrect current password' });
+      }
+    }
+
+    const updated = await updateUser(req.currentUser.id, { 
+      name, 
+      password: newPassword 
+    });
+    
     if (!updated) return res.status(404).json({ error: 'User not found' });
     return res.json({ user: updated });
   }),
+);
+
+app.post(
+  '/api/users/request-download',
+  requireUser,
+  asyncRoute(async (req, res) => {
+    const { service } = req.body || {};
+    const serviceKey = service === 'nalaneram' ? 'nalaneram' : 'neram';
+    
+    const user = await findUserById(req.currentUser.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const dp = (user.downloadPermissions && user.downloadPermissions[serviceKey]) || { allowed: false, limit: 0, used: 0, requestStatus: 'none' };
+    if (dp.requestStatus === 'pending') {
+      return res.status(400).json({ error: 'A request is already pending for this service.' });
+    }
+
+    const updatedPermissions = {
+      ...(user.downloadPermissions || { 
+        neram: { allowed: false, limit: 0, used: 0, requestStatus: 'none' }, 
+        nalaneram: { allowed: false, limit: 0, used: 0, requestStatus: 'none' } 
+      }),
+      [serviceKey]: { ...dp, requestStatus: 'pending' }
+    };
+
+    await updateUser(user.id, { downloadPermissions: updatedPermissions });
+    return res.json({ ok: true, status: 'pending' });
+  })
+);
+
+app.post(
+  '/api/users/record-download',
+  requireUser,
+  checkRestrictions('download'),
+  asyncRoute(async (req, res) => {
+    const { service } = req.body || {};
+    const serviceKey = service === 'nalaneram' ? 'nalaneram' : 'neram';
+    
+    const user = await findUserById(req.currentUser.id);
+    const dp = user.downloadPermissions?.[serviceKey];
+    
+    if (dp) {
+      const updatedPermissions = {
+        ...user.downloadPermissions,
+        [serviceKey]: { ...dp, used: (dp.used || 0) + 1 }
+      };
+      await updateUser(user.id, { downloadPermissions: updatedPermissions });
+      await recordUsage(user.id, { type: 'download' });
+    }
+    
+    return res.json({ ok: true });
+  })
 );
 
 if (process.env.NODE_ENV === 'production') {
