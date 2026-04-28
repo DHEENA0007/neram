@@ -115,7 +115,11 @@ export function PrintView({ prediction, lang, locationName, showSubTable = true,
 
   return (
     <div id="print-view" style={{
-      display: 'none',
+      visibility: 'hidden',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
       fontFamily: font,
       color: '#0f172a',
       background: '#fff',

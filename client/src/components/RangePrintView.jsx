@@ -478,7 +478,11 @@ export function RangePrintView({ rangeData, categories, lang, locationName, from
 
   return (
     <div id="range-print-view" style={{
-      display: 'none',
+      visibility: 'hidden',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
       fontFamily: 'Inter, "Noto Sans Tamil", sans-serif',
       background: '#fff',
       padding: '10px 20px',
