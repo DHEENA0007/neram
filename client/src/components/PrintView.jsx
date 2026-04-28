@@ -125,9 +125,9 @@ export function PrintView({ prediction, lang, locationName, showSubTable = true,
     }}>
       <style>{`
         @media print {
-          @page { margin: 4mm; size: A4; }
-          body { margin: 0; padding: 0; }
-          #print-view { padding: 0.8cm !important; width: 100%; box-sizing: border-box; }
+          @page { margin: 3.5mm; size: A4; }
+          body { margin: 0; padding: 0; overflow: visible; }
+          #print-view { padding: 0.6cm !important; width: 100%; box-sizing: border-box; display: block !important; }
           .jamam-section { page-break-inside: avoid; break-inside: avoid; margin-bottom: 20px; }
           .special-period-card { border-bottom: 2px solid currentColor; padding-bottom: 4px; }
         }
@@ -139,9 +139,10 @@ export function PrintView({ prediction, lang, locationName, showSubTable = true,
           display: 'flex', 
           justifyContent: 'space-between', 
           alignItems: 'flex-start', 
-          paddingBottom: 25, 
-          marginBottom: 20, 
-          borderBottom: '3px solid #0f172a' 
+          paddingBottom: 20, 
+          marginBottom: 15, 
+          borderBottom: '3px solid #0f172a',
+          pageBreakAfter: 'avoid'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <img src={branding.logoUrl || '/logo.png'} style={{ height: 60, width: 'auto', objectFit: 'contain' }} />

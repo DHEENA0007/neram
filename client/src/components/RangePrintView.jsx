@@ -488,9 +488,9 @@ export function RangePrintView({ rangeData, categories, lang, locationName, from
     }}>
       <style>{`
         @media print {
-          @page { margin: 4mm; size: A4; }
-          body { margin: 0; padding: 0; }
-          #range-print-view { padding: 0.8cm !important; width: 100%; box-sizing: border-box; }
+          @page { margin: 3.5mm; size: A4; }
+          body { margin: 0; padding: 0; overflow: visible; }
+          #range-print-view { padding: 0.6cm !important; width: 100%; box-sizing: border-box; display: block !important; }
         }
       `}</style>
 
@@ -500,9 +500,10 @@ export function RangePrintView({ rangeData, categories, lang, locationName, from
           display: 'flex', 
           justifyContent: 'space-between', 
           alignItems: 'flex-start', 
-          paddingBottom: 25, 
-          marginBottom: 20, 
+          paddingBottom: 20, 
+          marginBottom: 15, 
           borderBottom: '3px solid #0f172a',
+          pageBreakAfter: 'avoid',
           ...baseFont
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>

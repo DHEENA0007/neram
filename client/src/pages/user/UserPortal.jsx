@@ -267,7 +267,7 @@ export function UserPortal() {
           <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
           <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&family=Noto+Sans+Tamil:wght@400;700;800;900&display=swap" rel="stylesheet">
           <style>
-            body { margin: 0; padding: 0; }
+            html, body { margin: 0; padding: 0; overflow: visible !important; }
             @media print {
               @page { margin: 0; size: A4; }
               * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
