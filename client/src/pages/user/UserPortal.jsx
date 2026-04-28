@@ -365,9 +365,7 @@ export function UserPortal() {
                   <span className="text-[10px] font-black text-indigo-600 uppercase tracking-tighter">Use My GPS</span>
                 </label>
               </div>
-            </div>
-          </div>
-              
+
               {showResults && results.length > 0 && (
                 <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl ring-1 ring-slate-200 border-none z-[100] overflow-hidden max-h-[240px] overflow-y-auto animate-in slide-in-from-top-2 duration-200">
                   {results.map((r, idx) => (
