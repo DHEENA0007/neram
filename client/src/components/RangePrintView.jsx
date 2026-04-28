@@ -488,9 +488,11 @@ export function RangePrintView({ rangeData, categories, lang, locationName, from
     }}>
       <style>{`
         @media print {
-          @page { margin: 0; size: A4; }
-          body { margin: 0; }
-          #range-print-view { padding: 1.5cm !important; width: 100%; box-sizing: border-box; }
+          @page { margin: 4mm; size: A4; }
+          body { margin: 0; padding: 0; }
+          #range-print-view { padding: 0.8cm !important; width: 100%; box-sizing: border-box; }
+          /* Fix for empty first page */
+          div:first-child { page-break-before: avoid !important; }
         }
       `}</style>
 
@@ -590,10 +592,13 @@ export function RangePrintView({ rangeData, categories, lang, locationName, from
           </div>
 
           {branding.socialMedia?.length > 0 && (
-            <div style={{ marginTop: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            <div style={{ marginTop: 15, display: 'flex', flexDirection: 'column', gap: 6 }}>
               {branding.socialMedia.map((s, i) => (
-                <div key={i} style={{ fontSize: 8, fontWeight: 800, color: '#6366f1', background: '#f5f3ff', padding: '2px 6px', borderRadius: 4 }}>
-                  {s.platform}: {s.url}
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ fontSize: 7, fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', width: 60 }}>{s.platform}</div>
+                  <div style={{ fontSize: 8.5, fontWeight: 800, color: '#6366f1', background: '#f5f3ff', padding: '3px 10px', borderRadius: 6, border: '1px solid #e0e7ff' }}>
+                    {s.url}
+                  </div>
                 </div>
               ))}
             </div>
