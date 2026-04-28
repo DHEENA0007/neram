@@ -189,7 +189,12 @@ export function NallaNeram() {
     if (!printEl) return;
     
     const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
     document.body.appendChild(iframe);
     const doc = iframe.contentWindow.document;
     doc.open();
@@ -201,19 +206,22 @@ export function NallaNeram() {
           <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
           <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&family=Noto+Sans+Tamil:wght@400;700;800;900&display=swap" rel="stylesheet">
           <style>
-            body { margin: 0; padding: 0; }
+            html, body { margin: 0; padding: 0; overflow: visible !important; }
             @media print {
-              @page { margin: 1cm; size: auto; }
-              #nalla-neram-print-view { display: block !important; }
+              @page { margin: 0; size: A4; }
+              * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             }
+            * { box-sizing: border-box; }
           </style>
         </head>
         <body>
-          <div style="width: 100%;">${printEl.innerHTML}</div>
+          <div style="width: 100%; display: block;">${printEl.innerHTML}</div>
           <script>
             window.onload = () => {
-              window.print();
-              setTimeout(() => { window.frameElement.remove(); }, 1000);
+              document.fonts.ready.then(() => {
+                window.print();
+                setTimeout(() => { window.frameElement.remove(); }, 1000);
+              });
             };
           </script>
         </body>
