@@ -613,9 +613,8 @@ export function UserPortal() {
             <div className="flex-1 flex flex-col items-center justify-center min-h-[400px] sm:min-h-[600px] py-6 sm:py-10">
               <div className="max-w-5xl w-full animate-in zoom-in-95 duration-700">
                 <div className="text-center mb-6 sm:mb-10">
-                  <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-2xl sm:rounded-[2.5rem] bg-amber-500/10 flex items-center justify-center text-amber-500 mx-auto mb-4 sm:mb-6 shadow-sm ring-1 ring-amber-500/10 animate-slow-bounce">
-                    <IconCalendar size={32} className="sm:hidden" />
-                    <IconCalendar size={48} className="hidden sm:block" />
+                  <div className="w-20 h-20 rounded-[2rem] bg-amber-500/10 flex items-center justify-center text-amber-500 mx-auto mb-6 shadow-sm ring-1 ring-amber-500/10">
+                    <IconCalendar size={40} />
                   </div>
                   <h2 className="text-2xl sm:text-4xl font-black text-slate-900 mb-2 tracking-tight">
                     {lang === 'ta' ? 'ஜாதகக் கணிப்பு' : 'Schedule Generator'}
