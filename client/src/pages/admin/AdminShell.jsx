@@ -4,7 +4,7 @@ import { useAuth } from '../../auth.jsx';
 import { 
   IconUsers, IconList, IconSettings, IconDashboard, 
   IconLogout, IconArrowRight, IconZap, IconCreditCard,
-  IconChartBar 
+  IconChartBar, IconX, IconArrowRight as IconMenu
 } from '../../components/Icons.jsx';
 
 export function AdminShell() {
@@ -16,15 +16,42 @@ export function AdminShell() {
 
   return (
     <div className="flex min-h-screen bg-slate-50">
+      
+      {/* Mobile Top Header */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-slate-200 z-[60] flex items-center justify-between px-6">
+        <div className="flex items-center gap-3">
+          <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain" />
+          <h1 className="text-sm font-bold text-slate-900">Astro Admin</h1>
+        </div>
+        <button 
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="p-2 text-slate-600 hover:bg-slate-50 rounded-xl transition-all"
+        >
+          {sidebarOpen ? (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          )}
+        </button>
+      </div>
+
+      {/* Backdrop for mobile */}
+      {sidebarOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[55]" 
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
       <aside className={`
-        fixed lg:sticky top-0 left-0 h-screen z-50
+        fixed lg:sticky top-0 left-0 h-screen z-[58]
         w-64 bg-white border-r border-slate-200 flex flex-col
         transform transition-transform duration-300 ease-in-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
-        {/* Branding */}
-        <div className="p-6 pb-8 flex items-center gap-3">
+        {/* Branding (Desktop) */}
+        <div className="hidden lg:flex p-6 pb-8 items-center gap-3">
           <img src="/logo.png" alt="Logo" className="w-10 h-10 object-contain" />
           <div>
             <h1 className="text-sm font-bold text-slate-900 leading-none">Astro Admin</h1>
@@ -32,8 +59,11 @@ export function AdminShell() {
           </div>
         </div>
 
+        {/* Padding for mobile header */}
+        <div className="lg:hidden h-16" />
+
         {/* Navigation */}
-        <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-4 py-6 lg:py-0 space-y-1 overflow-y-auto">
           <NavItem to="/admin" icon={IconDashboard} label="Dashboard" sub="முகப்பு" end onNavigate={() => setSidebarOpen(false)} />
           <NavItem to="/admin/users" icon={IconUsers} label="Users" sub="பயனர்கள்" onNavigate={() => setSidebarOpen(false)} />
           <NavItem to="/admin/subscriptions" icon={IconCreditCard} label="Subscriptions" sub="சந்தா" onNavigate={() => setSidebarOpen(false)} />
@@ -72,7 +102,7 @@ export function AdminShell() {
 
       {/* Content */}
       <div className="flex-1 flex flex-col min-w-0">
-        <main className="flex-1 p-6 lg:p-10 overflow-y-auto">
+        <main className="flex-1 p-6 lg:p-10 lg:pt-10 pt-20 overflow-y-auto">
           <Outlet />
         </main>
       </div>
