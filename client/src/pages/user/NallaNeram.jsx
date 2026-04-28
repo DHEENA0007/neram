@@ -187,7 +187,15 @@ export function NallaNeram() {
   async function handlePrint() {
     const printEl = document.getElementById('nalla-neram-print-view');
     if (!printEl) return;
-    
+
+    // Extract <style> blocks from innerHTML so they go in <head>, not <body>
+    // (a <style> in <body> renders as a blank block, causing an empty first page)
+    const extractedStyles = [];
+    const bodyContent = printEl.innerHTML.replace(/<style[^>]*>([\s\S]*?)<\/style>/gi, (_, css) => {
+      extractedStyles.push(css);
+      return '';
+    });
+
     const iframe = document.createElement('iframe');
     iframe.style.position = 'fixed';
     iframe.style.right = '0';
@@ -207,20 +215,21 @@ export function NallaNeram() {
           <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&family=Noto+Sans+Tamil:wght@400;700;800;900&display=swap" rel="stylesheet">
           <style>
             html, body { margin: 0; padding: 0; overflow: visible !important; }
+            * { box-sizing: border-box; }
             @media print {
               @page { margin: 0; size: A4; }
               * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             }
-            * { box-sizing: border-box; }
           </style>
+          ${extractedStyles.map(css => `<style>${css}</style>`).join('\n')}
         </head>
         <body>
-          <div style="width: 100%; display: block;">${printEl.innerHTML}</div>
+          <div style="width: 100%; display: block;">${bodyContent}</div>
           <script>
-            window.onload = () => {
-              document.fonts.ready.then(() => {
+            window.onload = function() {
+              document.fonts.ready.then(function() {
                 window.print();
-                setTimeout(() => { window.frameElement.remove(); }, 1000);
+                setTimeout(function() { window.frameElement && window.frameElement.remove(); }, 1000);
               });
             };
           </script>
