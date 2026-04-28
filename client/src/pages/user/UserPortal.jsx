@@ -248,55 +248,59 @@ export function UserPortal() {
   }
 
   function executeIsolatedPrint(htmlContent, title) {
-    // Extract <style> blocks from the content so they go in <head>, not <body>
-    // (a <style> in <body> renders as a blank block, causing an empty first page)
+    // Strip <style> blocks from content — place them in <head> instead.
+    // A <style> sitting in <body> renders as a block element and causes a blank first page.
     const extractedStyles = [];
     const bodyContent = htmlContent.replace(/<style[^>]*>([\s\S]*?)<\/style>/gi, (_, css) => {
       extractedStyles.push(css);
       return '';
     });
 
+    // Give the iframe real A4 dimensions but position it off-screen.
+    // A 0x0 iframe collapses all content to 0px wide — the browser then
+    // re-lays it out at print time but the first page ends up blank.
     const iframe = document.createElement('iframe');
     iframe.style.position = 'fixed';
-    iframe.style.right = '0';
-    iframe.style.bottom = '0';
-    iframe.style.width = '0';
-    iframe.style.height = '0';
+    iframe.style.left = '-9999px';
+    iframe.style.top = '0';
+    iframe.style.width = '210mm';
+    iframe.style.height = '297mm';
     iframe.style.border = '0';
+    iframe.style.visibility = 'hidden';
     document.body.appendChild(iframe);
 
     const doc = iframe.contentWindow.document;
     doc.open();
-    doc.write(`
-      <html>
-        <head>
-          <title>${title}</title>
-          <link rel="preconnect" href="https://fonts.googleapis.com">
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-          <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&family=Noto+Sans+Tamil:wght@400;700;800;900&display=swap" rel="stylesheet">
-          <style>
-            html, body { margin: 0; padding: 0; overflow: visible !important; }
-            * { box-sizing: border-box; }
-            @media print {
-              @page { margin: 0; size: A4; }
-              * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            }
-          </style>
-          ${extractedStyles.map(css => `<style>${css}</style>`).join('\n')}
-        </head>
-        <body>
-          <div style="width: 100%; display: block;">${bodyContent}</div>
-          <script>
-            window.onload = function() {
-              document.fonts.ready.then(function() {
-                window.print();
-                setTimeout(function() { window.frameElement && window.frameElement.remove(); }, 1000);
-              });
-            };
-          </script>
-        </body>
-      </html>
-    `);
+    doc.write(`<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>${title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&family=Noto+Sans+Tamil:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <style>
+      html, body { margin: 0; padding: 0; }
+      * { box-sizing: border-box; }
+      @media print {
+        @page { margin: 0; size: A4; }
+        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      }
+    </style>
+    ${extractedStyles.map(css => `<style>${css}</style>`).join('\n')}
+  </head>
+  <body>
+    <div style="width:210mm;">${bodyContent}</div>
+    <script>
+      document.fonts.ready.then(function() {
+        window.print();
+        setTimeout(function() {
+          if (window.frameElement) window.frameElement.remove();
+        }, 1500);
+      });
+    </script>
+  </body>
+</html>`);
     doc.close();
   }
 
