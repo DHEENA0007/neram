@@ -2,110 +2,149 @@ import React from 'react';
 
 function n(obj, lang) { return lang === 'ta' ? obj?.tamil : obj?.label; }
 
-const ACTIVITY_COLORS = {
-  ruling:   { bg: '#fef3c7', text: '#b45309' },
-  eating:   { bg: '#d1fae5', text: '#047857' },
-};
+const FONT = 'Inter, "Noto Sans Tamil", sans-serif';
 
-const PLANET_DOTS = {
+const PLANET_DOT = {
   sun: '#f59e0b', moon: '#6366f1', mars: '#ef4444',
-  mercury: '#22c55e', jupiter: '#f97316', venus: '#ec4899', saturn: '#1e293b',
+  mercury: '#22c55e', jupiter: '#f97316', venus: '#ec4899', saturn: '#334155',
 };
 
-const GOWRI_COLORS = {
-  good: { dot: '#059669', text: '#059669' },
-  bad: { dot: '#dc2626', text: '#dc2626' },
+const ACT_C = {
+  ruling: { bg: '#fef3c7', text: '#92400e' },
+  eating: { bg: '#d1fae5', text: '#065f46' },
 };
+
+function PrintHeader({ branding, lang, date }) {
+  const t = lang === 'ta';
+  if (!branding) return null;
+  const name    = t ? (branding.astrologerNameTa || branding.astrologerNameEn || branding.astrologerName)
+                    : (branding.astrologerNameEn || branding.astrologerName);
+  const company = t ? (branding.companyNameTa || branding.companyNameEn || branding.companyName)
+                    : (branding.companyNameEn || branding.companyName);
+  const dateStr = new Date(date).toLocaleDateString(t ? 'ta-IN' : 'en-GB', { dateStyle: 'full' });
+
+  return (
+    <div style={{
+      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+      background: '#0f172a', color: '#fff', padding: '8px 12px', marginBottom: 10,
+      fontFamily: FONT,
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <img src={branding.logoUrl || '/logo.png'}
+             style={{ height: 38, width: 'auto', objectFit: 'contain', borderRadius: 4, background: '#fff', padding: 2 }} />
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 900, lineHeight: 1.1 }}>{name}</div>
+          <div style={{ fontSize: 8, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: 2 }}>{company}</div>
+          <div style={{ fontSize: 7.5, color: '#f59e0b', fontWeight: 700, marginTop: 1 }}>
+            {t ? 'நல்ல நேரம் அறிக்கை' : 'Nalla Neram Report'} — {dateStr}
+          </div>
+        </div>
+      </div>
+      <div style={{ textAlign: 'right' }}>
+        <div style={{ fontSize: 14, fontWeight: 900, color: '#f59e0b', letterSpacing: '0.02em' }}>{branding.mobile}</div>
+      </div>
+    </div>
+  );
+}
+
+function PrintFooter({ branding, lang }) {
+  const t = lang === 'ta';
+  if (!branding) return null;
+  const addr = t ? (branding.addressTa || branding.addressEn || branding.address)
+                 : (branding.addressEn || branding.address);
+  return (
+    <div style={{
+      marginTop: 14, borderTop: '1px solid #e2e8f0', paddingTop: 8,
+      display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
+      fontFamily: FONT, fontSize: 8, color: '#475569',
+      pageBreakInside: 'avoid',
+    }}>
+      <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+        {branding.mobile   && <div><span style={{ fontWeight: 900, color: '#0f172a' }}>{t ? 'தொலை:' : 'Ph:'}</span> {branding.mobile}</div>}
+        {branding.whatsapp && <div><span style={{ fontWeight: 900, color: '#0f172a' }}>{t ? 'WA:' : 'WA:'}</span> {branding.whatsapp}</div>}
+        {branding.website  && <div><span style={{ fontWeight: 900, color: '#0f172a' }}>{t ? 'இணையம்:' : 'Web:'}</span> {branding.website}</div>}
+        {branding.socialMedia?.map((s, i) => (
+          <div key={i}><span style={{ fontWeight: 900, color: '#0f172a' }}>{s.platform}:</span> {s.url}</div>
+        ))}
+      </div>
+      {addr && <div style={{ maxWidth: 200, textAlign: 'right', color: '#64748b' }}>{addr}</div>}
+    </div>
+  );
+}
 
 export function NallaNeramPrintView({ nallaSlots, avoidPeriods, lang, date, branding }) {
   const t = lang === 'ta';
-  const font = 'Inter, "Noto Sans Tamil", sans-serif';
 
   return (
     <div id="nalla-neram-print-view" style={{
       display: 'none',
-      fontFamily: font,
+      fontFamily: FONT,
       color: '#0f172a',
       background: '#fff',
-      padding: '20px',
-      fontSize: 9,
+      fontSize: 8.5,
+      lineHeight: 1.35,
+      width: '210mm',
     }}>
       <style>{`
         @media print {
-          @page { margin: 0; }
-          body { margin: 0; }
-          #nalla-neram-print-view { padding: 1.5cm !important; display: block !important; }
+          @page { margin: 4mm; size: A4; }
+          body { margin: 0; padding: 0; }
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          .no-break { page-break-inside: avoid; break-inside: avoid; }
         }
       `}</style>
 
-      {/* HEADER */}
-      {branding && (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 20, marginBottom: 30, borderBottom: '2px solid #f1f5f9' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <img src={branding.logoUrl || '/logo.png'} style={{ height: 45, width: 'auto' }} />
-            <div>
-               <div style={{ fontSize: 14, fontWeight: 900, color: '#0f172a' }}>
-                 {t ? (branding.astrologerNameTa || branding.astrologerNameEn || branding.astrologerName) : (branding.astrologerNameEn || branding.astrologerName)}
-               </div>
-               <div style={{ fontSize: 10, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
-                 {t ? (branding.companyNameTa || branding.companyNameEn || branding.companyName) : (branding.companyNameEn || branding.companyName)}
-               </div>
-            </div>
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 10, fontWeight: 800, color: '#b45309' }}>{t ? 'நல்ல நேரம் அறிக்கை' : 'Nalla Neram Report'}</div>
-            <div style={{ fontSize: 9, color: '#94a3b8', marginTop: 2 }}>{new Date(date).toLocaleDateString(lang === 'ta' ? 'ta-IN' : 'en-GB', { dateStyle: 'full' })}</div>
-          </div>
-        </div>
-      )}
+      <PrintHeader branding={branding} lang={lang} date={date} />
 
-      {/* AVOID PERIODS */}
+      {/* Avoid periods */}
       {avoidPeriods.length > 0 && (
-        <div style={{ marginBottom: 24 }}>
-          <div style={{ fontSize: 8, fontWeight: 900, textTransform: 'uppercase', color: '#be123c', marginBottom: 8, letterSpacing: '0.1em' }}>
-            {t ? 'தவிர்க்க வேண்டிய காலங்கள்' : 'Periods to Avoid'}
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
+          <div style={{ fontSize: 7.5, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#9f1239', alignSelf: 'center', fontFamily: FONT }}>
+            {t ? 'தவிர்க்கவும்:' : 'Avoid:'}
           </div>
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            {avoidPeriods.map((p, i) => (
-              <div key={i} style={{ padding: '6px 10px', borderRadius: 6, border: '1px solid #fee2e2', background: '#fff1f2', color: '#be123c', fontWeight: 800, fontSize: 8.5 }}>
-                {p.label}: {p.startLabel} – {p.endLabel}
-              </div>
-            ))}
-          </div>
+          {avoidPeriods.map((p, i) => (
+            <div key={i} style={{ padding: '4px 10px', borderRadius: 4, background: '#fff1f2', border: '1px solid #fecdd3', fontSize: 8, fontWeight: 800, color: '#9f1239', fontFamily: FONT }}>
+              {p.label}: <span style={{ fontWeight: 900 }}>{p.startLabel} – {p.endLabel}</span>
+            </div>
+          ))}
         </div>
       )}
 
-      {/* SLOTS */}
-      <div>
-        <div style={{ fontSize: 8, fontWeight: 900, textTransform: 'uppercase', color: '#059669', marginBottom: 12, letterSpacing: '0.1em' }}>
-          {t ? 'சுப நேரங்கள் (நல்ல நேரம்)' : 'Auspicious Time Slots (Nalla Neram)'}
-        </div>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+      {/* Section title */}
+      <div style={{ fontSize: 7.5, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#fff', background: '#059669', padding: '3px 8px', display: 'inline-block', borderRadius: 3, marginBottom: 10, fontFamily: FONT }}>
+        {t ? `சுப நேரங்கள் — ${nallaSlots.length} நேரங்கள்` : `Auspicious Slots — ${nallaSlots.length} found`}
+      </div>
+
+      {/* Slots grid */}
+      {nallaSlots.length > 0 ? (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 12 }}>
           {nallaSlots.map(({ sub, horaSlot, gowriSlot }, idx) => {
+            const ac = ACT_C[sub.activity?.key] || { bg: '#f1f5f9', text: '#334155' };
             return (
-              <div key={idx} style={{ padding: 12, border: '1px solid #ecfdf5', background: '#f0fdf4', borderRadius: 8 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <div style={{ fontSize: 10, fontWeight: 900, color: '#065f46' }}>{sub.startLabel} – {sub.endLabel}</div>
-                  <div style={{ fontSize: 7, fontWeight: 800, color: '#047857', textTransform: 'uppercase' }}>
+              <div key={idx} className="no-break" style={{ padding: '8px 10px', border: '1px solid #bbf7d0', background: '#f0fdf4', borderRadius: 6, fontFamily: FONT }}>
+                {/* Time */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 5 }}>
+                  <div style={{ fontSize: 10, fontWeight: 900, color: '#065f46', lineHeight: 1.1 }}>
+                    {sub.startLabel}<br />
+                    <span style={{ fontSize: 8, fontWeight: 700, color: '#94a3b8' }}>– {sub.endLabel}</span>
+                  </div>
+                  <div style={{ fontSize: 7, fontWeight: 900, textTransform: 'uppercase', color: '#fff', background: '#059669', padding: '2px 5px', borderRadius: 3 }}>
                     {sub.period === 'day' ? (t ? 'பகல்' : 'Day') : (t ? 'இரவு' : 'Night')}
                   </div>
                 </div>
-                
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: 7.5, fontWeight: 800, background: '#fef3c7', color: '#b45309', padding: '1px 5px', borderRadius: 3 }}>
+                {/* Tags */}
+                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: 7.5, fontWeight: 800, background: ac.bg, color: ac.text, padding: '1px 5px', borderRadius: 3 }}>
                     {n(sub.bird, lang)} · {n(sub.activity, lang)}
                   </span>
-                  
                   {horaSlot && (
-                    <span style={{ fontSize: 7.5, fontWeight: 800, background: '#f1f5f9', color: '#475569', padding: '1px 5px', borderRadius: 3, display: 'flex', alignItems: 'center', gap: 3 }}>
-                      <span style={{ width: 4, height: 4, borderRadius: '50%', background: PLANET_DOTS[horaSlot.planet.key] || '#94a3b8' }} />
+                    <span style={{ fontSize: 7.5, fontWeight: 800, background: '#f1f5f9', color: '#334155', padding: '1px 5px', borderRadius: 3, display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                      <span style={{ width: 5, height: 5, borderRadius: '50%', background: PLANET_DOT[horaSlot.planet?.key] || '#94a3b8', flexShrink: 0 }} />
                       {n(horaSlot.planet, lang)}
                     </span>
                   )}
-
                   {gowriSlot && (
-                    <span style={{ fontSize: 7.5, fontWeight: 800, background: '#f0f9ff', color: '#0369a1', padding: '1px 5px', borderRadius: 3 }}>
+                    <span style={{ fontSize: 7.5, fontWeight: 800, background: gowriSlot.type?.nature === 'good' ? '#d1fae5' : '#ffe4e6', color: gowriSlot.type?.nature === 'good' ? '#065f46' : '#9f1239', padding: '1px 5px', borderRadius: 3 }}>
                       {n(gowriSlot.type, lang)}
                     </span>
                   )}
@@ -114,41 +153,13 @@ export function NallaNeramPrintView({ nallaSlots, avoidPeriods, lang, date, bran
             );
           })}
         </div>
-        {nallaSlots.length === 0 && <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8', fontStyle: 'italic' }}>No slots found for selected filters.</div>}
-      </div>
-
-      {/* FOOTER */}
-      {branding && (
-        <div style={{ marginTop: 40, paddingTop: 20, borderTop: '2px solid #f1f5f9', pageBreakInside: 'avoid' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-            <div>
-              <div style={{ fontSize: 8, fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', marginBottom: 4 }}>Contact Details</div>
-              <div style={{ fontSize: 9, fontWeight: 700, color: '#475569' }}>{t ? 'தொலைபேசி:' : 'Phone:'} {branding.mobile}</div>
-              <div style={{ fontSize: 9, fontWeight: 700, color: '#475569' }}>{t ? 'வாட்ஸ்அப்:' : 'WhatsApp:'} {branding.whatsapp}</div>
-              <div style={{ fontSize: 9, fontWeight: 700, color: '#475569' }}>{t ? 'இணையதளம்:' : 'Website:'} {branding.website}</div>
-            </div>
-            {branding.addressEn && (
-              <div>
-                <div style={{ fontSize: 8, fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', marginBottom: 4 }}>
-                  {t ? 'முகவரி' : 'Address'}
-                </div>
-                <div style={{ fontSize: 9, fontWeight: 700, color: '#475569' }}>
-                   {t ? (branding.addressTa || branding.addressEn || branding.address) : (branding.addressEn || branding.address)}
-                </div>
-              </div>
-            )}
-          </div>
-          {branding.socialMedia?.length > 0 && (
-            <div style={{ marginTop: 12, display: 'flex', gap: 10 }}>
-              {branding.socialMedia.map((s, i) => (
-                <div key={i} style={{ fontSize: 8, fontWeight: 800, color: '#6366f1', background: '#f5f3ff', padding: '2px 6px', borderRadius: 4 }}>
-                  {s.platform}: {s.url}
-                </div>
-              ))}
-            </div>
-          )}
+      ) : (
+        <div style={{ textAlign: 'center', padding: '30px 0', color: '#94a3b8', fontStyle: 'italic', fontSize: 9, fontFamily: FONT }}>
+          {t ? 'தேர்ந்தெடுத்த வடிகட்டிகளுக்கு ஏற்ப நல்ல நேரம் இல்லை.' : 'No auspicious slots found for the selected filters.'}
         </div>
       )}
+
+      <PrintFooter branding={branding} lang={lang} />
     </div>
   );
 }

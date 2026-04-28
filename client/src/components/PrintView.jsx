@@ -1,568 +1,325 @@
 import React from 'react';
 
-/* ── helpers ────────────────────────────────────────────────── */
+/* ── helpers ─────────────────────────────────────────────────── */
 function n(obj, lang) { return lang === 'ta' ? obj?.tamil : obj?.label; }
 
 function fmtDate(d, lang) {
   return new Date(d).toLocaleDateString(lang === 'ta' ? 'ta-IN' : 'en-GB', {
-    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   });
 }
 
-const ACTIVITY_COLORS = {
-  ruling:   { bg: '#fef3c7', text: '#b45309' },
-  eating:   { bg: '#d1fae5', text: '#047857' },
-  walking:  { bg: '#dbeafe', text: '#1d4ed8' },
-  sleeping: { bg: '#ede9fe', text: '#6d28d9' },
-  dying:    { bg: '#ffe4e6', text: '#be123c' },
+const FONT = 'Inter, "Noto Sans Tamil", sans-serif';
+
+const ACT = {
+  ruling:   { bg: '#fef3c7', text: '#92400e' },
+  eating:   { bg: '#d1fae5', text: '#065f46' },
+  walking:  { bg: '#dbeafe', text: '#1e40af' },
+  sleeping: { bg: '#ede9fe', text: '#5b21b6' },
+  dying:    { bg: '#ffe4e6', text: '#9f1239' },
 };
 
-const GOWRI_COLORS = {
-  good:  { dot: '#059669', text: '#059669' },
-  bad:   { dot: '#dc2626', text: '#dc2626' },
+const PLANET_DOT = {
+  sun: '#f59e0b', moon: '#6366f1', mars: '#ef4444',
+  mercury: '#22c55e', jupiter: '#f97316', venus: '#ec4899', saturn: '#334155',
 };
 
-const PLANET_DOTS = {
-  sun:     '#f59e0b',
-  moon:    '#6366f1',
-  mars:    '#ef4444',
-  mercury: '#22c55e',
-  jupiter: '#f97316',
-  venus:   '#ec4899',
-  saturn:  '#1e293b',
+const GOWRI_C = {
+  good: { dot: '#059669', text: '#065f46' },
+  bad:  { dot: '#dc2626', text: '#991b1b' },
 };
 
-function getSookshimaSlots(subRows, currentIndex, parentStart, parentEnd) {
-  const start = new Date(parentStart).getTime();
-  const end = new Date(parentEnd).getTime();
-  const slotDuration = (end - start) / 5;
-  const rotated = [...subRows.slice(currentIndex), ...subRows.slice(0, currentIndex)];
-  return rotated.map((row, i) => {
-    const s = start + i * slotDuration;
-    const e = s + slotDuration;
+const SPECIAL_LBL = {
+  rahu:       { ta: 'ராகு',    en: 'Rahu', color: '#9f1239', bg: '#ffe4e6' },
+  yamagandam: { ta: 'எமகண்டம்', en: 'Yama', color: '#92400e', bg: '#fef3c7' },
+  kulikai:    { ta: 'குளிகன்', en: 'Kuli', color: '#5b21b6', bg: '#ede9fe' },
+};
+
+function getHorai(start, end, list) {
+  if (!list?.length) return null;
+  const mid = (new Date(start).getTime() + new Date(end).getTime()) / 2;
+  return list.find(h => mid >= new Date(h.start).getTime() && mid < new Date(h.end).getTime()) || null;
+}
+
+function getGowri(start, end, list) {
+  if (!list?.length) return null;
+  const mid = (new Date(start).getTime() + new Date(end).getTime()) / 2;
+  return list.find(g => mid >= new Date(g.start).getTime() && mid < new Date(g.end).getTime()) || null;
+}
+
+function getWarnings(start, end, sp) {
+  if (!sp) return [];
+  const s = new Date(start).getTime(), e = new Date(end).getTime();
+  return ['rahu', 'yamagandam', 'kulikai'].filter(key => {
+    const p = sp[key];
+    if (!p) return false;
+    return new Date(p.start).getTime() < e && new Date(p.end).getTime() > s;
+  });
+}
+
+function getSookshima(subRows, idx, parentStart, parentEnd) {
+  const s0 = new Date(parentStart).getTime();
+  const dur = (new Date(parentEnd).getTime() - s0) / 5;
+  return [...subRows.slice(idx), ...subRows.slice(0, idx)].map((r, i) => {
+    const s = s0 + i * dur, e = s + dur;
     return {
-      bird: row.bird,
-      activity: row.activity,
-      relation: row.relation,
-      start: new Date(s).toISOString(),
-      end: new Date(e).toISOString(),
+      bird: r.bird, activity: r.activity, relation: r.relation,
+      start: new Date(s).toISOString(), end: new Date(e).toISOString(),
       startLabel: new Date(s).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
-      endLabel: new Date(e).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+      endLabel:   new Date(e).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
     };
   });
 }
 
-function getHorai(start, end, horaiList) {
-  if (!horaiList?.length) return null;
-  const mid = (new Date(start).getTime() + new Date(end).getTime()) / 2;
-  return horaiList.find(h => mid >= new Date(h.start).getTime() && mid < new Date(h.end).getTime()) || null;
-}
-
-function getGowri(start, end, gowriList) {
-  if (!gowriList?.length) return null;
-  const mid = (new Date(start).getTime() + new Date(end).getTime()) / 2;
-  return gowriList.find(g => mid >= new Date(g.start).getTime() && mid < new Date(g.end).getTime()) || null;
-}
-
-function getSpecialWarnings(start, end, sp) {
-  if (!sp) return [];
-  const s = new Date(start).getTime(), e = new Date(end).getTime();
-  const warnings = [];
-  for (const key of ['rahu', 'yamagandam', 'kulikai']) {
-    const p = sp[key];
-    if (!p) continue;
-    const ps = new Date(p.start || p.startLabel).getTime();
-    const pe = new Date(p.end || p.endLabel).getTime();
-    if (ps < e && pe > s) warnings.push(key);
-  }
-  return warnings;
-}
-
-const SPECIAL_LABELS = {
-  rahu:       { ta: 'ராகு',   en: 'Rahu',   color: '#be123c', bg: '#ffe4e6' },
-  yamagandam: { ta: 'எமகண்டம்', en: 'Yama',  color: '#b45309', bg: '#fef3c7' },
-  kulikai:    { ta: 'குளிகன்', en: 'Kuli',   color: '#6d28d9', bg: '#ede9fe' },
-};
-
-/* ── main PrintView ─────────────────────────────────────────── */
-export function PrintView({ prediction, lang, locationName, showSubTable = true, branding }) {
-  if (!prediction) return null;
-
+/* ── Shared header / footer ────────────────────────────────────── */
+function PrintHeader({ branding, lang, subtitle, right }) {
   const t = lang === 'ta';
-  const sp = prediction.specialPeriods;
-  const horai = prediction.horai || [];
-  const gowri = prediction.gowri || [];
-  const dayHorai = horai.filter(h => h.period === 'day');
-  const nightHorai = horai.filter(h => h.period === 'night');
-  const dayGowri = gowri.filter(g => g.period === 'day');
-  const nightGowri = gowri.filter(g => g.period === 'night');
-  const dayPaksha = prediction.paksha?.day;
-  const nightPaksha = prediction.paksha?.night;
-
-  const labels = {
-    yama: t ? 'ஜாமம்' : 'Yama',
-    bird: t ? 'பட்சி' : 'Bird',
-    activity: t ? 'தொழில்' : 'Activity',
-    relation: t ? 'உறவு' : 'Relation',
-    time: t ? 'நேரம்' : 'Time',
-    direction: t ? 'திசை' : 'Direction',
-    palan: t ? 'பலன்' : 'Palan',
-    strength: t ? 'பலம்' : 'Strength',
-    sookshima: t ? 'அதி சூட்சும விவரம்' : 'Sookshima Breakdown',
-  };
-
-  const font = 'Inter, "Noto Sans Tamil", sans-serif';
-
+  if (!branding) return null;
+  const name = t ? (branding.astrologerNameTa || branding.astrologerNameEn || branding.astrologerName)
+                 : (branding.astrologerNameEn || branding.astrologerName);
+  const company = t ? (branding.companyNameTa || branding.companyNameEn || branding.companyName)
+                    : (branding.companyNameEn || branding.companyName);
   return (
-    <div id="print-view" style={{
-      visibility: 'hidden',
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      width: '100%',
-      fontFamily: font,
-      color: '#0f172a',
-      background: '#fff',
-      padding: '12px 20px',
-      fontSize: 8.5,
-      lineHeight: 1.35,
+    <div style={{
+      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+      background: '#0f172a', color: '#fff',
+      padding: '8px 12px', marginBottom: 10,
+      fontFamily: FONT,
     }}>
-      <style>{`
-        @media print {
-          @page { margin: 3.5mm; size: A4; }
-          body { margin: 0; padding: 0; overflow: visible; }
-          #print-view { padding: 0.6cm !important; width: 100%; box-sizing: border-box; display: block !important; }
-          .jamam-section { page-break-inside: avoid; break-inside: avoid; margin-bottom: 20px; }
-          .special-period-card { border-bottom: 2px solid currentColor; padding-bottom: 4px; }
-        }
-      `}</style>
-      
-      {/* ── HEADER ── */}
-      {branding && (
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'flex-start', 
-          paddingBottom: 20, 
-          marginBottom: 15, 
-          borderBottom: '3px solid #0f172a',
-          pageBreakAfter: 'avoid'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <img src={branding.logoUrl || '/logo.png'} style={{ height: 60, width: 'auto', objectFit: 'contain' }} />
-            <div>
-               <h1 style={{ fontSize: 24, fontWeight: 900, color: '#0f172a', margin: 0, lineHeight: 1 }}>
-                 {t ? (branding.astrologerNameTa || branding.astrologerNameEn || branding.astrologerName) : (branding.astrologerNameEn || branding.astrologerName)}
-               </h1>
-               <h2 style={{ fontSize: 14, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '4px 0 0 0' }}>
-                 {t ? (branding.companyNameTa || branding.companyNameEn || branding.companyName) : (branding.companyNameEn || branding.companyName)}
-               </h2>
-            </div>
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 8, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>
-               Exported Location: <span style={{ color: '#64748b', fontWeight: 800 }}>{locationName}</span>
-            </div>
-            <div style={{ fontSize: 20, fontWeight: 900, color: '#0f172a', letterSpacing: '-0.02em' }}>
-               {branding.mobile}
-            </div>
-          </div>
+      {/* Left: logo + name */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <img src={branding.logoUrl || '/logo.png'}
+             style={{ height: 38, width: 'auto', objectFit: 'contain', borderRadius: 4, background: '#fff', padding: 2 }} />
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 900, lineHeight: 1.1 }}>{name}</div>
+          <div style={{ fontSize: 8, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: 2 }}>{company}</div>
+          {subtitle && <div style={{ fontSize: 7.5, color: '#f59e0b', fontWeight: 700, marginTop: 1 }}>{subtitle}</div>}
         </div>
-      )}
+      </div>
+      {/* Right: phone + custom */}
+      <div style={{ textAlign: 'right' }}>
+        <div style={{ fontSize: 14, fontWeight: 900, color: '#f59e0b', letterSpacing: '0.02em' }}>{branding.mobile}</div>
+        {right && <div style={{ fontSize: 8, color: '#94a3b8', marginTop: 2 }}>{right}</div>}
+      </div>
+    </div>
+  );
+}
 
-      {/* ── SCHEDULE CONTENT ─────────────────────────────────── */}
-
-      {/* ── SPECIAL PERIODS ─────────────────────────────────── */}
-      {/* ── SPECIAL PERIODS ── */}
-      <div style={{ display: 'flex', justifyContent: 'center', gap: 32, marginBottom: 20, padding: '10px 0', borderBottom: '1px solid #f1f5f9' }}>
-        {[
-          [t ? 'ராகு காலம்' : 'Rahu Kalam', sp?.rahu, '#be123c'],
-          [t ? 'எமகண்டம்' : 'Yamagandam', sp?.yamagandam, '#b45309'],
-          [t ? 'குளிகன்' : 'Kulikan', sp?.kulikai, '#6d28d9'],
-        ].map(([label, p, color]) => (
-          <div key={label} className="special-period-card" style={{ color, textAlign: 'center' }}>
-            <div style={{ fontSize: 8, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.8 }}>{label}</div>
-            <div style={{ fontSize: 12, fontWeight: 900 }}>{p ? `${p.startLabel} – ${p.endLabel}` : '—'}</div>
-          </div>
+function PrintFooter({ branding, lang }) {
+  const t = lang === 'ta';
+  if (!branding) return null;
+  const addr = t ? (branding.addressTa || branding.addressEn || branding.address)
+                 : (branding.addressEn || branding.address);
+  return (
+    <div style={{
+      marginTop: 14, borderTop: '1px solid #e2e8f0', paddingTop: 8,
+      display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
+      fontFamily: FONT, fontSize: 8, color: '#475569',
+      pageBreakInside: 'avoid',
+    }}>
+      <div style={{ display: 'flex', gap: 20 }}>
+        {branding.mobile && (
+          <div><span style={{ fontWeight: 900, color: '#0f172a' }}>{t ? 'தொலை:' : 'Ph:'}</span> {branding.mobile}</div>
+        )}
+        {branding.whatsapp && (
+          <div><span style={{ fontWeight: 900, color: '#0f172a' }}>{t ? 'WA:' : 'WA:'}</span> {branding.whatsapp}</div>
+        )}
+        {branding.website && (
+          <div><span style={{ fontWeight: 900, color: '#0f172a' }}>{t ? 'இணையம்:' : 'Web:'}</span> {branding.website}</div>
+        )}
+        {branding.socialMedia?.map((s, i) => (
+          <div key={i}><span style={{ fontWeight: 900, color: '#0f172a' }}>{s.platform}:</span> {s.url}</div>
         ))}
       </div>
-
-      {/* ── DAY SCHEDULE ───────────────────────────────────── */}
-      <ScheduleBlock
-        title={t ? 'பகல் அட்டவணை' : 'Day Schedule'}
-        yamas={prediction.dayYamas}
-        lang={lang}
-        labels={labels}
-        font={font}
-        horai={horai}
-        gowri={gowri}
-        specialPeriods={sp}
-        titleColor="#b45309"
-        showSubTable={showSubTable}
-      />
-
-      {/* Page break before night */}
-      <div style={{ pageBreakBefore: 'always' }} />
-
-      {/* ── NIGHT SCHEDULE ─────────────────────────────────── */}
-      <ScheduleBlock
-        title={t ? 'இரவு அட்டவணை' : 'Night Schedule'}
-        yamas={prediction.nightYamas}
-        lang={lang}
-        labels={labels}
-        font={font}
-        horai={horai}
-        gowri={gowri}
-        specialPeriods={sp}
-        titleColor="#4f46e5"
-        showSubTable={showSubTable}
-      />
-
-      {/* ── HORAI ────────────────────────────────────────────── */}
-      <div style={{ pageBreakBefore: 'always' }} />
-      <SectionTag>{t ? 'ஹோரை அட்டவணை' : 'Horai Schedule'}</SectionTag>
-      <div style={{ display: 'flex', gap: 16 }}>
-        <div style={{ flex: 1 }}>
-          <HoraiBlock title={t ? 'பகல் ஹோரை' : 'Day Horai'} items={dayHorai} lang={lang} font={font} />
-        </div>
-        <div style={{ flex: 1 }}>
-          <HoraiBlock title={t ? 'இரவு ஹோரை' : 'Night Horai'} items={nightHorai} lang={lang} font={font} />
-        </div>
-      </div>
-
-      {/* ── GOWRI ────────────────────────────────────────────── */}
-      <div style={{ marginTop: 16 }}>
-        <SectionTag>{t ? 'கௌரி பஞ்சாங்கம்' : 'Gowri Panchangam'}</SectionTag>
-        <div style={{ display: 'flex', gap: 16 }}>
-          <div style={{ flex: 1 }}>
-            <GowriBlock title={t ? 'பகல் கௌரி' : 'Day Gowri'} items={dayGowri} lang={lang} font={font} />
-          </div>
-          <div style={{ flex: 1 }}>
-            <GowriBlock title={t ? 'இரவு கௌரி' : 'Night Gowri'} items={nightGowri} lang={lang} font={font} />
-          </div>
-        </div>
-      </div>
-
-      {/* ── FOOTER ── */}
-      {branding && (
-        <div style={{ 
-          marginTop: 40, 
-          paddingTop: 20, 
-          borderTop: '2px solid #f1f5f9',
-          pageBreakInside: 'avoid'
-        }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-            <div>
-              <div style={{ fontSize: 8, fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', marginBottom: 4 }}>Contact Details</div>
-              <div style={{ fontSize: 9, fontWeight: 700, color: '#475569' }}>
-                {t ? 'தொலைபேசி:' : 'Phone:'} {branding.mobile}
-              </div>
-              <div style={{ fontSize: 9, fontWeight: 700, color: '#475569' }}>
-                {t ? 'வாட்ஸ்அப்:' : 'WhatsApp:'} {branding.whatsapp}
-              </div>
-              <div style={{ fontSize: 9, fontWeight: 700, color: '#475569' }}>
-                {t ? 'இணையதளம்:' : 'Website:'} {branding.website}
-              </div>
-            </div>
-            
-            {branding.addressEn && (
-              <div>
-                <div style={{ fontSize: 8, fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', marginBottom: 4 }}>
-                   {t ? 'முகவரி' : 'Address'}
-                </div>
-                <div style={{ fontSize: 9, fontWeight: 700, color: '#475569', maxWidth: 200 }}>
-                  {t ? (branding.addressTa || branding.addressEn || branding.address) : (branding.addressEn || branding.address)}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {branding.socialMedia?.length > 0 && (
-            <div style={{ marginTop: 15, display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {branding.socialMedia.map((s, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <div style={{ fontSize: 7, fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', width: 60 }}>{s.platform}</div>
-                  <div style={{ fontSize: 8.5, fontWeight: 800, color: '#6366f1', background: '#f5f3ff', padding: '3px 10px', borderRadius: 6, border: '1px solid #e0e7ff' }}>
-                    {s.url}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+      {addr && <div style={{ maxWidth: 200, textAlign: 'right', color: '#64748b' }}>{addr}</div>}
     </div>
   );
 }
 
-/* ── Section Tag ───────────────────────────────────────────── */
-function SectionTag({ children }) {
+/* ── Special periods bar ──────────────────────────────────────── */
+function SpecialBar({ sp, t }) {
+  const items = [
+    { label: t ? 'ராகு காலம்' : 'Rahu Kalam',  p: sp?.rahu,       color: '#9f1239', bg: '#fff1f2' },
+    { label: t ? 'எமகண்டம்'   : 'Yamagandam',  p: sp?.yamagandam, color: '#92400e', bg: '#fffbeb' },
+    { label: t ? 'குளிகன்'   : 'Kulikan',      p: sp?.kulikai,    color: '#5b21b6', bg: '#faf5ff' },
+  ].filter(x => x.p);
+  if (!items.length) return null;
   return (
-    <div style={{ marginBottom: 6 }}>
-      <div style={{
-        background: '#1e293b', color: '#fff', padding: '4px 10px',
-        fontSize: 9, fontWeight: 900, letterSpacing: '0.1em',
-        textTransform: 'uppercase', display: 'inline-block', borderRadius: 3
-      }}>
-        {children}
-      </div>
+    <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap', fontFamily: FONT }}>
+      {items.map(({ label, p, color, bg }) => (
+        <div key={label} style={{ padding: '4px 10px', borderRadius: 4, background: bg, border: `1px solid ${color}30`, fontSize: 8, fontWeight: 800, color }}>
+          {label}: <span style={{ fontWeight: 900 }}>{p.startLabel} – {p.endLabel}</span>
+        </div>
+      ))}
     </div>
   );
 }
 
-/* ── Schedule Block (matches app table exactly) ────────────── */
-function ScheduleBlock({ title, yamas, lang, labels, font, horai, gowri, specialPeriods, titleColor, showSubTable }) {
+/* ── Section label ────────────────────────────────────────────── */
+function SLabel({ children, color = '#0f172a' }) {
+  return (
+    <div style={{
+      fontSize: 7.5, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.12em',
+      color: '#fff', background: color, padding: '3px 8px', display: 'inline-block',
+      borderRadius: 3, marginBottom: 5, fontFamily: FONT,
+    }}>{children}</div>
+  );
+}
+
+/* ── Schedule table ───────────────────────────────────────────── */
+function ScheduleBlock({ title, yamas, lang, horai, gowri, sp, titleColor, showSubTable }) {
   if (!yamas?.length) return null;
   const t = lang === 'ta';
-
-  const thStyle = {
-    padding: '5px 6px',
-    fontSize: 7.5,
-    fontWeight: 900,
-    textTransform: 'uppercase',
-    letterSpacing: '0.08em',
-    color: '#64748b',
-    background: '#f8fafc',
-    borderBottom: '2px solid #e2e8f0',
-    textAlign: 'left',
+  const labels = {
+    yama: t ? 'ஜாமம்' : 'Yama', bird: t ? 'பட்சி' : 'Bird',
+    activity: t ? 'தொழில்' : 'Activity', relation: t ? 'உறவு' : 'Relation',
+    time: t ? 'நேரம்' : 'Time', direction: t ? 'திசை' : 'Direction',
+    palan: t ? 'பலன்' : 'Palan', strength: t ? 'பலம்' : 'Strength',
+    sookshima: t ? 'அதி சூட்சும விவரம்' : 'Sookshima',
   };
 
-  const tdStyle = {
-    padding: '4px 6px',
-    borderBottom: '1px solid #f1f5f9',
-    verticalAlign: 'middle',
-    fontSize: 8.5,
-  };
+  const TH = { padding: '5px 6px', fontSize: 7.5, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#fff', background: titleColor, textAlign: 'left', borderRight: '1px solid rgba(255,255,255,0.15)' };
+  const TD = { padding: '4px 6px', borderBottom: '1px solid #f1f5f9', borderRight: '1px solid #f1f5f9', verticalAlign: 'top', fontFamily: FONT };
 
   return (
-    <div>
-      <SectionTag>{title}</SectionTag>
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: font }}>
+    <div style={{ marginBottom: 12 }}>
+      <SLabel color={titleColor}>{title}</SLabel>
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: FONT, fontSize: 8.5 }}>
         <thead>
           <tr>
-            <th style={{ ...thStyle, width: 80 }}>{labels.yama}</th>
-            <th style={{ ...thStyle, width: 60 }}>{labels.bird}</th>
-            <th style={{ ...thStyle, width: 55 }}>{labels.activity}</th>
-            <th style={{ ...thStyle, width: 45 }}>{labels.relation}</th>
-            <th style={{ ...thStyle, width: 120 }}>{labels.time}</th>
-            <th style={{ ...thStyle, width: 55 }}>{labels.direction}</th>
-            <th style={thStyle}>{labels.palan}</th>
-            <th style={{ ...thStyle, width: 40, textAlign: 'right' }}>{labels.strength}</th>
+            <th style={{ ...TH, width: 72 }}>{labels.yama}</th>
+            <th style={{ ...TH, width: 52 }}>{labels.bird}</th>
+            <th style={{ ...TH, width: 54 }}>{labels.activity}</th>
+            <th style={{ ...TH, width: 42 }}>{labels.relation}</th>
+            <th style={{ ...TH, width: 115 }}>{labels.time}</th>
+            <th style={{ ...TH, width: 50 }}>{labels.direction}</th>
+            <th style={TH}>{labels.palan}</th>
+            <th style={{ ...TH, width: 36, textAlign: 'right' }}>{labels.strength}</th>
           </tr>
         </thead>
-        {yamas.map((yama) => (
-          <tbody key={yama.index} className="jamam-section">
-            {/* Group each Jamam to avoid page breaks in the middle of it */}
+        {yamas.map(yama => (
+          <tbody key={yama.index} style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
             {yama.subRows.map((s, i) => {
-                const hora = getHorai(s.start, s.end, horai);
-                const gowriSlot = getGowri(s.start, s.end, gowri);
-                const warnings = getSpecialWarnings(s.start, s.end, specialPeriods);
-                const isFirst = i === 0;
-                const strengthNum = Number(s.strength);
-                const strengthColor = strengthNum >= 60 ? '#059669' : strengthNum >= 30 ? '#b45309' : '#dc2626';
-
-                return (
-                  <React.Fragment key={`${yama.index}-${i}`}>
-                    <tr className="jamam-section" style={{ background: i % 2 === 0 ? '#fff' : '#fafafa', borderTop: isFirst ? '2px solid #0f172a' : undefined }}>
-                      {/* Yama column */}
-                      <td style={{ ...tdStyle, borderLeft: '1px solid #f1f5f9' }}>
-                        {isFirst && (
-                          <div style={{ minWidth: 80 }}>
-                            <div style={{ fontWeight: 900, fontSize: 14, color: titleColor, lineHeight: 1 }}>
-                              {t ? 'ஜாமம்' : 'Jamam'} {yama.index}
-                            </div>
-                            <div style={{ fontSize: 8, color: '#94a3b8', fontWeight: 800, whiteSpace: 'nowrap', marginTop: 4 }}>
-                              {yama.startLabel} – {yama.endLabel}
-                            </div>
-                            {yama.mainActivity && (
-                              <div style={{ fontSize: 8, color: '#1e293b', fontWeight: 900, marginTop: 4, textTransform: 'uppercase' }}>
-                                {n(yama.mainActivity, lang)}
-                              </div>
-                            )}
+              const hora = getHorai(s.start, s.end, horai);
+              const gowriSlot = getGowri(s.start, s.end, gowri);
+              const warns = getWarnings(s.start, s.end, sp);
+              const isFirst = i === 0;
+              const str = Number(s.strength);
+              const strColor = str >= 60 ? '#059669' : str >= 30 ? '#b45309' : '#dc2626';
+              const rowBg = i % 2 === 0 ? '#fff' : '#f8fafc';
+              return (
+                <React.Fragment key={`${yama.index}-${i}`}>
+                  <tr style={{ background: rowBg, borderTop: isFirst ? `2px solid ${titleColor}` : undefined }}>
+                    {/* Yama */}
+                    <td style={{ ...TD, borderLeft: `3px solid ${titleColor}` }}>
+                      {isFirst && (
+                        <div>
+                          <div style={{ fontWeight: 900, fontSize: 11, color: titleColor, lineHeight: 1 }}>
+                            {t ? 'ஜாமம்' : 'Jamam'} {yama.index}
                           </div>
-                        )}
-                      </td>
-
-                      {/* Bird */}
-                      <td style={{ ...tdStyle, fontWeight: 900, color: '#0f172a', fontSize: 10 }}>
-                        {n(s.bird, lang)}
-                      </td>
-
-                      {/* Activity badge */}
-                      <td style={tdStyle}>
-                        {s.activity && (() => {
-                          const ac = ACTIVITY_COLORS[s.activity.key] || { bg: '#f1f5f9', text: '#334155' };
-                          return (
-                            <span style={{
-                              padding: '3px 8px', borderRadius: 6, fontSize: 9, fontWeight: 900,
-                              background: ac.bg, color: ac.text, whiteSpace: 'nowrap', display: 'inline-block'
-                            }}>
-                              {n(s.activity, lang)}
-                            </span>
-                          );
-                        })()}
-                      </td>
-
-                      {/* Relation */}
-                      <td style={{ ...tdStyle, fontWeight: 800, color: '#334155', fontSize: 9.5 }}>
-                        {n(s.relation, lang)}
-                      </td>
-
-                      {/* Time + horai/gowri/warnings badges */}
-                      <td style={tdStyle}>
-                        <div style={{ fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap', fontSize: 9.5, marginBottom: 4 }}>
-                          {s.startLabel} – {s.endLabel}
+                          <div style={{ fontSize: 7.5, color: '#94a3b8', fontWeight: 700, whiteSpace: 'nowrap', marginTop: 2 }}>
+                            {yama.startLabel} – {yama.endLabel}
+                          </div>
+                          {yama.mainActivity && (
+                            <div style={{ fontSize: 7.5, color: '#1e293b', fontWeight: 900, marginTop: 2, textTransform: 'uppercase' }}>
+                              {n(yama.mainActivity, lang)}
+                            </div>
+                          )}
                         </div>
-                        {(hora || gowriSlot || warnings.length > 0) && (
-                          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                             {/* ... badges same as before but slightly scaled ... */}
-                            {hora && (
-                              <span style={{
-                                display: 'inline-flex', alignItems: 'center', gap: 4,
-                                padding: '2px 6px', borderRadius: 4, fontSize: 8, fontWeight: 900,
-                                background: '#f1f5f9', color: '#1e293b',
-                              }}>
-                                <span style={{
-                                  width: 6, height: 6, borderRadius: '50%',
-                                  background: PLANET_DOTS[hora.planet?.key] || '#94a3b8',
-                                }} />
-                                {t ? hora.planet?.tamil : hora.planet?.label}
-                              </span>
-                            )}
-                            {gowriSlot && (
-                              <span style={{
-                                display: 'inline-flex', alignItems: 'center', gap: 4,
-                                padding: '2px 6px', borderRadius: 4, fontSize: 8, fontWeight: 900,
-                                color: GOWRI_COLORS[gowriSlot.type?.nature]?.text || '#475569',
-                                background: '#f8fafc', border: '1px solid #e2e8f0'
-                              }}>
-                                <span style={{
-                                  width: 6, height: 6, borderRadius: '50%',
-                                  background: GOWRI_COLORS[gowriSlot.type?.nature]?.dot || '#94a3b8',
-                                }} />
-                                {t ? gowriSlot.type?.tamil : gowriSlot.type?.label}
-                              </span>
-                            )}
-                            {warnings.map(w => {
-                              const sl = SPECIAL_LABELS[w];
-                              return sl ? (
-                                <span key={w} style={{
-                                  padding: '2px 6px', borderRadius: 4, fontSize: 7.5,
-                                  fontWeight: 900, color: sl.color, background: sl.bg,
-                                }}>
-                                  {t ? sl.ta : sl.en}
-                                </span>
-                              ) : null;
-                            })}
-                          </div>
-                        )}
-                      </td>
+                      )}
+                    </td>
+                    {/* Bird */}
+                    <td style={{ ...TD, fontWeight: 900, color: '#0f172a', fontSize: 9 }}>{n(s.bird, lang)}</td>
+                    {/* Activity */}
+                    <td style={TD}>
+                      {s.activity && (() => {
+                        const ac = ACT[s.activity.key] || { bg: '#f1f5f9', text: '#334155' };
+                        return <span style={{ padding: '2px 6px', borderRadius: 4, fontSize: 8, fontWeight: 900, background: ac.bg, color: ac.text, whiteSpace: 'nowrap', display: 'inline-block' }}>{n(s.activity, lang)}</span>;
+                      })()}
+                    </td>
+                    {/* Relation */}
+                    <td style={{ ...TD, fontWeight: 700, color: '#475569', fontSize: 8.5 }}>{n(s.relation, lang)}</td>
+                    {/* Time + badges */}
+                    <td style={TD}>
+                      <div style={{ fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap', fontSize: 9 }}>{s.startLabel} – {s.endLabel}</div>
+                      {(hora || gowriSlot || warns.length > 0) && (
+                        <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap', marginTop: 3 }}>
+                          {hora && (
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, padding: '1px 5px', borderRadius: 3, fontSize: 7.5, fontWeight: 800, background: '#f1f5f9', color: '#334155' }}>
+                              <span style={{ width: 5, height: 5, borderRadius: '50%', background: PLANET_DOT[hora.planet?.key] || '#94a3b8', flexShrink: 0 }} />
+                              {t ? hora.planet?.tamil : hora.planet?.label}
+                            </span>
+                          )}
+                          {gowriSlot && (
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, padding: '1px 5px', borderRadius: 3, fontSize: 7.5, fontWeight: 800, color: GOWRI_C[gowriSlot.type?.nature]?.text || '#475569', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                              <span style={{ width: 5, height: 5, borderRadius: '50%', background: GOWRI_C[gowriSlot.type?.nature]?.dot || '#94a3b8', flexShrink: 0 }} />
+                              {t ? gowriSlot.type?.tamil : gowriSlot.type?.label}
+                            </span>
+                          )}
+                          {warns.map(w => {
+                            const sl = SPECIAL_LBL[w];
+                            return sl ? <span key={w} style={{ padding: '1px 5px', borderRadius: 3, fontSize: 7, fontWeight: 900, color: sl.color, background: sl.bg }}>{t ? sl.ta : sl.en}</span> : null;
+                          })}
+                        </div>
+                      )}
+                    </td>
+                    {/* Direction */}
+                    <td style={TD}>
+                      {s.direction && <span style={{ padding: '2px 6px', borderRadius: 4, fontSize: 8, fontWeight: 800, background: '#eef2ff', color: '#4338ca', display: 'inline-block' }}>{n(s.direction, lang)}</span>}
+                    </td>
+                    {/* Palan */}
+                    <td style={{ ...TD, fontSize: 8, color: '#475569', lineHeight: 1.4 }}>{s.palan || '—'}</td>
+                    {/* Strength */}
+                    <td style={{ ...TD, textAlign: 'right', fontWeight: 900, fontSize: 10, color: strColor }}>{s.strength}%</td>
+                  </tr>
 
-                      {/* Direction */}
-                      <td style={tdStyle}>
-                        {s.direction && (
-                          <span style={{
-                            padding: '3px 8px', borderRadius: 6, fontSize: 9, fontWeight: 900,
-                            background: '#eef2ff', color: '#4f46e5', display: 'inline-block'
-                          }}>
-                            {n(s.direction, lang)}
-                          </span>
-                        )}
-                      </td>
-
-                      {/* Palan */}
-                      <td style={{ ...tdStyle, fontSize: 9, color: '#334155', lineHeight: 1.5, fontWeight: 500 }}>
-                        {s.palan || '—'}
-                      </td>
-
-                      {/* Strength */}
-                      <td style={{ ...tdStyle, textAlign: 'right', fontWeight: 900, fontSize: 11, color: strengthColor }}>
-                        {s.strength}%
+                  {/* Sookshima sub-table */}
+                  {showSubTable && (
+                    <tr style={{ background: '#fffbeb' }}>
+                      <td colSpan={8} style={{ padding: '0 6px 0 24px', borderBottom: '1px solid #e2e8f0', borderLeft: `3px solid ${titleColor}` }}>
+                        <div style={{ borderLeft: '2px solid #fbbf24', paddingLeft: 8, margin: '6px 0' }}>
+                          <div style={{ fontSize: 7, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#92400e', marginBottom: 4 }}>{labels.sookshima}</div>
+                          <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: FONT }}>
+                            <thead>
+                              <tr>
+                                {[labels.bird, labels.activity, labels.relation, labels.time].map(h => (
+                                  <th key={h} style={{ padding: '3px 6px', fontSize: 7, fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', textAlign: 'left', borderBottom: '1px solid #fde68a' }}>{h}</th>
+                                ))}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {getSookshima(yama.subRows, i, s.start, s.end).map((sk, j) => {
+                                const skH = getHorai(sk.start, sk.end, horai);
+                                const skG = getGowri(sk.start, sk.end, gowri);
+                                return (
+                                  <tr key={j} style={{ borderTop: '1px solid #fef3c7' }}>
+                                    <td style={{ padding: '3px 6px', fontWeight: 900, color: '#0f172a', fontSize: 8.5 }}>{n(sk.bird, lang)}</td>
+                                    <td style={{ padding: '3px 6px' }}>
+                                      {sk.activity && (() => {
+                                        const ac = ACT[sk.activity.key] || { bg: '#f1f5f9', text: '#334155' };
+                                        return <span style={{ padding: '1px 5px', borderRadius: 3, fontSize: 7.5, fontWeight: 900, background: ac.bg, color: ac.text }}>{n(sk.activity, lang)}</span>;
+                                      })()}
+                                    </td>
+                                    <td style={{ padding: '3px 6px', fontSize: 8, fontWeight: 700, color: '#475569' }}>{n(sk.relation, lang)}</td>
+                                    <td style={{ padding: '3px 6px' }}>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexWrap: 'wrap' }}>
+                                        <span style={{ fontSize: 8, fontWeight: 800, color: '#64748b', whiteSpace: 'nowrap' }}>{sk.startLabel} – {sk.endLabel}</span>
+                                        {skH && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, padding: '1px 4px', borderRadius: 3, fontSize: 7, fontWeight: 800, background: '#f1f5f9', color: '#334155' }}><span style={{ width: 4, height: 4, borderRadius: '50%', background: PLANET_DOT[skH.planet?.key] || '#94a3b8' }} />{t ? skH.planet?.tamil : skH.planet?.label}</span>}
+                                        {skG && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, padding: '1px 4px', borderRadius: 3, fontSize: 7, fontWeight: 800, color: GOWRI_C[skG.type?.nature]?.text || '#475569' }}><span style={{ width: 4, height: 4, borderRadius: '50%', background: GOWRI_C[skG.type?.nature]?.dot || '#94a3b8' }} />{t ? skG.type?.tamil : skG.type?.label}</span>}
+                                      </div>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
                       </td>
                     </tr>
-
-                    {/* ── Sub-table (Sookshima) ───────────── */}
-                    {showSubTable && (
-                      <tr className="jamam-section" style={{ background: '#fffcf0' }}>
-                        <td colSpan={8} style={{ padding: '0 8px 0 32px', borderBottom: '1px solid #e2e8f0', borderRight: '1px solid #f1f5f9', borderLeft: '1px solid #f1f5f9' }}>
-                          <div style={{ borderLeft: '3px solid #fbbf24', paddingLeft: 12, margin: '8px 0' }}>
-                            <div style={{ fontSize: 8, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#b45309', marginBottom: 6 }}>
-                              {labels.sookshima}
-                            </div>
-                            <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: font }}>
-                              <thead>
-                                <tr style={{ fontSize: 8, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#94a3b8' }}>
-                                  <th style={{ padding: '4px 8px', width: 80, textAlign: 'left', borderBottom: '1px solid #fdf2f2' }}>{labels.bird}</th>
-                                  <th style={{ padding: '4px 8px', width: 70, textAlign: 'left', borderBottom: '1px solid #fdf2f2' }}>{labels.activity}</th>
-                                  <th style={{ padding: '4px 8px', width: 60, textAlign: 'left', borderBottom: '1px solid #fdf2f2' }}>{labels.relation}</th>
-                                  <th style={{ padding: '4px 8px', textAlign: 'left', borderBottom: '1px solid #fdf2f2' }}>{labels.time}</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {getSookshimaSlots(yama.subRows, i, s.start, s.end).map((sk, j) => {
-                                  const skHora = getHorai(sk.start, sk.end, horai);
-                                  const skGowri = getGowri(sk.start, sk.end, gowri);
-                                  const skWarnings = getSpecialWarnings(sk.start, sk.end, specialPeriods);
-                                  return (
-                                    <tr key={j} style={{ borderTop: '1px solid #fef3c7' }}>
-                                      <td style={{ padding: '5px 8px', fontWeight: 900, color: '#0f172a', fontSize: 9 }}>
-                                        {n(sk.bird, lang)}
-                                      </td>
-                                      <td style={{ padding: '5px 8px' }}>
-                                        {sk.activity && (() => {
-                                          const ac = ACTIVITY_COLORS[sk.activity.key] || { bg: '#f1f5f9', text: '#334155' };
-                                          return (
-                                            <span style={{
-                                              padding: '2px 6px', borderRadius: 4, fontSize: 8, fontWeight: 900,
-                                              background: ac.bg, color: ac.text,
-                                            }}>
-                                              {n(sk.activity, lang)}
-                                            </span>
-                                          );
-                                        })()}
-                                      </td>
-                                      <td style={{ padding: '5px 8px', fontSize: 8.5, fontWeight: 800, color: '#475569' }}>
-                                        {n(sk.relation, lang)}
-                                      </td>
-                                      <td style={{ padding: '5px 8px' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                                          <span style={{ fontSize: 9, fontWeight: 800, color: '#64748b', whiteSpace: 'nowrap' }}>
-                                            {sk.startLabel} – {sk.endLabel}
-                                          </span>
-                                          {skHora && (
-                                            <span style={{
-                                              display: 'inline-flex', alignItems: 'center', gap: 3,
-                                              padding: '1px 5px', borderRadius: 4, fontSize: 7.5, fontWeight: 900,
-                                              background: '#f1f5f9', color: '#1e293b',
-                                            }}>
-                                              <span style={{ width: 5, height: 5, borderRadius: '50%', background: PLANET_DOTS[skHora.planet?.key] || '#94a3b8' }} />
-                                              {t ? skHora.planet?.tamil : skHora.planet?.label}
-                                            </span>
-                                          )}
-                                          {skGowri && (
-                                            <span style={{
-                                              display: 'inline-flex', alignItems: 'center', gap: 3,
-                                              padding: '1px 5px', borderRadius: 4, fontSize: 7.5, fontWeight: 900,
-                                              color: GOWRI_COLORS[skGowri.type?.nature]?.text || '#475569',
-                                            }}>
-                                              <span style={{ width: 5, height: 5, borderRadius: '50%', background: GOWRI_COLORS[skGowri.type?.nature]?.dot || '#94a3b8' }} />
-                                              {t ? skGowri.type?.tamil : skGowri.type?.label}
-                                            </span>
-                                          )}
-                                        </div>
-                                      </td>
-                                    </tr>
-                                  );
-                                })}
-                              </tbody>
-                            </table>
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </React.Fragment>
-                );
-              })}
+                  )}
+                </React.Fragment>
+              );
+            })}
           </tbody>
         ))}
       </table>
@@ -570,27 +327,31 @@ function ScheduleBlock({ title, yamas, lang, labels, font, horai, gowri, special
   );
 }
 
-/* ── Horai Block ────────────────────────────────────────────── */
-function HoraiBlock({ title, items, lang, font }) {
+/* ── Horai / Gowri mini tables ────────────────────────────────── */
+function HoraiBlock({ title, items, lang, color }) {
+  const t = lang === 'ta';
   return (
-    <div>
-      <div style={{ fontSize: 8, fontWeight: 800, color: '#b45309', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 3, fontFamily: font }}>{title}</div>
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 8.5, fontFamily: font }}>
+    <div style={{ flex: 1 }}>
+      <SLabel color={color}>{title}</SLabel>
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: FONT, fontSize: 8.5 }}>
         <thead>
-          <tr>
-            <th style={{ width: 25, padding: '3px 5px', background: '#f1f5f9', border: '1px solid #e2e8f0', fontSize: 7, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#475569' }}>#</th>
-            <th style={{ padding: '3px 5px', background: '#f1f5f9', border: '1px solid #e2e8f0', fontSize: 7, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#475569', textAlign: 'left' }}>{lang === 'ta' ? 'கிரகம்' : 'Planet'}</th>
-            <th style={{ padding: '3px 5px', background: '#f1f5f9', border: '1px solid #e2e8f0', fontSize: 7, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#475569', textAlign: 'left' }}>{lang === 'ta' ? 'நேரம்' : 'Time'}</th>
+          <tr style={{ background: '#f8fafc' }}>
+            {['#', t ? 'கிரகம்' : 'Planet', t ? 'நேரம்' : 'Time'].map(h => (
+              <th key={h} style={{ padding: '4px 6px', fontSize: 7.5, fontWeight: 900, textTransform: 'uppercase', color: '#475569', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>{h}</th>
+            ))}
           </tr>
         </thead>
         <tbody>
           {items.map((h, i) => (
-            <tr key={h.index} style={{ background: i % 2 === 0 ? '#fff' : '#fafafa' }}>
-              <td style={{ padding: '3px 5px', border: '1px solid #e2e8f0', textAlign: 'center', fontWeight: 700, color: '#94a3b8' }}>{h.index}</td>
-              <td style={{ padding: '3px 5px', border: '1px solid #e2e8f0', fontWeight: 800 }}>{n(h.planet, lang)}</td>
-              <td style={{ padding: '3px 5px', border: '1px solid #e2e8f0', fontFamily: 'monospace', fontSize: 8, color: '#64748b', whiteSpace: 'nowrap' }}>
-                {h.startLabel} – {h.endLabel}
+            <tr key={h.index} style={{ background: i % 2 === 0 ? '#fff' : '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
+              <td style={{ padding: '3px 6px', fontWeight: 700, color: '#94a3b8', width: 20 }}>{h.index}</td>
+              <td style={{ padding: '3px 6px', fontWeight: 800 }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: PLANET_DOT[h.planet?.key] || '#94a3b8', flexShrink: 0 }} />
+                  {n(h.planet, lang)}
+                </span>
               </td>
+              <td style={{ padding: '3px 6px', fontSize: 8, color: '#64748b', whiteSpace: 'nowrap' }}>{h.startLabel} – {h.endLabel}</td>
             </tr>
           ))}
         </tbody>
@@ -599,40 +360,133 @@ function HoraiBlock({ title, items, lang, font }) {
   );
 }
 
-/* ── Gowri Block ────────────────────────────────────────────── */
-function GowriBlock({ title, items, lang, font }) {
+function GowriBlock({ title, items, lang, color }) {
+  const t = lang === 'ta';
+  const isGoodItem = i => i.type?.nature === 'good';
   return (
-    <div>
-      <div style={{ fontSize: 8, fontWeight: 800, color: '#b45309', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 3, fontFamily: font }}>{title}</div>
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 8.5, fontFamily: font }}>
+    <div style={{ flex: 1 }}>
+      <SLabel color={color}>{title}</SLabel>
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: FONT, fontSize: 8.5 }}>
         <thead>
-          <tr>
-            <th style={{ width: 25, padding: '3px 5px', background: '#f1f5f9', border: '1px solid #e2e8f0', fontSize: 7, fontWeight: 800, textTransform: 'uppercase', color: '#475569' }}>#</th>
-            <th style={{ padding: '3px 5px', background: '#f1f5f9', border: '1px solid #e2e8f0', fontSize: 7, fontWeight: 800, textTransform: 'uppercase', color: '#475569', textAlign: 'left' }}>{lang === 'ta' ? 'வகை' : 'Type'}</th>
-            <th style={{ width: 25, padding: '3px 5px', background: '#f1f5f9', border: '1px solid #e2e8f0', fontSize: 7, fontWeight: 800, textTransform: 'uppercase', color: '#475569', textAlign: 'center' }}>{lang === 'ta' ? 'தன்மை' : 'Nature'}</th>
-            <th style={{ padding: '3px 5px', background: '#f1f5f9', border: '1px solid #e2e8f0', fontSize: 7, fontWeight: 800, textTransform: 'uppercase', color: '#475569', textAlign: 'left' }}>{lang === 'ta' ? 'நேரம்' : 'Time'}</th>
+          <tr style={{ background: '#f8fafc' }}>
+            {['#', t ? 'வகை' : 'Type', t ? 'நேரம்' : 'Time'].map(h => (
+              <th key={h} style={{ padding: '4px 6px', fontSize: 7.5, fontWeight: 900, textTransform: 'uppercase', color: '#475569', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>{h}</th>
+            ))}
           </tr>
         </thead>
         <tbody>
           {items.map((g, i) => {
-            const isGood = g.type.nature === 'good';
+            const good = isGoodItem(g);
             return (
-              <tr key={g.index} style={{ background: i % 2 === 0 ? '#fff' : '#fafafa' }}>
-                <td style={{ padding: '3px 5px', border: '1px solid #e2e8f0', textAlign: 'center', fontWeight: 700, color: '#94a3b8' }}>{g.index}</td>
-                <td style={{ padding: '3px 5px', border: '1px solid #e2e8f0', fontWeight: 800, color: isGood ? '#059669' : '#dc2626' }}>
-                  {n(g.type, lang)}
+              <tr key={g.index} style={{ background: i % 2 === 0 ? '#fff' : '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
+                <td style={{ padding: '3px 6px', fontWeight: 700, color: '#94a3b8', width: 20 }}>{g.index}</td>
+                <td style={{ padding: '3px 6px', fontWeight: 800, color: good ? '#065f46' : '#991b1b' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: good ? '#059669' : '#dc2626', flexShrink: 0 }} />
+                    {n(g.type, lang)}
+                  </span>
                 </td>
-                <td style={{ padding: '3px 5px', border: '1px solid #e2e8f0', textAlign: 'center', fontWeight: 900, color: isGood ? '#059669' : '#dc2626', fontSize: 10 }}>
-                  {isGood ? '✓' : '✗'}
-                </td>
-                <td style={{ padding: '3px 5px', border: '1px solid #e2e8f0', fontFamily: 'monospace', fontSize: 8, color: '#64748b', whiteSpace: 'nowrap' }}>
-                  {g.startLabel} – {g.endLabel}
-                </td>
+                <td style={{ padding: '3px 6px', fontSize: 8, color: '#64748b', whiteSpace: 'nowrap' }}>{g.startLabel} – {g.endLabel}</td>
               </tr>
             );
           })}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+/* ── Main export ──────────────────────────────────────────────── */
+export function PrintView({ prediction, lang, locationName, showSubTable = true, branding }) {
+  if (!prediction) return null;
+
+  const t = lang === 'ta';
+  const sp = prediction.specialPeriods;
+  const horai = prediction.horai || [];
+  const gowri = prediction.gowri || [];
+  const dayHorai   = horai.filter(h => h.period === 'day');
+  const nightHorai = horai.filter(h => h.period === 'night');
+  const dayGowri   = gowri.filter(g => g.period === 'day');
+  const nightGowri = gowri.filter(g => g.period === 'night');
+
+  const dateStr = fmtDate(prediction.date, lang);
+
+  return (
+    <div id="print-view" style={{
+      visibility: 'hidden',
+      position: 'absolute',
+      top: 0, left: 0,
+      width: '210mm',
+      fontFamily: FONT,
+      color: '#0f172a',
+      background: '#fff',
+      fontSize: 8.5,
+      lineHeight: 1.35,
+    }}>
+      <style>{`
+        @media print {
+          @page { margin: 4mm; size: A4; }
+          body { margin: 0; padding: 0; }
+          #print-view { visibility: visible !important; position: static !important; width: 100% !important; }
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          .page-break { page-break-before: always; }
+          .no-break { page-break-inside: avoid; break-inside: avoid; }
+        }
+      `}</style>
+
+      {/* PAGE 1 — Header + special periods + day schedule */}
+      <PrintHeader branding={branding} lang={lang}
+        subtitle={t ? `தேதி: ${dateStr}` : `Date: ${dateStr}`}
+        right={locationName}
+      />
+
+      <SpecialBar sp={sp} t={t} />
+
+      <ScheduleBlock
+        title={t ? 'பகல் அட்டவணை' : 'Day Schedule'}
+        yamas={prediction.dayYamas} lang={lang}
+        horai={horai} gowri={gowri} sp={sp}
+        titleColor="#b45309" showSubTable={showSubTable}
+      />
+
+      {/* PAGE 2 — Night schedule */}
+      <div className="page-break" />
+      <PrintHeader branding={branding} lang={lang}
+        subtitle={t ? `தேதி: ${dateStr}` : `Date: ${dateStr}`}
+        right={locationName}
+      />
+
+      <ScheduleBlock
+        title={t ? 'இரவு அட்டவணை' : 'Night Schedule'}
+        yamas={prediction.nightYamas} lang={lang}
+        horai={horai} gowri={gowri} sp={sp}
+        titleColor="#4338ca" showSubTable={showSubTable}
+      />
+
+      {/* PAGE 3 — Horai + Gowri */}
+      <div className="page-break" />
+      <PrintHeader branding={branding} lang={lang}
+        subtitle={t ? `தேதி: ${dateStr}` : `Date: ${dateStr}`}
+        right={locationName}
+      />
+
+      <div style={{ marginBottom: 12 }}>
+        <SLabel color="#b45309">{t ? 'ஹோரை அட்டவணை' : 'Horai Schedule'}</SLabel>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <HoraiBlock title={t ? 'பகல் ஹோரை' : 'Day Horai'}   items={dayHorai}   lang={lang} color="#b45309" />
+          <HoraiBlock title={t ? 'இரவு ஹோரை' : 'Night Horai'} items={nightHorai} lang={lang} color="#4338ca" />
+        </div>
+      </div>
+
+      <div style={{ marginBottom: 12 }}>
+        <SLabel color="#065f46">{t ? 'கௌரி பஞ்சாங்கம்' : 'Gowri Panchangam'}</SLabel>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <GowriBlock title={t ? 'பகல் கௌரி' : 'Day Gowri'}   items={dayGowri}   lang={lang} color="#065f46" />
+          <GowriBlock title={t ? 'இரவு கௌரி' : 'Night Gowri'} items={nightGowri} lang={lang} color="#1e40af" />
+        </div>
+      </div>
+
+      <PrintFooter branding={branding} lang={lang} />
     </div>
   );
 }
