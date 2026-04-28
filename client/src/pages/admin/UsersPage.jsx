@@ -134,7 +134,7 @@ export function UsersPage() {
     }
   }
 
-  const T_HEAD = language === 'en' ? 'ஊழியர்கள் · User Management' : 'பயனர் மேலாண்மை';
+  const T_HEAD = language === 'en' ? 'User Management' : 'பயனர் மேலாண்மை';
   const T_TITLE = language === 'en' ? 'Users & Access' : 'பயனர்கள் மற்றும் அனுமதி';
   const T_NEW_U = language === 'en' ? 'Register New User' : 'புதிய பயனரை பதிவு செய்';
   const T_EDIT_U = language === 'en' ? 'Update User Access' : 'அனுமதியை மாற்றியமைக்கவும்';
