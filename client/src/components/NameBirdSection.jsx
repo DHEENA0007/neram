@@ -70,14 +70,14 @@ export function NameBirdSection({ onUpdateBird, lang }) {
       </div>
 
       {/* Row 1 — Your name */}
-      <div className="space-y-2">
-        <label className="text-[10px] sm:text-[12px] font-black text-slate-700 uppercase tracking-widest ml-1 block">
+      <div className="space-y-3">
+        <label className="text-[11px] sm:text-[12px] font-black text-slate-700 uppercase tracking-widest ml-1 block">
           {t.label1}
         </label>
         <div className="flex flex-col gap-3">
           <div className="relative w-full">
             <input
-              className="w-full px-4 py-3 pr-9 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-500/10 text-sm font-bold text-slate-900 placeholder:text-slate-400 transition-all"
+              className="w-full px-4 py-4 pr-10 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-500/10 text-sm font-bold text-slate-900 placeholder:text-slate-400 transition-all"
               value={name1}
               onChange={(e) => setName1(e.target.value)}
               placeholder={lang === 'ta' ? 'பெயர் உள்ளிடுக…' : 'Enter name…'}
@@ -86,16 +86,17 @@ export function NameBirdSection({ onUpdateBird, lang }) {
           </div>
 
           {bird1 ? (
-            <div className="flex items-center justify-between gap-2 bg-amber-50/50 p-2.5 rounded-xl border border-amber-100/50">
-              <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider">{t.yourBird}</span>
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-3 bg-amber-50/50 p-4 rounded-2xl border border-amber-100/50 sm:flex-row sm:items-center sm:justify-between sm:p-2 sm:px-4 sm:rounded-xl">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center sm:text-left">{t.yourBird}</span>
+              <div className="flex items-center gap-3">
                  <BirdChip bird={bird1} lang={lang} color="amber" />
                  <button
                    onClick={() => onUpdateBird(bird1.id)}
                    title={t.sync}
-                   className="w-9 h-9 bg-amber-400 hover:bg-amber-500 text-amber-950 rounded-lg flex items-center justify-center shrink-0 active:scale-90 transition-all shadow-sm"
+                   className="flex-1 sm:flex-none h-11 sm:h-9 sm:w-9 bg-amber-400 hover:bg-amber-500 text-amber-950 rounded-xl flex items-center justify-center shrink-0 active:scale-95 transition-all shadow-sm"
                  >
-                   <IconArrowRight size={14} className="-rotate-90" />
+                   <span className="sm:hidden text-[10px] font-black uppercase px-4">{t.sync}</span>
+                   <IconArrowRight size={14} className="sm:-rotate-90" />
                  </button>
               </div>
             </div>
@@ -111,14 +112,14 @@ export function NameBirdSection({ onUpdateBird, lang }) {
       <div className="h-px bg-slate-100" />
 
       {/* Row 2 — Other name */}
-      <div className="space-y-2">
-        <label className="text-[10px] sm:text-[12px] font-black text-slate-700 uppercase tracking-widest ml-1 block">
+      <div className="space-y-3">
+        <label className="text-[11px] sm:text-[12px] font-black text-slate-700 uppercase tracking-widest ml-1 block">
           {t.label2}
         </label>
         <div className="flex flex-col gap-3">
           <div className="relative w-full">
             <input
-              className="w-full px-4 py-3 pr-9 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 text-sm font-bold text-slate-900 placeholder:text-slate-400 transition-all"
+              className="w-full px-4 py-4 pr-10 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 text-sm font-bold text-slate-900 placeholder:text-slate-400 transition-all"
               value={name2}
               onChange={(e) => setName2(e.target.value)}
               placeholder={lang === 'ta' ? 'பெயர் உள்ளிடுக…' : 'Enter name…'}
@@ -127,8 +128,8 @@ export function NameBirdSection({ onUpdateBird, lang }) {
           </div>
 
           {bird2 ? (
-            <div className="flex items-center justify-between gap-2 bg-indigo-50/50 p-2.5 rounded-xl border border-indigo-100/50">
-              <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider">{t.otherBird}</span>
+            <div className="flex flex-col gap-3 bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100/50 sm:flex-row sm:items-center sm:justify-between sm:p-2 sm:px-4 sm:rounded-xl">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center sm:text-left">{t.otherBird}</span>
               <BirdChip bird={bird2} lang={lang} color="indigo" />
             </div>
           ) : (
@@ -149,9 +150,9 @@ function BirdChip({ bird, lang, color }) {
     indigo: 'bg-indigo-50 text-indigo-700 border-indigo-200',
   };
   return (
-    <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl border ${styles[color] || styles.amber}`}>
-      <Icon size={14} />
-      <span className="text-[11px] font-black tracking-tight">{lang === 'ta' ? bird.tamil : bird.label}</span>
+    <div className={`flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border ${styles[color] || styles.amber} w-full sm:w-auto`}>
+      <Icon size={16} />
+      <span className="text-xs font-black tracking-tight">{lang === 'ta' ? bird.tamil : bird.label}</span>
     </div>
   );
 }

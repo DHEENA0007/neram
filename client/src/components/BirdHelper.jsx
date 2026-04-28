@@ -28,14 +28,14 @@ const WEEKDAY_OPTS = weekdayOptions.map(w => ({ id: w.index, tamil: w.tamil, lab
 
 function BirdResult({ birdId, lang, onSelect }) {
   const bird = birdId != null ? birdOptions.find(b => b.id === Number(birdId)) : null;
-  if (!bird) return <span className="text-slate-300 text-[10px] w-10 text-center">—</span>;
+  if (!bird) return <span className="text-slate-300 text-[10px] w-12 text-center">—</span>;
   const Icon = BIRD_ICONS[bird.key];
   return (
     <button
       onClick={() => onSelect?.(bird.id)}
-      className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 text-amber-700 border border-amber-200/50 hover:border-amber-400 hover:shadow-sm active:scale-95 transition-all shrink-0 group/btn"
+      className="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 text-amber-700 border border-amber-200/50 hover:border-amber-400 hover:shadow-sm active:scale-95 transition-all w-full sm:w-auto shrink-0 group/btn"
     >
-      {Icon && <Icon size={14} className="group-hover/btn:scale-110 transition-transform" />}
+      {Icon && <Icon size={16} className="group-hover/btn:scale-110 transition-transform" />}
       <span className="text-xs font-black uppercase tracking-tight whitespace-nowrap">{lang === 'ta' ? bird.tamil : bird.label}</span>
     </button>
   );
@@ -71,9 +71,9 @@ function SectionHeader({ title, icon: Icon }) {
 
 function DataRow({ label, children }) {
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:p-2 rounded-2xl hover:bg-slate-50 transition-all border border-slate-50 sm:border-transparent">
-      <span className="text-[10px] sm:text-[12px] font-black text-slate-500 sm:text-slate-900 uppercase tracking-widest pl-1">{label}</span>
-      <div className="flex items-center gap-2 w-full sm:w-auto">
+    <div className="flex flex-col gap-2.5 p-3 rounded-2xl bg-white/50 border border-slate-100/50 sm:flex-row sm:items-center sm:justify-between sm:bg-transparent sm:border-transparent sm:hover:bg-slate-50 transition-all">
+      <span className="text-[10px] sm:text-[12px] font-black text-slate-400 sm:text-slate-900 uppercase tracking-widest pl-1">{label}</span>
+      <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto">
         {children}
       </div>
     </div>
