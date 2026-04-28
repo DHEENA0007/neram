@@ -8,7 +8,9 @@ import {
   LucideLock, LucideClock, LucideHistory, LucideX, LucideUser, LucideChevronRight,
   LucidePalette, LucideEye, LayoutTemplate as LucideLayoutTemplate,
   BarChart as LucideBarChart, TrendingUp as LucideTrendingUp, 
-  ExternalLink as LucideExternalLink, Filter as LucideFilter, Plus as LucidePlus
+  ExternalLink as LucideExternalLink, Filter as LucideFilter, Plus as LucidePlus,
+  ShieldCheck as LucideShieldCheck, Award as LucideAward, Globe as LucideGlobe,
+  FileText as LucideFileText, TrendingDown as LucideTrendingDown
 } from 'lucide-react';
 import { GiVulture, GiOwl, GiCrowDive, GiRooster, GiFeather } from "react-icons/gi";
 import { FaPhone, FaWhatsapp } from "react-icons/fa";
@@ -63,3 +65,8 @@ export function IconPlus({ size = 16, className }) { return <LucidePlus size={si
 export function IconPalette({ size = 16, className }) { return <LucidePalette size={size} className={className} />; }
 export function IconEye({ size = 16, className }) { return <LucideEye size={size} className={className} />; }
 export function IconLayout({ size = 16, className }) { return <LucideLayoutTemplate size={size} className={className} />; }
+export function IconShieldCheck({ size = 16, className }) { return <LucideShieldCheck size={size} className={className} />; }
+export function IconAward({ size = 16, className }) { return <LucideAward size={size} className={className} />; }
+export function IconGlobe({ size = 16, className }) { return <LucideGlobe size={size} className={className} />; }
+export function IconFileText({ size = 16, className }) { return <LucideFileText size={size} className={className} />; }
+export function IconTrendingDown({ size = 16, className }) { return <LucideTrendingDown size={size} className={className} />; }
