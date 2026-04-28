@@ -269,15 +269,14 @@ export function UserPortal() {
           <style>
             body { margin: 0; padding: 0; }
             @media print {
-              @page { margin: 1cm; size: auto; }
+              @page { margin: 0; size: A4; }
               * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             }
-            /* Add basic resets for the template */
             * { box-sizing: border-box; }
           </style>
         </head>
         <body>
-          <div style="width: 100%;">${htmlContent}</div>
+          <div style="width: 100%; display: block;">${htmlContent}</div>
           <script>
             window.onload = () => {
               window.print();

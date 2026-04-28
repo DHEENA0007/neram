@@ -130,8 +130,6 @@ export function PrintView({ prediction, lang, locationName, showSubTable = true,
           #print-view { padding: 0.8cm !important; width: 100%; box-sizing: border-box; }
           .jamam-section { page-break-inside: avoid; break-inside: avoid; margin-bottom: 20px; }
           .special-period-card { border-bottom: 2px solid currentColor; padding-bottom: 4px; }
-          /* Fix for empty first page */
-          div:first-child { page-break-before: avoid !important; }
         }
       `}</style>
       

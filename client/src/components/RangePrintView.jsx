@@ -491,8 +491,6 @@ export function RangePrintView({ rangeData, categories, lang, locationName, from
           @page { margin: 4mm; size: A4; }
           body { margin: 0; padding: 0; }
           #range-print-view { padding: 0.8cm !important; width: 100%; box-sizing: border-box; }
-          /* Fix for empty first page */
-          div:first-child { page-break-before: avoid !important; }
         }
       `}</style>
 
