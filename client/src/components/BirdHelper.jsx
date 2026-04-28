@@ -46,7 +46,7 @@ function CustomSel({ value, onChange, options, lang }) {
     <select
       value={value}
       onChange={e => onChange(Number(e.target.value))}
-      className="text-xs font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 outline-none focus:bg-white focus:border-amber-400 focus:ring-4 focus:ring-amber-500/5 transition-all w-36 cursor-pointer shadow-none"
+      className="text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded-xl px-3 py-2.5 outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-500/5 transition-all w-full sm:w-40 cursor-pointer shadow-none appearance-none"
     >
       {options.map(o => (
         <option key={o.id} value={o.id}>{lang === 'ta' ? o.tamil : o.label}</option>
@@ -57,23 +57,23 @@ function CustomSel({ value, onChange, options, lang }) {
 
 function SectionHeader({ title, icon: Icon }) {
   return (
-    <div className="flex items-center gap-3 mt-8 mb-3 px-1">
-      <div className="w-6 h-6 rounded-lg bg-amber-50 flex items-center justify-center text-amber-500 shadow-sm border border-amber-100">
-        <Icon size={12} />
+    <div className="flex items-center gap-3 mt-6 lg:mt-8 mb-4 px-1">
+      <div className="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center text-amber-500 shadow-none border border-amber-100/60">
+        <Icon size={14} />
       </div>
-      <h4 className="text-[13px] font-black uppercase tracking-[0.15em] text-slate-900">
+      <h4 className="text-[11px] sm:text-[13px] font-black uppercase tracking-[0.2em] text-slate-900 leading-none">
         {title}
       </h4>
-      <div className="flex-1 h-px bg-slate-100/80 ml-2" />
+      <div className="flex-1 h-px bg-slate-100/60 ml-2" />
     </div>
   );
 }
 
 function DataRow({ label, children }) {
   return (
-    <div className="group flex items-center justify-between gap-3 p-2 rounded-2xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100">
-      <span className="text-[12px] font-black text-slate-900 uppercase tracking-widest pl-2">{label}</span>
-      <div className="flex items-center gap-2">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:p-2 rounded-2xl hover:bg-slate-50 transition-all border border-slate-50 sm:border-transparent">
+      <span className="text-[10px] sm:text-[12px] font-black text-slate-500 sm:text-slate-900 uppercase tracking-widest pl-1">{label}</span>
+      <div className="flex items-center gap-2 w-full sm:w-auto">
         {children}
       </div>
     </div>
@@ -115,7 +115,7 @@ export function BirdHelper({ lang, onSelectBird }) {
         </div>
       </div>
 
-      <div className="p-4 sm:p-5 max-h-[700px] overflow-y-auto scrollbar-hide space-y-1">
+      <div className="p-3 sm:p-5 max-h-[750px] lg:max-h-[700px] overflow-y-auto scrollbar-hide space-y-2">
 
         <SectionHeader title={tl ? 'நட்சத்திர பட்சி' : 'Star Bird'} icon={IconStar} />
         <DataRow label={tl ? 'நட்சத்திரம்' : 'Star'}>

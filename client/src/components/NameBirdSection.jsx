@@ -62,7 +62,7 @@ export function NameBirdSection({ onUpdateBird, lang }) {
   }[lang];
 
   return (
-    <div className="glass-card p-6 border-none ring-1 ring-slate-100/80 bg-white/80 space-y-5">
+    <div className="glass-card p-4 sm:p-6 border-none ring-1 ring-slate-100/80 bg-white/80 space-y-4 sm:space-y-5">
       {/* Title */}
       <div className="flex items-center gap-3">
         <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
@@ -71,13 +71,13 @@ export function NameBirdSection({ onUpdateBird, lang }) {
 
       {/* Row 1 — Your name */}
       <div className="space-y-2">
-        <label className="text-[12px] font-black text-slate-700 uppercase tracking-widest ml-1 block">
+        <label className="text-[10px] sm:text-[12px] font-black text-slate-700 uppercase tracking-widest ml-1 block">
           {t.label1}
         </label>
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-          <div className="relative flex-1 w-full">
+        <div className="flex flex-col gap-3">
+          <div className="relative w-full">
             <input
-              className="w-full px-4 py-2.5 pr-9 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-500/10 text-[13px] font-bold text-slate-900 placeholder:text-slate-400 transition-all"
+              className="w-full px-4 py-3 pr-9 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-500/10 text-sm font-bold text-slate-900 placeholder:text-slate-400 transition-all"
               value={name1}
               onChange={(e) => setName1(e.target.value)}
               placeholder={lang === 'ta' ? 'பெயர் உள்ளிடுக…' : 'Enter name…'}
@@ -86,19 +86,23 @@ export function NameBirdSection({ onUpdateBird, lang }) {
           </div>
 
           {bird1 ? (
-            <div className="flex items-center gap-2 shrink-0 bg-amber-50/50 p-2 sm:p-0 rounded-xl sm:bg-transparent border border-amber-100/50 sm:border-none">
-              <span className="text-[10px] font-black text-slate-600 uppercase tracking-wider whitespace-nowrap">{t.yourBird}</span>
-              <BirdChip bird={bird1} lang={lang} color="amber" />
-              <button
-                onClick={() => onUpdateBird(bird1.id)}
-                title={t.sync}
-                className="w-8 h-8 sm:w-7 sm:h-7 bg-amber-400 hover:bg-amber-500 text-amber-950 rounded-lg flex items-center justify-center shrink-0 active:scale-90 transition-all shadow-md sm:shadow-none"
-              >
-                <IconArrowRight size={13} className="-rotate-90" />
-              </button>
+            <div className="flex items-center justify-between gap-2 bg-amber-50/50 p-2.5 rounded-xl border border-amber-100/50">
+              <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider">{t.yourBird}</span>
+              <div className="flex items-center gap-2">
+                 <BirdChip bird={bird1} lang={lang} color="amber" />
+                 <button
+                   onClick={() => onUpdateBird(bird1.id)}
+                   title={t.sync}
+                   className="w-9 h-9 bg-amber-400 hover:bg-amber-500 text-amber-950 rounded-lg flex items-center justify-center shrink-0 active:scale-90 transition-all shadow-sm"
+                 >
+                   <IconArrowRight size={14} className="-rotate-90" />
+                 </button>
+              </div>
             </div>
           ) : (
-            <span className="hidden sm:block text-[10px] font-black text-slate-400 uppercase tracking-wider shrink-0 whitespace-nowrap">{t.yourBird} —</span>
+            <div className="hidden sm:flex items-center gap-2">
+               <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider shrink-0 whitespace-nowrap">{t.yourBird} —</span>
+            </div>
           )}
         </div>
       </div>
@@ -108,13 +112,13 @@ export function NameBirdSection({ onUpdateBird, lang }) {
 
       {/* Row 2 — Other name */}
       <div className="space-y-2">
-        <label className="text-[12px] font-black text-slate-700 uppercase tracking-widest ml-1 block">
+        <label className="text-[10px] sm:text-[12px] font-black text-slate-700 uppercase tracking-widest ml-1 block">
           {t.label2}
         </label>
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-          <div className="relative flex-1 w-full">
+        <div className="flex flex-col gap-3">
+          <div className="relative w-full">
             <input
-              className="w-full px-4 py-2.5 pr-9 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 text-[13px] font-bold text-slate-900 placeholder:text-slate-400 transition-all"
+              className="w-full px-4 py-3 pr-9 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 text-sm font-bold text-slate-900 placeholder:text-slate-400 transition-all"
               value={name2}
               onChange={(e) => setName2(e.target.value)}
               placeholder={lang === 'ta' ? 'பெயர் உள்ளிடுக…' : 'Enter name…'}
@@ -123,12 +127,14 @@ export function NameBirdSection({ onUpdateBird, lang }) {
           </div>
 
           {bird2 ? (
-            <div className="flex items-center gap-2 shrink-0 bg-indigo-50/50 p-2 sm:p-0 rounded-xl sm:bg-transparent border border-indigo-100/50 sm:border-none">
-              <span className="text-[10px] font-black text-slate-600 uppercase tracking-wider whitespace-nowrap">{t.otherBird}</span>
+            <div className="flex items-center justify-between gap-2 bg-indigo-50/50 p-2.5 rounded-xl border border-indigo-100/50">
+              <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider">{t.otherBird}</span>
               <BirdChip bird={bird2} lang={lang} color="indigo" />
             </div>
           ) : (
-            <span className="hidden sm:block text-[10px] font-black text-slate-400 uppercase tracking-wider shrink-0 whitespace-nowrap">{t.otherBird} —</span>
+            <div className="hidden sm:flex items-center gap-2">
+               <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider shrink-0 whitespace-nowrap">{t.otherBird} —</span>
+            </div>
           )}
         </div>
       </div>

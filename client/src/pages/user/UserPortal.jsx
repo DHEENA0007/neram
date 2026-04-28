@@ -316,7 +316,7 @@ export function UserPortal() {
             <div className="relative group">
               <input
                 type="date"
-                className="input-field py-3.5 bg-slate-50/50 border-slate-200 group-hover:bg-white group-hover:border-amber-400 group-hover:ring-8 group-hover:ring-amber-500/5 transition-all text-base font-bold pl-4 pr-16"
+                className="input-field py-4 bg-slate-50/50 border-slate-200 group-hover:bg-white group-hover:border-amber-400 group-hover:ring-8 group-hover:ring-amber-500/5 transition-all text-sm font-bold pl-4 pr-16"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
               />
@@ -336,7 +336,7 @@ export function UserPortal() {
               <div className={`flex flex-col ${isSidebar ? 'gap-3' : 'sm:flex-row gap-3'}`}>
                 <input
                   type="text"
-                  className="input-field py-3.5 flex-1 bg-slate-50/50 border-slate-200 group-hover:bg-white group-hover:border-amber-400 group-hover:ring-8 group-hover:ring-amber-500/5 transition-all text-sm font-bold"
+                  className="input-field py-4 flex-1 bg-slate-50/50 border-slate-200 group-hover:bg-white group-hover:border-amber-400 group-hover:ring-8 group-hover:ring-amber-500/5 transition-all text-sm font-bold"
                   value={locationName}
                   onChange={(e) => {
                     setLocationName(e.target.value);
@@ -346,7 +346,7 @@ export function UserPortal() {
                   placeholder="City name..."
                 />
                 
-                <div className={`px-5 py-2.5 bg-slate-100 rounded-2xl border border-slate-100 flex items-center justify-between ${isSidebar ? 'w-full' : 'min-w-[220px]'}`}>
+                <div className={`px-4 sm:px-5 py-3 bg-slate-100 rounded-2xl border border-slate-100 flex items-center justify-between ${isSidebar ? 'w-full' : 'min-w-[220px]'}`}>
                   <div className="flex flex-col">
                     <span className="text-[9px] font-bold text-slate-600 uppercase tracking-tighter leading-none mb-1">Coordinates</span>
                     <span className="text-xs font-black text-indigo-500 tabular-nums">
@@ -427,25 +427,25 @@ export function UserPortal() {
 
           <div className={`${isSidebar ? '' : 'md:col-span-4'} flex flex-col gap-2.5`}>
             <label className="text-xs font-black text-slate-700 uppercase tracking-widest ml-1">{t.paksha_type}</label>
-            <div className="flex gap-1 p-1.5 bg-slate-100/50 rounded-2xl border border-slate-100 flex-1 min-h-[48px]">
+            <div className="flex flex-wrap sm:flex-nowrap gap-1 p-1 bg-slate-100/50 rounded-2xl border border-slate-100 flex-1 min-h-[48px]">
               <button 
                 type="button"
                 onClick={() => { setPaksha('bright'); setAutoPaksha(false); }}
-                className={`flex-1 py-3 flex items-center justify-center rounded-xl text-xs font-black uppercase tracking-widest transition-all ${paksha === 'bright' && !autoPaksha ? 'bg-amber-400 text-amber-950 shadow-md ring-1 ring-amber-500/10' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}`}
+                className={`flex-1 min-w-[80px] py-3.5 flex items-center justify-center rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${paksha === 'bright' && !autoPaksha ? 'bg-amber-400 text-amber-950 shadow-md transform scale-105' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}`}
               >
                 {lang === 'ta' ? 'வளர்பிறை' : 'Bright'}
               </button>
               <button 
                 type="button"
                 onClick={() => { setPaksha('dark'); setAutoPaksha(false); }}
-                className={`flex-1 py-3 flex items-center justify-center rounded-xl text-xs font-black uppercase tracking-widest transition-all ${paksha === 'dark' && !autoPaksha ? 'bg-amber-400 text-amber-950 shadow-md ring-1 ring-amber-500/10' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}`}
+                className={`flex-1 min-w-[80px] py-3.5 flex items-center justify-center rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${paksha === 'dark' && !autoPaksha ? 'bg-amber-400 text-amber-950 shadow-md transform scale-105' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}`}
               >
                 {lang === 'ta' ? 'தேய்பிறை' : 'Dark'}
               </button>
               <button 
                 type="button"
                 onClick={() => setAutoPaksha(true)}
-                className={`flex-1 py-3 flex items-center justify-center rounded-xl text-xs font-black uppercase tracking-widest transition-all ${autoPaksha ? 'bg-amber-400 text-amber-950 shadow-md ring-1 ring-amber-500/10' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}`}
+                className={`flex-1 min-w-[80px] py-3.5 flex items-center justify-center rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${autoPaksha ? 'bg-amber-400 text-amber-950 shadow-md transform scale-105' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}`}
               >
                 {t.auto}
               </button>
@@ -574,19 +574,19 @@ export function UserPortal() {
                     { 
                       label: lang === 'ta' ? 'இந்த நேரத்தின் ஹோரை' : 'Current Horai',
                       node: summary.currentHorai ? (
-                        <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100/50 text-amber-700 shadow-sm ring-1 ring-white">
+                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100/50 text-amber-700 shadow-sm ring-1 ring-white w-fit">
                           <IconSun size={14} className="animate-spin-slow" />
-                          <span className="text-xs font-black uppercase">
+                          <span className="text-[10px] sm:text-xs font-black uppercase">
                             {lang === 'ta' ? summary.currentHorai.planet.tamil : summary.currentHorai.planet.label}
                           </span>
                         </div>
                       ) : <span className="text-slate-300">—</span>
                     }
                   ].map((item, idx) => (
-                    <div key={idx} className={`glass-card shadow-card-sm p-3 sm:p-5 border-none ring-1 ring-slate-100/50 flex flex-col justify-center gap-1.5 sm:gap-2 hover:scale-[1.02] transition-all ${item.span || ''}`}>
-                        <span className="text-xs sm:text-base font-black uppercase tracking-wider sm:tracking-widest text-slate-800">{item.label}</span>
+                    <div key={idx} className={`glass-card shadow-card-sm p-4 sm:p-5 border-none ring-1 ring-slate-100/50 flex flex-col justify-center gap-2 sm:gap-2 hover:scale-[1.02] transition-all ${item.span || ''}`}>
+                        <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.15em] text-slate-400">{item.label}</span>
                         {item.node ? item.node : (
-                          <span className={`text-base font-black ${item.highlight || 'text-slate-800'} ${item.mono ? 'font-mono text-sm' : ''}`}>
+                          <span className={`text-sm sm:text-base font-black ${item.highlight || 'text-slate-800'} ${item.mono ? 'font-mono text-sm' : ''}`}>
                              {item.badge ? (
                                <span className={`px-3 py-1 rounded-lg text-xs uppercase font-black tracking-wider ${item.badge === 'emerald' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100/50' : 'bg-indigo-50 text-indigo-600 border border-indigo-100/50'}`}>
                                  {item.value}
