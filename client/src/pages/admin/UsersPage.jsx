@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { loadAdminUsers, createAdminUser, updateAdminUser, deleteAdminUser, approveDownloadRequest } from '../../api.js';
 import { useAuth } from '../../auth.jsx';
-import { 
-  IconUserPlus, IconCheck, IconX, IconClock, 
-  IconShield, IconCreditCard, IconHistory, IconTrash
+import {
+  IconUserPlus, IconCheck, IconX, IconClock,
+  IconShield, IconCreditCard, IconHistory, IconTrash, IconLock
 } from '../../components/Icons.jsx';
 
 function Field({ label, error, children, language }) {
@@ -101,6 +101,36 @@ export function UsersPage() {
       fetchUsers();
     } finally {
       setApprovingKey(null);
+    }
+  }
+
+  // ── Reset Password ──
+  const [resetTarget, setResetTarget] = useState(null); // { id, name }
+  const [resetPwd, setResetPwd]       = useState('');
+  const [resetSaving, setResetSaving] = useState(false);
+  const [resetError, setResetError]   = useState('');
+  const [resetDone, setResetDone]     = useState(false);
+
+  function openReset(u) {
+    setResetTarget(u);
+    setResetPwd('');
+    setResetError('');
+    setResetDone(false);
+  }
+
+  async function handleResetPassword(e) {
+    e.preventDefault();
+    if (resetPwd.length < 6) { setResetError('Minimum 6 characters'); return; }
+    setResetSaving(true);
+    setResetError('');
+    try {
+      await updateAdminUser(resetTarget.id, { password: resetPwd });
+      setResetDone(true);
+      setResetPwd('');
+    } catch (err) {
+      setResetError(err.message || 'Failed to reset password');
+    } finally {
+      setResetSaving(false);
     }
   }
 
@@ -211,9 +241,10 @@ export function UsersPage() {
                       </td>
                       <td className="px-5 py-3 text-right">
                          <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onClick={() => setViewingUsage(u)} className="p-1.5 hover:bg-slate-100 rounded text-slate-400 hover:text-slate-900"><IconHistory size={16}/></button>
-                            <button onClick={() => handleEdit(u)} className="p-1.5 hover:bg-slate-100 rounded text-slate-400 hover:text-amber-500"><IconShield size={16}/></button>
-                            <button onClick={() => handleDelete(u)} className={`p-1.5 rounded ${u.role === 'admin' ? 'opacity-10' : 'text-slate-400 hover:text-rose-500'}`}><IconTrash size={16}/></button>
+                            <button onClick={() => setViewingUsage(u)} className="p-1.5 hover:bg-slate-100 rounded text-slate-400 hover:text-slate-900" title="Usage history"><IconHistory size={16}/></button>
+                            <button onClick={() => openReset(u)} className="p-1.5 hover:bg-slate-100 rounded text-slate-400 hover:text-indigo-500" title="Reset password"><IconLock size={16}/></button>
+                            <button onClick={() => handleEdit(u)} className="p-1.5 hover:bg-slate-100 rounded text-slate-400 hover:text-amber-500" title="Edit user"><IconShield size={16}/></button>
+                            <button onClick={() => handleDelete(u)} className={`p-1.5 rounded ${u.role === 'admin' ? 'opacity-10' : 'text-slate-400 hover:text-rose-500'}`} title="Delete user"><IconTrash size={16}/></button>
                          </div>
                       </td>
                     </tr>
@@ -377,6 +408,54 @@ export function UsersPage() {
           </form>
         </div>
       </div>
+
+      {/* ── Reset Password Modal ── */}
+      {resetTarget && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setResetTarget(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-5" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-500">Reset Password</p>
+                <h3 className="text-base font-black text-slate-900 mt-0.5">{resetTarget.name}</h3>
+                <p className="text-[10px] text-slate-400">@{resetTarget.username}</p>
+              </div>
+              <button onClick={() => setResetTarget(null)} className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 text-sm font-black">✕</button>
+            </div>
+
+            {resetDone ? (
+              <div className="flex flex-col items-center gap-3 py-4">
+                <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center">
+                  <IconCheck size={24} className="text-emerald-600" />
+                </div>
+                <p className="text-sm font-bold text-emerald-700">Password reset successfully!</p>
+                <button onClick={() => setResetTarget(null)} className="w-full py-2.5 rounded-xl bg-slate-900 text-white text-xs font-bold uppercase tracking-wide">Close</button>
+              </div>
+            ) : (
+              <form onSubmit={handleResetPassword} className="space-y-4">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">New Password</label>
+                  <input
+                    type="password"
+                    autoFocus
+                    placeholder="Min. 6 characters"
+                    value={resetPwd}
+                    onChange={e => { setResetPwd(e.target.value); setResetError(''); }}
+                    className="text-input h-10 px-3 text-xs border-slate-200"
+                    required
+                  />
+                  {resetError && <p className="text-[9px] text-rose-500 font-medium ml-1">⚠ {resetError}</p>}
+                </div>
+                <div className="flex gap-3">
+                  <button type="button" onClick={() => setResetTarget(null)} className="flex-1 py-2.5 rounded-xl border-2 border-slate-200 text-slate-500 text-xs font-bold uppercase hover:bg-slate-50">Cancel</button>
+                  <button type="submit" disabled={resetSaving} className="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold uppercase disabled:opacity-40 transition-all">
+                    {resetSaving ? 'Saving…' : 'Reset Password'}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
