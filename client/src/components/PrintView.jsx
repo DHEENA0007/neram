@@ -71,6 +71,37 @@ function getSookshima(subRows, idx, parentStart, parentEnd) {
   });
 }
 
+/* ── Watermark ────────────────────────────────────────────────── */
+function WatermarkOverlay() {
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0, left: 0,
+      width: '100%', height: '100%',
+      pointerEvents: 'none',
+      zIndex: 9999,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      overflow: 'hidden',
+    }}>
+      <div style={{
+        transform: 'rotate(-45deg)',
+        whiteSpace: 'nowrap',
+        fontSize: 72,
+        fontWeight: 900,
+        color: 'rgba(15, 23, 42, 0.07)',
+        letterSpacing: '0.08em',
+        textTransform: 'uppercase',
+        fontFamily: FONT,
+        userSelect: 'none',
+      }}>
+        Sivagayan Astro
+      </div>
+    </div>
+  );
+}
+
 /* ── Shared header / footer ────────────────────────────────────── */
 function PrintHeader({ branding, lang, subtitle, right }) {
   const t = lang === 'ta';
@@ -397,7 +428,7 @@ function GowriBlock({ title, items, lang, color }) {
 }
 
 /* ── Main export ──────────────────────────────────────────────── */
-export function PrintView({ prediction, lang, locationName, showSubTable = true, branding }) {
+export function PrintView({ prediction, lang, locationName, showSubTable = true, branding, showWatermark = true }) {
   if (!prediction) return null;
 
   const t = lang === 'ta';
@@ -433,6 +464,8 @@ export function PrintView({ prediction, lang, locationName, showSubTable = true,
           .no-break { page-break-inside: avoid; break-inside: avoid; }
         }
       `}</style>
+
+      {showWatermark && <WatermarkOverlay />}
 
       {/* PAGE 1 — Header + special periods + day schedule */}
       <PrintHeader branding={branding} lang={lang}

@@ -28,6 +28,7 @@ export function UsersPage() {
   
   const [form, setForm] = useState({
     username: '', name: '', password: '', role: 'user', userType: 'demo', active: true,
+    watermarkEnabled: true,
     demoConfig: { ...DEFAULT_DEMO_CONFIG },
     subscriptionConfig: { ...DEFAULT_SUB_CONFIG },
     downloadPermissions: {
@@ -53,6 +54,7 @@ export function UsersPage() {
     setMode('edit');
     setForm({
       id: u.id, username: u.username, name: u.name, password: '', role: u.role || 'user', userType: u.userType || 'demo', active: u.active !== false,
+      watermarkEnabled: u.watermarkEnabled !== false,
       demoConfig: u.demoConfig || { ...DEFAULT_DEMO_CONFIG },
       subscriptionConfig: u.subscriptionConfig || { ...DEFAULT_SUB_CONFIG },
       branding: u.branding || { customEnabled: false, requestStatus: 'none' },
@@ -73,6 +75,7 @@ export function UsersPage() {
       setMode('create');
       setForm({
         username: '', name: '', password: '', role: 'user', userType: 'demo', active: true,
+        watermarkEnabled: true,
         demoConfig: { ...DEFAULT_DEMO_CONFIG },
         subscriptionConfig: { ...DEFAULT_SUB_CONFIG }
       });
@@ -152,6 +155,21 @@ export function UsersPage() {
             <div className="grid grid-cols-2 gap-2">
               <button type="button" onClick={() => setForm(f => ({ ...f, userType: 'demo' }))} className={`py-2 px-4 rounded-lg text-[10px] font-bold uppercase border transition-all ${form.userType === 'demo' ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-400 border-slate-100'}`}>Trial</button>
               <button type="button" onClick={() => setForm(f => ({ ...f, userType: 'subscribed' }))} className={`py-2 px-4 rounded-lg text-[10px] font-bold uppercase border transition-all ${form.userType === 'subscribed' ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-400 border-slate-100'}`}>Paid</button>
+            </div>
+
+            {/* Watermark toggle */}
+            <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100">
+              <div>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-700">PDF Watermark</div>
+                <div className="text-[9px] text-slate-400 mt-0.5">Sivagayan Astro watermark on downloads</div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setForm(f => ({ ...f, watermarkEnabled: !f.watermarkEnabled }))}
+                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${form.watermarkEnabled ? 'bg-amber-500' : 'bg-slate-200'}`}
+              >
+                <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${form.watermarkEnabled ? 'translate-x-4' : 'translate-x-0.5'}`} />
+              </button>
             </div>
 
             <button type="submit" disabled={saving} className="w-full py-3 bg-amber-500 text-white text-[10px] font-bold uppercase rounded-lg shadow-sm hover:bg-amber-600 transition-all">

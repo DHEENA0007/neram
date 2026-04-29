@@ -74,6 +74,37 @@ function getSookshima(subRows, idx, parentStart, parentEnd) {
   });
 }
 
+/* ── Watermark ────────────────────────────────────────────────── */
+function WatermarkOverlay() {
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0, left: 0,
+      width: '100%', height: '100%',
+      pointerEvents: 'none',
+      zIndex: 9999,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      overflow: 'hidden',
+    }}>
+      <div style={{
+        transform: 'rotate(-45deg)',
+        whiteSpace: 'nowrap',
+        fontSize: 72,
+        fontWeight: 900,
+        color: 'rgba(15, 23, 42, 0.07)',
+        letterSpacing: '0.08em',
+        textTransform: 'uppercase',
+        fontFamily: FONT,
+        userSelect: 'none',
+      }}>
+        Sivagayan Astro
+      </div>
+    </div>
+  );
+}
+
 /* ── Shared header / footer ────────────────────────────────────── */
 function PrintHeader({ branding, lang, subtitle, right }) {
   const t = lang === 'ta';
@@ -408,7 +439,7 @@ function ScheduleSection({ days, lang, showSubTable }) {
 }
 
 /* ── Main export ──────────────────────────────────────────────── */
-export function RangePrintView({ rangeData, categories, lang, locationName, fromDate, toDate, showSubTable = true, branding }) {
+export function RangePrintView({ rangeData, categories, lang, locationName, fromDate, toDate, showSubTable = true, branding, showWatermark = true }) {
   if (!rangeData?.days?.length) return null;
 
   const tl = lang === 'ta';
@@ -438,6 +469,8 @@ export function RangePrintView({ rangeData, categories, lang, locationName, from
           .page-break { page-break-before: always; }
         }
       `}</style>
+
+      {showWatermark && <WatermarkOverlay />}
 
       <PrintHeader branding={branding} lang={lang}
         subtitle={tl ? `பஞ்சபட்சி அட்டவணை — ${rangeLabel}` : `Pancha Pakshi Schedule — ${rangeLabel}`}

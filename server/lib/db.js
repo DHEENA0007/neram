@@ -192,6 +192,7 @@ export async function createUser({
       socialMedia: [],
       address: '',
     },
+    watermarkEnabled: true,
     downloadPermissions: {
       neram: { allowed: false, limit: 0, used: 0, requestStatus: 'none' },
       nalaneram: { allowed: false, limit: 0, used: 0, requestStatus: 'none' },
@@ -230,6 +231,7 @@ export async function updateUser(id, patch) {
   if (typeof patch.role === 'string') user.role = patch.role;
   if (typeof patch.userType === 'string') user.userType = patch.userType;
   if (typeof patch.active === 'boolean') user.active = patch.active;
+  if (typeof patch.watermarkEnabled === 'boolean') user.watermarkEnabled = patch.watermarkEnabled;
   if (Object.prototype.hasOwnProperty.call(patch, 'defaultPlace')) user.defaultPlace = patch.defaultPlace;
   if (patch.demoConfig) user.demoConfig = { ...(user.demoConfig || {}), ...patch.demoConfig };
   if (patch.subscriptionConfig) user.subscriptionConfig = { ...(user.subscriptionConfig || {}), ...patch.subscriptionConfig };

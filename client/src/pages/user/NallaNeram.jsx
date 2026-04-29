@@ -366,12 +366,13 @@ export function NallaNeram() {
                 </button>
               </div>
 
-              <NallaNeramPrintView 
-                nallaSlots={nallaSlots} 
-                avoidPeriods={avoidPeriods} 
-                lang={lang} 
-                date={date} 
-                branding={branding} 
+              <NallaNeramPrintView
+                nallaSlots={nallaSlots}
+                avoidPeriods={avoidPeriods}
+                lang={lang}
+                date={date}
+                branding={branding}
+                showWatermark={user?.watermarkEnabled !== false}
               />
 
               {nallaSlots.length === 0 && (

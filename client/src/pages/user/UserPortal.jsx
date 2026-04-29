@@ -528,7 +528,7 @@ export function UserPortal() {
               </div>
 
               {/* PRINT VIEWS (hidden on screen) */}
-              <PrintView prediction={prediction} lang={lang} locationName={locationName} showSubTable={printSubTable} branding={branding} />
+              <PrintView prediction={prediction} lang={lang} locationName={locationName} showSubTable={printSubTable} branding={branding} showWatermark={user?.watermarkEnabled !== false} />
               <RangePrintView
                 rangeData={rangeData}
                 categories={rangeCategories}
@@ -537,6 +537,7 @@ export function UserPortal() {
                 fromDate={rangeDates.from}
                 toDate={rangeDates.to}
                 branding={branding}
+                showWatermark={user?.watermarkEnabled !== false}
               />
 
               {/* PRINT BUTTON */}
