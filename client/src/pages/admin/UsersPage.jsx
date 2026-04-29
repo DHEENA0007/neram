@@ -145,19 +145,132 @@ export function UsersPage() {
           <h2 className="text-lg font-bold text-slate-900 mb-6">{mode === 'create' ? 'Add User' : 'Edit User'}</h2>
 
           <form onSubmit={handleSubmit} className="space-y-4 flex-1 overflow-y-auto pr-1">
+            {/* ── Basic Info ── */}
             <Field label="Username" error={errors.username}>
               <input className="text-input h-10 px-3 text-xs border-slate-200" value={form.username} onChange={e => setForm({...form, username: e.target.value})} required />
             </Field>
             <Field label="Name">
               <input className="text-input h-10 px-3 text-xs border-slate-200" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required />
             </Field>
+            <Field label={mode === 'edit' ? 'Password (leave blank to keep)' : 'Password'}>
+              <input type="password" className="text-input h-10 px-3 text-xs border-slate-200" value={form.password} onChange={e => setForm({...form, password: e.target.value})} required={mode === 'create'} />
+            </Field>
 
-            <div className="grid grid-cols-2 gap-2">
-              <button type="button" onClick={() => setForm(f => ({ ...f, userType: 'demo' }))} className={`py-2 px-4 rounded-lg text-[10px] font-bold uppercase border transition-all ${form.userType === 'demo' ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-400 border-slate-100'}`}>Trial</button>
-              <button type="button" onClick={() => setForm(f => ({ ...f, userType: 'subscribed' }))} className={`py-2 px-4 rounded-lg text-[10px] font-bold uppercase border transition-all ${form.userType === 'subscribed' ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-400 border-slate-100'}`}>Paid</button>
+            {/* ── User Type ── */}
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">User Type</p>
+              <div className="grid grid-cols-2 gap-2">
+                <button type="button" onClick={() => setForm(f => ({ ...f, userType: 'demo' }))} className={`py-2 px-4 rounded-lg text-[10px] font-bold uppercase border transition-all ${form.userType === 'demo' ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-400 border-slate-100'}`}>Trial</button>
+                <button type="button" onClick={() => setForm(f => ({ ...f, userType: 'subscribed' }))} className={`py-2 px-4 rounded-lg text-[10px] font-bold uppercase border transition-all ${form.userType === 'subscribed' ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-400 border-slate-100'}`}>Paid</button>
+              </div>
             </div>
 
-            {/* Watermark toggle */}
+            {/* ── Trial Config ── */}
+            {form.userType === 'demo' && (
+              <div className="p-3 bg-amber-50 border border-amber-100 rounded-lg space-y-3">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-amber-700">Trial Settings</p>
+                <Field label="Trial End Date">
+                  <input type="date" className="text-input h-9 px-3 text-xs border-slate-200" value={form.demoConfig?.trialEndDate || ''} onChange={e => setForm(f => ({ ...f, demoConfig: { ...f.demoConfig, trialEndDate: e.target.value } }))} />
+                </Field>
+                <div className="grid grid-cols-2 gap-2">
+                  <Field label="Max Generations">
+                    <input type="number" min={0} className="text-input h-9 px-3 text-xs border-slate-200" value={form.demoConfig?.maxGenerations ?? 5} onChange={e => setForm(f => ({ ...f, demoConfig: { ...f.demoConfig, maxGenerations: Number(e.target.value) } }))} />
+                  </Field>
+                  <Field label="Max Nalla Neram">
+                    <input type="number" min={0} className="text-input h-9 px-3 text-xs border-slate-200" value={form.demoConfig?.maxNallaNeram ?? 10} onChange={e => setForm(f => ({ ...f, demoConfig: { ...f.demoConfig, maxNallaNeram: Number(e.target.value) } }))} />
+                  </Field>
+                </div>
+                <Field label="Max Downloads">
+                  <input type="number" min={0} className="text-input h-9 px-3 text-xs border-slate-200" value={form.demoConfig?.maxDownloads ?? 0} onChange={e => setForm(f => ({ ...f, demoConfig: { ...f.demoConfig, maxDownloads: Number(e.target.value) } }))} />
+                </Field>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Features</p>
+                  <div className="space-y-1.5">
+                    {[
+                      { key: 'panchaPakshi', label: 'Pancha Pakshi' },
+                      { key: 'nallaNeram',   label: 'Nalla Neram' },
+                      { key: 'download',     label: 'Download / PDF' },
+                    ].map(f => {
+                      const on = (form.demoConfig?.features || []).includes(f.key);
+                      return (
+                        <label key={f.key} className="flex items-center gap-2 cursor-pointer">
+                          <input type="checkbox" checked={on} onChange={() => setForm(fm => {
+                            const feats = fm.demoConfig?.features || [];
+                            return { ...fm, demoConfig: { ...fm.demoConfig, features: on ? feats.filter(x => x !== f.key) : [...feats, f.key] } };
+                          })} className="w-3.5 h-3.5 accent-amber-500" />
+                          <span className="text-[11px] font-medium text-slate-700">{f.label}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── Subscription Config ── */}
+            {form.userType === 'subscribed' && (
+              <div className="p-3 bg-emerald-50 border border-emerald-100 rounded-lg space-y-3">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Subscription Settings</p>
+                <Field label="Subscription End Date">
+                  <input type="date" className="text-input h-9 px-3 text-xs border-slate-200" value={form.subscriptionConfig?.endDate || ''} onChange={e => setForm(f => ({ ...f, subscriptionConfig: { ...f.subscriptionConfig, endDate: e.target.value } }))} />
+                </Field>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Features</p>
+                  <div className="space-y-1.5">
+                    {[
+                      { key: 'panchaPakshi', label: 'Pancha Pakshi' },
+                      { key: 'nallaNeram',   label: 'Nalla Neram' },
+                      { key: 'download',     label: 'Download / PDF' },
+                    ].map(f => {
+                      const on = (form.subscriptionConfig?.features || []).includes(f.key);
+                      return (
+                        <label key={f.key} className="flex items-center gap-2 cursor-pointer">
+                          <input type="checkbox" checked={on} onChange={() => setForm(fm => {
+                            const feats = fm.subscriptionConfig?.features || [];
+                            return { ...fm, subscriptionConfig: { ...fm.subscriptionConfig, features: on ? feats.filter(x => x !== f.key) : [...feats, f.key] } };
+                          })} className="w-3.5 h-3.5 accent-emerald-500" />
+                          <span className="text-[11px] font-medium text-slate-700">{f.label}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── Download Permissions ── */}
+            <div className="p-3 bg-slate-50 border border-slate-100 rounded-lg space-y-3">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Download Permissions</p>
+              {[
+                { key: 'neram',     label: 'Pancha Pakshi PDF' },
+                { key: 'nalaneram', label: 'Nalla Neram PDF' },
+              ].map(({ key, label }) => {
+                const dp = form.downloadPermissions?.[key] || { allowed: false, limit: 0 };
+                return (
+                  <div key={key} className="space-y-1.5">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" checked={dp.allowed} onChange={() => setForm(f => ({
+                        ...f,
+                        downloadPermissions: { ...f.downloadPermissions, [key]: { ...dp, allowed: !dp.allowed } }
+                      }))} className="w-3.5 h-3.5 accent-slate-700" />
+                      <span className="text-[11px] font-bold text-slate-700">{label}</span>
+                    </label>
+                    {dp.allowed && (
+                      <div className="ml-5">
+                        <Field label="Download Limit (0 = unlimited)">
+                          <input type="number" min={0} className="text-input h-8 px-3 text-xs border-slate-200" value={dp.limit ?? 0} onChange={e => setForm(f => ({
+                            ...f,
+                            downloadPermissions: { ...f.downloadPermissions, [key]: { ...dp, limit: Number(e.target.value) } }
+                          }))} />
+                        </Field>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* ── Watermark toggle ── */}
             <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100">
               <div>
                 <div className="text-[10px] font-bold uppercase tracking-wider text-slate-700">PDF Watermark</div>
@@ -175,7 +288,7 @@ export function UsersPage() {
             <button type="submit" disabled={saving} className="w-full py-3 bg-amber-500 text-white text-[10px] font-bold uppercase rounded-lg shadow-sm hover:bg-amber-600 transition-all">
               {saving ? '...' : mode === 'create' ? 'Create User' : 'Save Changes'}
             </button>
-            
+
             {errors.server && <p className="p-2 bg-rose-50 text-rose-500 text-[9px] font-bold rounded">⚠ {errors.server}</p>}
           </form>
         </div>
