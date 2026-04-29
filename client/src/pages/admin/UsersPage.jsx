@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { loadAdminUsers, createAdminUser, updateAdminUser, deleteAdminUser } from '../../api.js';
+import { loadAdminUsers, createAdminUser, updateAdminUser, deleteAdminUser, approveDownloadRequest } from '../../api.js';
 import { useAuth } from '../../auth.jsx';
 import { 
   IconUserPlus, IconCheck, IconX, IconClock, 
@@ -92,6 +92,29 @@ export function UsersPage() {
     }
   };
 
+  const [approvingKey, setApprovingKey] = useState(null);
+
+  async function handleApprove(userId, service, approve) {
+    setApprovingKey(`${userId}-${service}`);
+    try {
+      await approveDownloadRequest(userId, service, approve);
+      fetchUsers();
+    } finally {
+      setApprovingKey(null);
+    }
+  }
+
+  // Collect all pending download requests across all users
+  const pendingRequests = users.flatMap(u =>
+    ['neram', 'nalaneram'].flatMap(svc => {
+      const dp = u.downloadPermissions?.[svc];
+      if (dp?.requestStatus === 'pending') {
+        return [{ user: u, service: svc }];
+      }
+      return [];
+    })
+  );
+
   return (
     <div className="admin-page space-y-4 pb-16">
       <div className="flex flex-col gap-1">
@@ -100,7 +123,59 @@ export function UsersPage() {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-4 items-start h-[calc(100vh-160px)]">
-        <div className="flex-1 w-full min-w-0 bg-white border border-slate-100 rounded-xl overflow-hidden flex flex-col shadow-sm">
+        <div className="flex-1 w-full min-w-0 flex flex-col gap-4 h-full overflow-hidden">
+
+          {/* ── Pending Download Requests ── */}
+          {pendingRequests.length > 0 && (
+            <div className="bg-white border border-amber-100 rounded-xl shadow-sm overflow-hidden shrink-0">
+              <div className="flex items-center gap-2 px-5 py-3 border-b border-amber-50 bg-amber-50/60">
+                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                <p className="text-[10px] font-bold uppercase tracking-wider text-amber-700">
+                  Pending PDF Download Requests
+                </p>
+                <span className="ml-auto px-2 py-0.5 rounded-full bg-amber-500 text-white text-[9px] font-bold">
+                  {pendingRequests.length}
+                </span>
+              </div>
+              <div className="divide-y divide-slate-50">
+                {pendingRequests.map(({ user: u, service }) => {
+                  const label = service === 'nalaneram' ? 'Nalla Neram PDF' : 'Pancha Pakshi PDF';
+                  const key = `${u.id}-${service}`;
+                  const busy = approvingKey === key;
+                  return (
+                    <div key={key} className="flex items-center gap-3 px-5 py-3">
+                      <div className="w-7 h-7 rounded bg-slate-50 border border-slate-100 flex items-center justify-center font-bold text-slate-500 text-[10px] shrink-0">
+                        {u.name[0]}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-slate-900 truncate">{u.name}</p>
+                        <p className="text-[9px] text-slate-400">@{u.username} · <span className="text-amber-600 font-semibold">{label}</span></p>
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <button
+                          disabled={busy}
+                          onClick={() => handleApprove(u.id, service, true)}
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-bold uppercase disabled:opacity-40 transition-all"
+                        >
+                          <IconCheck size={12} /> Approve
+                        </button>
+                        <button
+                          disabled={busy}
+                          onClick={() => handleApprove(u.id, service, false)}
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-600 text-[10px] font-bold uppercase disabled:opacity-40 transition-all"
+                        >
+                          <IconX size={12} /> Deny
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* ── Users Table ── */}
+          <div className="flex-1 bg-white border border-slate-100 rounded-xl overflow-hidden flex flex-col shadow-sm min-h-0">
            <div className="flex-1 overflow-y-auto">
               <table className="w-full text-left border-collapse">
                 <thead className="sticky top-0 bg-white z-10 border-b border-slate-50">
@@ -111,11 +186,18 @@ export function UsersPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
-                  {users.map(u => (
+                  {users.map(u => {
+                    const hasPending = ['neram', 'nalaneram'].some(
+                      s => u.downloadPermissions?.[s]?.requestStatus === 'pending'
+                    );
+                    return (
                     <tr key={u.id} className="hover:bg-slate-50/50 group">
                       <td className="px-5 py-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded bg-slate-50 border border-slate-100 flex items-center justify-center font-bold text-slate-500 text-[10px]">{u.name[0]}</div>
+                          <div className="w-8 h-8 rounded bg-slate-50 border border-slate-100 flex items-center justify-center font-bold text-slate-500 text-[10px] relative">
+                            {u.name[0]}
+                            {hasPending && <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-amber-500 border-2 border-white" />}
+                          </div>
                           <div className="flex flex-col">
                             <span className="text-xs font-bold text-slate-900">{u.name}</span>
                             <span className="text-[9px] font-medium text-slate-400">@{u.username}</span>
@@ -135,10 +217,12 @@ export function UsersPage() {
                          </div>
                       </td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
            </div>
+          </div>
         </div>
 
         <div className="w-full lg:w-[350px] shrink-0 bg-white border border-slate-100 rounded-xl p-6 flex flex-col h-full overflow-hidden shadow-sm">

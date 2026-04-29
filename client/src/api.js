@@ -167,3 +167,11 @@ export function requestDownloadAccess(service) {
 export function recordDownload(service) {
   return apiFetch('/api/users/record-download', { method: 'POST', body: JSON.stringify({ service }) });
 }
+
+// ── Admin: Approve / Deny download request ────────
+export function approveDownloadRequest(userId, service, approve) {
+  return apiFetch(`/api/admin/users/${userId}/download-request`, {
+    method: 'POST',
+    body: JSON.stringify({ service, approve }),
+  });
+}

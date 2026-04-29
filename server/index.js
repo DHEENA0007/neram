@@ -467,6 +467,31 @@ app.delete(
   }),
 );
 
+app.post(
+  '/api/admin/users/:id/download-request',
+  requireUser,
+  requireRole('admin'),
+  asyncRoute(async (req, res) => {
+    const { service, approve } = req.body || {};
+    const serviceKey = service === 'nalaneram' ? 'nalaneram' : 'neram';
+    const user = await findUserById(req.params.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const existing = user.downloadPermissions?.[serviceKey] || { allowed: false, limit: 0, used: 0, requestStatus: 'none' };
+    const updated = await updateUser(req.params.id, {
+      downloadPermissions: {
+        ...(user.downloadPermissions || {}),
+        [serviceKey]: {
+          ...existing,
+          allowed: approve ? true : existing.allowed,
+          requestStatus: approve ? 'approved' : 'denied',
+        },
+      },
+    });
+    return res.json({ user: updated });
+  }),
+);
+
 // ── Settings ─────────────────────────────────────
 app.get('/api/admin/settings', requireUser, requireRole('admin'), asyncRoute(async (req, res) => {
   const settings = await getSettings();
